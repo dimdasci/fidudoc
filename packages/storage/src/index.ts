@@ -1,4 +1,5 @@
 import express from "express";
+import { deduplicateRequests } from "./middleware/deduplication.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
 
 const app = express();
@@ -6,11 +7,18 @@ const app = express();
 // JSON parsing middleware
 app.use(express.json());
 
+// Deduplication middleware (must be before routes)
+app.use(deduplicateRequests);
+
 // Simple logging middleware
 app.use(loggingMiddleware);
 
 app.use("/health", (_req, res) => {
   res.send("OK");
+});
+
+app.use("/test", (_req, res) => {
+  res.json({ message: "Test endpoint is working!" });
 });
 
 const startServer = async () => {

@@ -18,21 +18,11 @@ export const loggingMiddleware = (
     params: req.params,
   });
 
-  // Capture the original res.send and res.json to intercept response
+  // Capture the original res.send to intercept response
+  // Note: res.json() calls res.send() internally, so we only need to intercept send
   const originalSend = res.send.bind(res);
-  const originalJson = res.json.bind(res);
 
-  res.send = (data: unknown) => {
-    logResponse(data);
-    return originalSend(data);
-  };
-
-  res.json = (data: unknown) => {
-    logResponse(data);
-    return originalJson(data);
-  };
-
-  const logResponse = (data: unknown) => {
+  res.send = function (this: Response, data: unknown) {
     const duration = Date.now() - startTime;
     console.log("<- Outgoing Response:", {
       timestamp: new Date().toISOString(),
@@ -42,6 +32,7 @@ export const loggingMiddleware = (
       duration: `${duration}ms`,
       responseBody: data,
     });
+    return originalSend(data);
   };
 
   next();
