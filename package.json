@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "trigger:dev": "dlx trigger.dev@latest dev",
     "build": "pnpm -r build",
     "dev": "pnpm --filter @fidudoc/app dev",
     "lint": "biome lint .",
@@ -24,9 +25,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.6",
+    "@trigger.dev/build": "4.0.4",
     "@types/node": "^24.9.1",
     "dotenv-cli": "^10.0.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@trigger.dev/sdk": "4.0.4"
   }
 }
