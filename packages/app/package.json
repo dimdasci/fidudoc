@@ -1,0 +1,21 @@
+{
+  "name": "@fidudoc/app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web application",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "dprint fmt",
+    "format:check": "dprint check",
+    "check": "pnpm lint && pnpm format:check",
+    "check:fix": "pnpm lint:fix && pnpm format"
+  },
+  "keywords": [],
+  "author": "Dim Kharitonov <dimds@fastmail.com>",
+  "license": "Copyright",
+  "packageManager": "pnpm@10.13.1"
+}
