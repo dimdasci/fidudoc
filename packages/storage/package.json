@@ -4,7 +4,7 @@
   "private": true,
   "description": "Storage Component",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "biome lint .",
@@ -12,16 +12,24 @@
     "format": "dprint fmt",
     "format:check": "dprint check",
     "check": "pnpm lint && pnpm format:check",
-    "check:fix": "pnpm lint:fix && pnpm format"
+    "check:fix": "pnpm lint:fix && pnpm format",
+    "build": "tsc && tsup --no-dts",
+    "start": "NODE_OPTIONS='--import ./instruments.mjs' node dist/index.js",
+    "dev": "NODE_OPTIONS='--import ./instruments.mjs' tsx --watch src/index.ts"
   },
   "keywords": [],
   "author": "Dim Kharitonov <dimds@fastmail.com>",
   "license": "Copyright",
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
+    "@effect/language-service": "^0.46.0",
+    "@sentry/node": "^10.20.0",
+    "effect": "^3.18.4",
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3"
+    "@effect/vitest": "^0.26.0",
+    "@types/express": "^5.0.3",
+    "vitest": "^3.2.4"
   }
 }
