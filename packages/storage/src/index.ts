@@ -1,6 +1,13 @@
 import express from "express";
+import { loggingMiddleware } from "./middleware/logging.ts";
 
 const app = express();
+
+// JSON parsing middleware
+app.use(express.json());
+
+// Simple logging middleware
+app.use(loggingMiddleware);
 
 app.use("/health", (_req, res) => {
   res.send("OK");

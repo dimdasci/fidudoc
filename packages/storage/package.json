@@ -7,12 +7,13 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "dprint fmt",
     "format:check": "dprint check",
-    "check": "pnpm lint && pnpm format:check",
-    "check:fix": "pnpm lint:fix && pnpm format",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check",
+    "check:fix": "pnpm typecheck && pnpm lint:fix && pnpm format",
     "build": "tsc && tsup --no-dts",
     "start": "NODE_OPTIONS='--import ./instruments.mjs' node dist/index.js",
     "dev": "NODE_OPTIONS='--import ./instruments.mjs' tsx --watch src/index.ts"
