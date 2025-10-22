@@ -1,0 +1,29 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Fidudoc\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: fr\n"
+
+msgid "msg.app.title"
+msgstr "Opérations Fiduciaires"
+
+msgid "msg.panel.navigation"
+msgstr "Navigation"
+
+msgid "msg.panel.details"
+msgstr "Détails"
+
+msgid "msg.status.connected"
+msgstr "État: Connecté"
+
+msgid "msg.inbox"
+msgstr "Boîte de réception"
+
+msgid "msg.inbox.description"
+msgstr "L'interface de traitement de la boîte de réception des documents ira ici."
+
+msgid "msg.kyc"
+msgstr "KYC"
+
+msgid "msg.kyc.description"
+msgstr "L'interface Connaître Votre Client ira ici."

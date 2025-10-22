@@ -1,0 +1,32 @@
+:root {
+  color-scheme: light dark;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.resizer {
+  width: 6px;
+  background: color-mix(in oklab, canvas, canvastext 8%);
+  cursor: col-resize;
+}
+
+.resizer:hover {
+  background: color-mix(in oklab, canvas, canvastext 16%);
+}
