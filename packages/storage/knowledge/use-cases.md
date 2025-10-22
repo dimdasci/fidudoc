@@ -23,10 +23,10 @@ Focus areas:
 
 **Flow:**
 
-1. Get current config via `GET /config`
+1. Get current settings via `GET /settings`
 2. Edit JSON (intake sources, routing rules, auto-approval settings)
-3. Update via `PUT /config`
-4. System validates and applies new configuration
+3. Update via `PUT /settings`
+4. System validates and applies new settings
 
 **Success:** System configured and ready to process documents
 
@@ -276,14 +276,14 @@ sequenceDiagram
 
 **Base URL:** `https://storage.fidudoc.com/v1`
 
-#### _Configuration_
+#### _Settings_
 
-| Method | Endpoint  | Description                      |
-| :----- | :-------- | :------------------------------- |
-| GET    | `/config` | Get current system configuration |
-| PUT    | `/config` | Update system configuration      |
+| Method | Endpoint   | Description                      |
+| :----- | :--------- | :------------------------------- |
+| GET    | `/settings` | Get current system settings      |
+| PUT    | `/settings` | Update system settings           |
 
-**Config Structure (example):**
+**Settings Structure (example):**
 
 `{`\
 `"intake": {`\

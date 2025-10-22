@@ -1,8 +1,44 @@
 import express from "express";
+import cors from "cors";
+import helmet from "helmet";
 import { deduplicateRequests } from "./middleware/deduplication.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
+import { createSettingsService } from "./Settings.ts";
+import { createDocumentsService } from "./Documents.ts";
+import { createUsersService } from "./Users.ts";
+import { registerSettingsRoutes } from "./Settings/Http.ts";
+import { registerDocumentsRoutes } from "./Documents/Http.ts";
+import { registerUsersRoutes } from "./Users/Http.ts";
 
 const app = express();
+
+// Security headers middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+  }),
+);
+
+// CORS middleware
+const nodeEnv = process.env.NODE_ENV || "development";
+const corsOrigin =
+  nodeEnv === "development"
+    ? ["http://localhost:3000", "http://localhost:3001", "http://localhost:5173"]
+    : process.env.CORS_ORIGIN?.split(",") || false;
+
+app.use(
+  cors({
+    origin: corsOrigin,
+    credentials: true,
+  }),
+);
 
 // JSON parsing middleware
 app.use(express.json());
@@ -20,6 +56,22 @@ app.use("/health", (_req, res) => {
 app.use("/test", (_req, res) => {
   res.json({ message: "Test endpoint is working!" });
 });
+
+// ============================================================================
+// Initialize Business Services
+// ============================================================================
+
+const settingsService = createSettingsService();
+const documentsService = createDocumentsService();
+const usersService = createUsersService();
+
+// ============================================================================
+// Register Routes - HTTP adapters for bounded contexts
+// ============================================================================
+
+registerSettingsRoutes(app, settingsService);
+registerDocumentsRoutes(app, documentsService);
+registerUsersRoutes(app, usersService);
 
 const startServer = async () => {
   // Load Port and Host from environment variables
