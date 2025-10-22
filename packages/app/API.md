@@ -48,6 +48,7 @@ All responses are JSON. Timestamps are ISO 8601.
 Request body: `Partial<Settings>`
 
 Response:
+
 ```json
 {
   "success": boolean,
@@ -63,6 +64,7 @@ Response:
 ### GET `/documents`
 
 Query parameters:
+
 - `status`: `"pending_approval" | "approved" | "rejected"`
 - `client_id`: string
 - `type`: `"invoice" | "receipt" | "contract" | "lease" | "tax_return" | "unknown"`
@@ -72,6 +74,7 @@ Query parameters:
 - `to`: ISO date string
 
 Response:
+
 ```json
 {
   "total": number,
@@ -86,6 +89,7 @@ Response: `Document`
 ### GET `/documents/:id/preview`
 
 Response:
+
 ```json
 {
   "documentId": string,
@@ -99,6 +103,7 @@ Response:
 ### GET `/documents/:id/extracted-data`
 
 Response:
+
 ```json
 {
   "documentId": string,
@@ -111,6 +116,7 @@ Response:
 ### POST `/documents/approve`
 
 Request:
+
 ```json
 {
   "ids": string[]
@@ -118,6 +124,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": boolean,
@@ -130,6 +137,7 @@ Response:
 ### POST `/documents/reject`
 
 Request:
+
 ```json
 {
   "ids": string[],
@@ -138,6 +146,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": boolean,
@@ -155,6 +164,7 @@ Response:
 ### GET `/users`
 
 Response:
+
 ```json
 {
   "total": number,
@@ -165,6 +175,7 @@ Response:
 ### POST `/users`
 
 Request:
+
 ```json
 {
   "email": string,
@@ -174,6 +185,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": boolean,
@@ -185,6 +197,7 @@ Response:
 ### PUT `/users/:id`
 
 Request:
+
 ```json
 {
   "name"?: string,
@@ -194,6 +207,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": boolean,
@@ -205,11 +219,13 @@ Response:
 ### GET `/audit-log`
 
 Query parameters:
+
 - `userId`: string
 - `action`: string
 - `resourceType`: string
 
 Response:
+
 ```json
 {
   "total": number,
@@ -306,6 +322,7 @@ Response:
 ## Error Responses
 
 ### 400 Bad Request
+
 ```json
 {
   "error": string
@@ -313,6 +330,7 @@ Response:
 ```
 
 ### 401 Unauthorized
+
 ```json
 {
   "error": string
@@ -320,6 +338,7 @@ Response:
 ```
 
 ### 403 Forbidden
+
 ```json
 {
   "error": string
@@ -327,6 +346,7 @@ Response:
 ```
 
 ### 404 Not Found
+
 ```json
 {
   "error": string
@@ -334,6 +354,7 @@ Response:
 ```
 
 ### 500 Internal Server Error
+
 ```json
 {
   "error": string
