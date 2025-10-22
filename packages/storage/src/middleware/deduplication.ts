@@ -13,10 +13,10 @@ import * as crypto from "node:crypto";
 interface RequestRecord {
   /** Timestamp when the request was first seen */
   timestamp: number;
-  /** Whether the request has completed processing */
-  processed: boolean;
-  /** The response data (if processed) */
-  responseData?: unknown;
+  /** Promise that resolves when the request completes */
+  promise: Promise<unknown>;
+  /** When this cache entry expires */
+  expiresAt: number;
 }
 
 /**
@@ -26,10 +26,20 @@ interface RequestRecord {
 const requestStore = new Map<string, RequestRecord>();
 
 /**
- * How long to keep requests in the cache (in milliseconds)
- * @default 1000
+ * How long to keep in-flight requests in the cache (in milliseconds)
+ * @default 5000
  */
-const cacheTtl = process.env.CACHE_TTL ? parseInt(process.env.CACHE_TTL, 10) : 1000;
+const inFlightTtl = process.env.CACHE_TTL
+  ? parseInt(process.env.CACHE_TTL, 10)
+  : 5000;
+
+/**
+ * Cleanup interval - removes expired entries periodically (in milliseconds)
+ * @default 60000
+ */
+const cleanupIntervalMs = process.env.CACHE_CLEANUP_INTERVAL
+  ? parseInt(process.env.CACHE_CLEANUP_INTERVAL, 10)
+  : 60000;
 
 /**
  * Cleanup interval - removes old entries periodically
@@ -37,11 +47,11 @@ const cacheTtl = process.env.CACHE_TTL ? parseInt(process.env.CACHE_TTL, 10) : 1
 const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const [key, value] of requestStore.entries()) {
-    if (now - value.timestamp > cacheTtl) {
+    if (now > value.expiresAt) {
       requestStore.delete(key);
     }
   }
-}, cacheTtl);
+}, cleanupIntervalMs);
 
 /**
  * Generate a unique signature for a request
@@ -68,8 +78,8 @@ const getRequestSignature = (req: Request): string => {
  * Middleware to prevent duplicate request processing.
  *
  * When a duplicate request is detected (same method, path, body, content-type):
- * - If still processing: waits for the original request to complete (up to 30s)
- * - If already processed: returns the cached response immediately
+ * - Waits for the original request to complete using Promise-based approach
+ * - Returns the cached response without re-processing
  *
  * Adds `X-Cache-Status` header:
  * - "miss" for original requests
@@ -90,58 +100,52 @@ export const deduplicateRequests = (
   }
 
   const signature = getRequestSignature(req);
+  const now = Date.now();
   const existingRequest = requestStore.get(signature);
 
-  if (existingRequest) {
-    /** If the request is still being processed, poll for completion */
-    if (!existingRequest.processed) {
-      const maxWaitTime = 30000;
-      const pollInterval = 100;
-      const startTime = Date.now();
-
-      const checkCompletion = () => {
-        const record = requestStore.get(signature);
-        if (record?.processed && record.responseData) {
-          res.setHeader("X-Cache-Status", "hit");
-          return res.status(200).json(record.responseData);
-        }
-
-        if (Date.now() - startTime > maxWaitTime) {
-          /** Timeout - let this request process normally */
-          return next();
-        }
-
-        setTimeout(checkCompletion, pollInterval);
-      };
-
-      return checkCompletion();
-    }
-
-    /** If already processed, return cached response */
-    if (existingRequest.responseData) {
-      res.setHeader("X-Cache-Status", "hit");
-      return res.status(200).json(existingRequest.responseData);
-    }
+  /** Check if entry exists and hasn't expired */
+  if (existingRequest && now <= existingRequest.expiresAt) {
+    /** Duplicate request: wait for the original to complete */
+    existingRequest.promise
+      .then((responseData) => {
+        res.setHeader("X-Cache-Status", "hit");
+        res.status(200).json(responseData);
+      })
+      .catch(() => {
+        /** If original request failed, process this one normally */
+        next();
+      });
+    return;
   }
 
-  /** Mark this request as being processed */
+  /** First request: create a promise that duplicates will wait for */
+  let resolveResponse: (value: unknown) => void;
+  let rejectResponse: (reason?: unknown) => void;
+
+  const promise = new Promise<unknown>((resolve, reject) => {
+    resolveResponse = resolve;
+    rejectResponse = reject;
+  });
+
   requestStore.set(signature, {
-    timestamp: Date.now(),
-    processed: false,
+    timestamp: now,
+    promise,
+    expiresAt: now + inFlightTtl,
   });
 
   const originalSend = res.send.bind(res);
 
-  /** Intercept res.send to capture the response (res.json calls this internally) */
-  res.send = function (this: Response, body: unknown) {
-    const record = requestStore.get(signature);
-    if (record) {
-      record.processed = true;
-      record.responseData = body;
-    }
+  /** Intercept res.send to capture and resolve the response */
+  res.send = function(this: Response, body: unknown) {
+    resolveResponse?.(body);
     this.setHeader("X-Cache-Status", "miss");
     return originalSend(body);
   };
+
+  /** Handle errors during request processing */
+  res.on("error", () => {
+    rejectResponse?.(new Error("Response error"));
+  });
 
   next();
 };
