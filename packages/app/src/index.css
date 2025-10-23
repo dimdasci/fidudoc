@@ -2,24 +2,41 @@
 
 @theme {
   /* Custom color tokens for light/dark mode */
+  /* Light mode - grounded and supportive green theme */
   --color-background: #f9fafb;
   --color-surface: #ffffff;
-  --color-accent: #c2410c;
-  --color-accent-hover: #9a3412;
-  --color-text-primary: #111827;
+  --color-accent: #15803d;
+  --color-accent-hover: #14532d;
+  --color-text-primary: #14532d;
   --color-text-secondary: #6b7280;
   --color-border-subtle: #e5e7eb;
   --color-neutral-bg: #e5e7eb;
 
-  /* Dark mode variants */
+  /* Semantic state colors - light mode */
+  --color-success: #15803d;
+  --color-success-text: #14532d;
+  --color-warning: #d97706;
+  --color-warning-text: #92400e;
+  --color-error: #dc2626;
+  --color-error-text: #991b1b;
+
+  /* Dark mode variants - optimistic and restorative */
   --color-background-dark: #111827;
   --color-surface-dark: #1f2937;
-  --color-accent-dark: #f97316;
-  --color-accent-hover-dark: #ea580c;
+  --color-accent-dark: #22c55e;
+  --color-accent-hover-dark: #bbf7d0;
   --color-text-primary-dark: #ffffff;
   --color-text-secondary-dark: #9ca3af;
   --color-border-subtle-dark: #374151;
   --color-neutral-bg-dark: #374151;
+
+  /* Semantic state colors - dark mode */
+  --color-success-dark: #22c55e;
+  --color-success-text-dark: #bbf7d0;
+  --color-warning-dark: #f59e0b;
+  --color-warning-text-dark: #fde68a;
+  --color-error-dark: #ef4444;
+  --color-error-text-dark: #fca5a5;
 
   /* Font families */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -27,6 +44,25 @@
 
   /* Base font size */
   --font-size-base: 14px;
+
+  /* Typography scale */
+  --font-size-display: 2.5rem;
+  --line-height-display: 3rem;
+
+  --font-size-headline: 1.5rem;
+  --line-height-headline: 2rem;
+
+  --font-size-body-lg: 1.125rem;
+  --line-height-body-lg: 1.75rem;
+
+  --font-size-body: 1rem;
+  --line-height-body: 1.5rem;
+
+  --font-size-body-sm: 0.875rem;
+  --line-height-body-sm: 1.25rem;
+
+  --font-size-caption: 0.75rem;
+  --line-height-caption: 1rem;
 }
 
 @layer base {
@@ -41,6 +77,14 @@
     --text-secondary: var(--color-text-secondary);
     --border-subtle: var(--color-border-subtle);
     --neutral-bg: var(--color-neutral-bg);
+
+    /* Semantic state colors */
+    --success: var(--color-success);
+    --success-text: var(--color-success-text);
+    --warning: var(--color-warning);
+    --warning-text: var(--color-warning-text);
+    --error: var(--color-error);
+    --error-text: var(--color-error-text);
   }
 
   .dark {
@@ -53,6 +97,14 @@
     --text-secondary: var(--color-text-secondary-dark);
     --border-subtle: var(--color-border-subtle-dark);
     --neutral-bg: var(--color-neutral-bg-dark);
+
+    /* Semantic state colors - dark mode */
+    --success: var(--color-success-dark);
+    --success-text: var(--color-success-text-dark);
+    --warning: var(--color-warning-dark);
+    --warning-text: var(--color-warning-text-dark);
+    --error: var(--color-error-dark);
+    --error-text: var(--color-error-text-dark);
   }
 }
 
@@ -124,8 +176,79 @@
     background-color: var(--accent);
   }
 
+  /* Text colors */
   .text-accent {
     color: var(--accent);
+  }
+
+  .text-primary {
+    color: var(--text-primary);
+  }
+
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+
+  /* Semantic state text colors */
+  .text-success {
+    color: var(--success-text);
+  }
+
+  .text-warning {
+    color: var(--warning-text);
+  }
+
+  .text-error {
+    color: var(--error-text);
+  }
+
+  /* Border colors */
+  .border-subtle {
+    border-color: var(--border-subtle);
+  }
+
+  /* Semantic state background colors */
+  .bg-success {
+    background-color: var(--success);
+  }
+
+  .bg-warning {
+    background-color: var(--warning);
+  }
+
+  .bg-error {
+    background-color: var(--error);
+  }
+
+  /* Typography scale utilities */
+  .text-display {
+    font-size: var(--font-size-display);
+    line-height: var(--line-height-display);
+  }
+
+  .text-headline {
+    font-size: var(--font-size-headline);
+    line-height: var(--line-height-headline);
+  }
+
+  .text-body-lg {
+    font-size: var(--font-size-body-lg);
+    line-height: var(--line-height-body-lg);
+  }
+
+  .text-body {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+  }
+
+  .text-body-sm {
+    font-size: var(--font-size-body-sm);
+    line-height: var(--line-height-body-sm);
+  }
+
+  .text-caption {
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-caption);
   }
 }
 
