@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Check, FileText, Upload, X } from "lucide-react";
+import { Check, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { useI18nContext } from "../../i18n/i18n";
 import { fetchDocuments } from "../../services/api";
@@ -7,7 +7,7 @@ import { Button } from "../../ui/Button/Button";
 import { ChevronDownIcon } from "../../ui/icons/ChevronDownIcon";
 import { Input } from "../../ui/Input";
 import { MenuItem, MenuPopup, MenuRoot, MenuTrigger } from "../../ui/Menu";
-import { Table, TableBadge, type TableColumn } from "../../ui/Table";
+import { Table, type TableColumn } from "../../ui/Table";
 import { showToast } from "../../ui/toast";
 import { ToolbarGroup, ToolbarRoot, ToolbarSeparator } from "../../ui/Toolbar";
 
@@ -141,21 +141,18 @@ export function InboxRoute() {
       key: "fileName",
       label: t("inbox.column.fileName"),
       render: (value) => (
-        <div className="flex items-center gap-2">
-          <FileText size={16} className="text-secondary flex-shrink-0" />
-          <span className="text-body text-primary truncate">
-            {String(value)}
-          </span>
-        </div>
+        <span className="text-body-sm text-primary truncate">
+          {String(value)}
+        </span>
       ),
     },
     {
       key: "documentType",
       label: t("inbox.column.type"),
       render: (value) => (
-        <TableBadge variant="default">
+        <span className="text-body-sm text-primary">
           {getDocumentTypeLabel(String(value), t)}
-        </TableBadge>
+        </span>
       ),
     },
     {
@@ -163,24 +160,26 @@ export function InboxRoute() {
       label: t("inbox.column.status"),
       render: (value) => {
         const status = String(value);
-        const variant = status === "pending"
-          ? "warning"
+        const colorClass = status === "pending"
+          ? "text-warning"
           : status === "approved"
-          ? "success"
-          : "error";
+          ? "text-success"
+          : "text-error";
         const label = status === "pending"
           ? t("inbox.status.pending")
           : status === "approved"
           ? t("inbox.status.approved")
           : t("inbox.status.rejected");
-        return <TableBadge variant={variant}>{label}</TableBadge>;
+        return (
+          <span className={`text-body-sm font-medium ${colorClass}`}>{label}</span>
+        );
       },
     },
     {
       key: "clientName",
       label: t("inbox.column.client"),
       render: (value) => (
-        <span className="text-body text-primary">
+        <span className="text-body-sm text-primary">
           {String(value)}
         </span>
       ),
@@ -343,7 +342,7 @@ export function InboxRoute() {
 
   const footer = !isLoading && !error && filteredDocuments.length > 0
     ? (
-      <div className="flex items-center justify-between px-4 py-3 bg-surface border-t border-subtle">
+      <div className="flex items-center justify-between px-4 py-3">
         <div className="text-body-sm text-secondary">
           {t("inbox.footer.showing", {
             count: filteredDocuments.length,
@@ -374,6 +373,7 @@ export function InboxRoute() {
           onRowClick={handleRowClick}
           headerActions={tableHeaderActions}
           footer={footer}
+          selectedRows={selectedIds}
         />
       </div>
     </div>
