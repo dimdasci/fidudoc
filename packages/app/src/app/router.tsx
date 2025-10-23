@@ -1,9 +1,9 @@
+import { AdminRoute } from "@features/admin/routes";
+import { AuditRoute } from "@features/audit/routes";
+import { InboxRoute } from "@features/inbox";
+import { SettingsRoute } from "@features/settings/routes";
+import { AppShell } from "@shared/ui/AppShell";
 import { createBrowserRouter } from "react-router-dom";
-import { AdminRoute } from "../features/admin/routes";
-import { AuditRoute } from "../features/audit/routes";
-import { InboxRoute } from "../features/inbox/routes";
-import { SettingsRoute } from "../features/settings/routes";
-import { AppShell } from "../ui/AppShell";
 
 export const router = createBrowserRouter([
   {

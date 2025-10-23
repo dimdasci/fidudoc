@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
@@ -13,7 +14,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "paths": {
+      "@app/*": ["./src/app/*"],
+      "@shared/*": ["./src/*"],
+      "@features/*": ["./src/features/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules"]

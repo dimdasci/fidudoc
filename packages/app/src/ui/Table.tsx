@@ -1,7 +1,11 @@
 import { AlertCircle, Loader } from "lucide-react";
 import type { ReactNode } from "react";
 
-export interface TableColumn<T = Record<string, unknown>> {
+type TableRowBase = { id?: string | number };
+
+export interface TableColumn<
+  T extends TableRowBase = TableRowBase & Record<string, unknown>,
+> {
   key: string;
   label: string;
   align?: "left" | "right" | "center";
@@ -9,7 +13,9 @@ export interface TableColumn<T = Record<string, unknown>> {
   render?: (value: unknown, row: T, index: number) => ReactNode;
 }
 
-export interface TableProps<T = Record<string, unknown>> {
+export interface TableProps<
+  T extends TableRowBase = TableRowBase & Record<string, unknown>,
+> {
   columns: TableColumn<T>[];
   data: T[];
   loading?: boolean;
@@ -23,7 +29,7 @@ export interface TableProps<T = Record<string, unknown>> {
   selectedRows?: Set<string | number>;
 }
 
-export function Table<T extends Record<string, unknown> & { id?: string | number }>({
+export function Table<T extends TableRowBase>({
   columns,
   data,
   loading = false,
@@ -159,7 +165,8 @@ export function Table<T extends Record<string, unknown> & { id?: string | number
                     onClick={() => handleRowClick(row, index)}
                   >
                     {columns.map((column) => {
-                      const value = row[column.key];
+                      const rowRecord = row as Record<string, unknown>;
+                      const value = rowRecord[column.key];
                       const cellContent = column.render
                         ? column.render(value, row, index)
                         : String(value ?? "");
