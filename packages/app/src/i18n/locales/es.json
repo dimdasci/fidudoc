@@ -1,6 +1,8 @@
 {
   "app.title": "FIDUDOC",
   "nav.inbox": "Bandeja de entrada",
+  "nav.users": "Usuarios",
+  "nav.audit": "Auditoría",
   "nav.settings": "Configuración",
   "nav.admin": "Administración",
   "panel.details": "Detalles",
