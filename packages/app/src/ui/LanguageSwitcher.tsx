@@ -1,6 +1,6 @@
-import { MenuRoot, MenuTrigger, MenuPopup, MenuItem } from "./Menu";
-import { ChevronDownIcon } from "./icons";
 import { useI18nContext } from "../i18n/i18n";
+import { ChevronDownIcon } from "./icons";
+import { MenuItem, MenuPopup, MenuRoot, MenuTrigger } from "./Menu";
 
 const LANGUAGES = {
   en: { label: "English" },

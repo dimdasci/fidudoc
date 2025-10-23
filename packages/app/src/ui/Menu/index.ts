@@ -1,8 +1,8 @@
-export { MenuRoot, MenuTrigger, MenuPopup, MenuItem, MenuSeparator } from "./Menu";
+export { MenuItem, MenuPopup, MenuRoot, MenuSeparator, MenuTrigger } from "./Menu";
 export type {
-  MenuRootProps,
-  MenuTriggerProps,
-  MenuPopupProps,
   MenuItemProps,
+  MenuPopupProps,
+  MenuRootProps,
   MenuSeparatorProps,
+  MenuTriggerProps,
 } from "./Menu";

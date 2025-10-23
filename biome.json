@@ -37,7 +37,8 @@
       },
       "suspicious": {
         "noExplicitAny": "warn",
-        "noArrayIndexKey": "warn"
+        "noArrayIndexKey": "warn",
+        "noUnknownAtRules": "off"
       }
     }
   },

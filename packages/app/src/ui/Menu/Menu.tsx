@@ -53,11 +53,9 @@ export interface MenuItemProps {
 export function MenuItem({ children, onClick, selected }: MenuItemProps) {
   return (
     <BaseMenu.Item className={styles.item} onClick={onClick}>
-      {selected ? (
-        <CheckIcon className={styles.checkmark} />
-      ) : (
-        <span className={styles.checkmarkPlaceholder} />
-      )}
+      {selected
+        ? <CheckIcon className={styles.checkmark} />
+        : <span className={styles.checkmarkPlaceholder} />}
       {children}
     </BaseMenu.Item>
   );
