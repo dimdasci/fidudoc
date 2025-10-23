@@ -47,7 +47,10 @@ const useI18n = create<I18nStore>((set, get) => ({
     // Replace parameters in message (e.g., {{count}} with actual value)
     if (params) {
       Object.entries(params).forEach(([paramKey, paramValue]) => {
-        message = message.replace(new RegExp(`{{${paramKey}}}`, "g"), String(paramValue));
+        message = message.replace(
+          new RegExp(`{{${paramKey}}}`, "g"),
+          String(paramValue),
+        );
       });
     }
 
