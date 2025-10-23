@@ -9,29 +9,34 @@ The application glues together document ingestion, storage, validation, and know
 ## Technology Stack
 
 ### Framework & Routing
+
 - **React 19** with concurrent rendering
 - **React Router v7** for route-based code splitting
 - **Vite 5.4** development & build tooling
 - **TypeScript 5.9** with `strict` mode
 
 ### Data & Domain
+
 - **TanStack Query v5** for server state caching
 - **Zustand v4.5** for app/UI stores
 - **Effect** & **@effect/schema** for typed services and runtime validation
 
 ### Internationalization
+
 - **i18nano-style store** backed by Zustand (`src/i18n/i18n.ts`)
 - JSON message catalogs per locale (`src/i18n/locales/*.json`)
 - Lazy loading, browser locale detection, and persisted language preference
 - `useI18nContext()` hook exposes `t`, `locale`, `setLocale`
 
 ### UI & Experience
+
 - **react-resizable-panels** powers a flexible, resizable workspace
 - Default layout ships with navigation, content, and details panels, but panels can be hidden or repurposed per view
 - Inline styles with shared design tokens for fast iteration
 - Toast notifications and other primitives live in `src/ui/primitives.tsx`
 
 ### Tooling
+
 - **pnpm 10.13.1+**
 - **Node.js 23+**
 - **Biome** for linting
@@ -78,10 +83,12 @@ packages/app/
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js **23+**
 - pnpm **10.13.1+**
 
 ### Install Dependencies
+
 ```bash
 # From the monorepo root
 pnpm install
@@ -91,6 +98,7 @@ pnpm --filter @fidudoc/app install
 ```
 
 ### Development Workflow
+
 ```bash
 # Start Vite dev server with HMR
 pnpm dev
@@ -98,6 +106,7 @@ pnpm dev
 # Or scoped to this package
 pnpm --filter @fidudoc/app dev
 ```
+
 Visit `http://localhost:5173`.
 
 ```bash
@@ -113,6 +122,7 @@ pnpm check
 ```
 
 ### Production Build
+
 ```bash
 pnpm build
 pnpm preview
@@ -129,6 +139,7 @@ pnpm preview
 ## Panel Workspace
 
 `AppShell.tsx` wires the resizable panel system:
+
 - Navigation, content, and details panels are defaults, not requirements.
 - Feature modules can resize or hide panels depending on the view.
 - Panel state is kept minimal so the layout feels responsive across devices.
