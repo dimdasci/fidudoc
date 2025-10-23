@@ -22,12 +22,6 @@
   "settings.apply": "Apply",
   "settings.saved": "Settings saved successfully",
   "settings.error": "Failed to save settings",
-  "admin.audit": "Audit Log",
-  "admin.col.timestamp": "Timestamp",
-  "admin.col.user": "User",
-  "admin.col.action": "Action",
-  "admin.col.resource": "Resource",
-  "admin.col.details": "Details",
   "action.close": "Close",
   "action.ok": "OK",
   "action.cancel": "Cancel"

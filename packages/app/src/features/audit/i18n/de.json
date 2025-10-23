@@ -1,0 +1,14 @@
+{
+  "audit.title": "Audit-Protokoll",
+  "audit.subtitle": "Systemaktivitäten und Benutzeraktionen einsehen",
+  "audit.loading": "Audit-Protokoll wird geladen...",
+  "audit.error": "Fehler beim Laden des Audit-Protokolls. Bitte erneut versuchen.",
+  "audit.empty": "Keine Audit-Einträge gefunden",
+  "audit.table.timestamp": "Zeitstempel",
+  "audit.table.user": "Benutzer",
+  "audit.table.action": "Aktion",
+  "audit.table.resource": "Ressource",
+  "audit.table.details": "Details",
+  "audit.actions.show": "Anzeigen",
+  "audit.actions.hide": "Ausblenden"
+}

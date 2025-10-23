@@ -1,0 +1,14 @@
+{
+  "audit.title": "Registro de auditoría",
+  "audit.subtitle": "Visualiza la actividad del sistema y las acciones de los usuarios",
+  "audit.loading": "Cargando registro de auditoría...",
+  "audit.error": "Error al cargar el registro de auditoría. Inténtalo de nuevo.",
+  "audit.empty": "No se encontraron entradas de auditoría",
+  "audit.table.timestamp": "Marca de tiempo",
+  "audit.table.user": "Usuario",
+  "audit.table.action": "Acción",
+  "audit.table.resource": "Recurso",
+  "audit.table.details": "Detalles",
+  "audit.actions.show": "Mostrar",
+  "audit.actions.hide": "Ocultar"
+}

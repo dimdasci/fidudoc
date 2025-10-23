@@ -22,12 +22,6 @@
   "settings.apply": "Aplicar",
   "settings.saved": "Configuración guardada exitosamente",
   "settings.error": "Error al guardar la configuración",
-  "admin.audit": "Registro de auditoría",
-  "admin.col.timestamp": "Marca de tiempo",
-  "admin.col.user": "Usuario",
-  "admin.col.action": "Acción",
-  "admin.col.resource": "Recurso",
-  "admin.col.details": "Detalles",
   "action.close": "Cerrar",
   "action.ok": "Aceptar",
   "action.cancel": "Cancelar"

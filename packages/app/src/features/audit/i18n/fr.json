@@ -1,0 +1,14 @@
+{
+  "audit.title": "Journal d'audit",
+  "audit.subtitle": "Consultez l'activité du système et les actions des utilisateurs",
+  "audit.loading": "Chargement du journal d'audit...",
+  "audit.error": "Erreur lors du chargement du journal d'audit. Veuillez réessayer.",
+  "audit.empty": "Aucune entrée d'audit trouvée",
+  "audit.table.timestamp": "Horodatage",
+  "audit.table.user": "Utilisateur",
+  "audit.table.action": "Action",
+  "audit.table.resource": "Ressource",
+  "audit.table.details": "Détails",
+  "audit.actions.show": "Afficher",
+  "audit.actions.hide": "Masquer"
+}

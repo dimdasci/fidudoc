@@ -1,4 +1,4 @@
-import { AuditRoute } from "@features/audit/routes";
+import { AuditRoute } from "@features/audit";
 import { InboxRoute } from "@features/inbox";
 import { SettingsRoute } from "@features/settings/routes";
 import { UsersRoute } from "@features/users";

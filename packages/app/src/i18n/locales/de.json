@@ -22,12 +22,6 @@
   "settings.apply": "Anwenden",
   "settings.saved": "Einstellungen erfolgreich gespeichert",
   "settings.error": "Fehler beim Speichern der Einstellungen",
-  "admin.audit": "Audit-Protokoll",
-  "admin.col.timestamp": "Zeitstempel",
-  "admin.col.user": "Benutzer",
-  "admin.col.action": "Aktion",
-  "admin.col.resource": "Ressource",
-  "admin.col.details": "Details",
   "action.close": "Schließen",
   "action.ok": "OK",
   "action.cancel": "Abbrechen"

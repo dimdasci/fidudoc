@@ -22,12 +22,6 @@
   "settings.apply": "Appliquer",
   "settings.saved": "Paramètres enregistrés avec succès",
   "settings.error": "Erreur lors de l'enregistrement des paramètres",
-  "admin.audit": "Journal d'audit",
-  "admin.col.timestamp": "Horodatage",
-  "admin.col.user": "Utilisateur",
-  "admin.col.action": "Action",
-  "admin.col.resource": "Ressource",
-  "admin.col.details": "Détails",
   "action.close": "Fermer",
   "action.ok": "OK",
   "action.cancel": "Annuler"

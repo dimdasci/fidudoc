@@ -1,0 +1,14 @@
+{
+  "audit.title": "Audit Log",
+  "audit.subtitle": "View system activity and user actions",
+  "audit.loading": "Loading audit log...",
+  "audit.error": "Error loading audit log. Please try again.",
+  "audit.empty": "No audit entries found",
+  "audit.table.timestamp": "Timestamp",
+  "audit.table.user": "User",
+  "audit.table.action": "Action",
+  "audit.table.resource": "Resource",
+  "audit.table.details": "Details",
+  "audit.actions.show": "Show",
+  "audit.actions.hide": "Hide"
+}
