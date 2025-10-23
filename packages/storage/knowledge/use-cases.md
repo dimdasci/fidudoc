@@ -55,7 +55,7 @@ Focus areas:
 
 **Flow:**
 
-1. Query inbox: `GET /documents?status=pending_approval&period=24h`
+1. Query inbox: `GET /documents?status=pending&period=24h`
 2. Review each document with extracted data
 3. Bulk approve: `POST /documents/approve {"ids": [...]}`
 4. Or reject for correction: `POST /documents/reject {"ids": [...]}`
@@ -207,7 +207,7 @@ Flow:
 
 14. **Storage** updates document status based on config:
     - If `autoApproval.enabled && confidence >= minConfidence` → status \= `approved`
-    - Else → status \= `pending_approval`
+    - Else → status \= `pending`
 15. If configured, **Storage** can trigger additional inspection workflows
 
 #### _Error Handling_
@@ -278,10 +278,10 @@ sequenceDiagram
 
 #### _Settings_
 
-| Method | Endpoint   | Description                      |
-| :----- | :--------- | :------------------------------- |
-| GET    | `/settings` | Get current system settings      |
-| PUT    | `/settings` | Update system settings           |
+| Method | Endpoint    | Description                 |
+| :----- | :---------- | :-------------------------- |
+| GET    | `/settings` | Get current system settings |
+| PUT    | `/settings` | Update system settings      |
 
 **Settings Structure (example):**
 
@@ -319,7 +319,7 @@ sequenceDiagram
 
 **Example Queries:**
 
-`GET /documents?status=pending_approval&period=24h`\
+`GET /documents?status=pending&period=24h`\
 `GET /documents?client_id=X&type=invoice&status=approved`\
 `GET /documents?validation_status=failed&validation_type=vat`
 

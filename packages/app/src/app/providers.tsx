@@ -1,25 +1,58 @@
-import { i18n } from "@lingui/core";
-import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
-import { activateLocale, getPreferredLocale } from "../i18n/i18n";
+import { initializeI18n } from "../i18n/i18n";
 import { router } from "./router";
 
-const qc = new QueryClient();
+const qc = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 export function AppProviders() {
+  const [isI18nReady, setI18nReady] = useState(false);
+
   useEffect(() => {
-    // Initialize i18n with user's preferred locale
-    const preferredLocale = getPreferredLocale();
-    activateLocale(preferredLocale);
+    // Initialize i18n with user's preferred locale before rendering the app
+    let isMounted = true;
+
+    const initLocale = async () => {
+      await initializeI18n();
+      if (isMounted) {
+        setI18nReady(true);
+      }
+    };
+
+    void initLocale();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  if (!isI18nReady) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "Inter, sans-serif",
+        }}
+      >
+        Loading interface…
+      </div>
+    );
+  }
+
   return (
-    <I18nProvider i18n={i18n}>
-      <QueryClientProvider client={qc}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </I18nProvider>
+    <QueryClientProvider client={qc}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   );
 }

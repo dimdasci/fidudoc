@@ -46,7 +46,7 @@ export type DocumentType =
   | "tax_return"
   | "unknown";
 
-export type DocumentStatus = "pending_approval" | "approved" | "rejected";
+export type DocumentStatus = "pending" | "approved" | "rejected";
 
 export type ValidationStatus = "passed" | "failed" | "pending";
 

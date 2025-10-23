@@ -65,7 +65,7 @@ Response:
 
 Query parameters:
 
-- `status`: `"pending_approval" | "approved" | "rejected"`
+- `status`: `"pending" | "approved" | "rejected"`
 - `client_id`: string
 - `type`: `"invoice" | "receipt" | "contract" | "lease" | "tax_return" | "unknown"`
 - `validation_status`: `"passed" | "failed" | "pending"`
@@ -244,7 +244,7 @@ Response:
   "id": string,
   "fileName": string,
   "documentType": "invoice" | "receipt" | "contract" | "lease" | "tax_return" | "unknown",
-  "status": "pending_approval" | "approved" | "rejected",
+  "status": "pending" | "approved" | "rejected",
   "validation_status"?: "passed" | "failed" | "pending",
   "client_id": string,
   "clientName": string,

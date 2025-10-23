@@ -1,13 +1,13 @@
-import express from "express";
 import cors from "cors";
+import express from "express";
 import helmet from "helmet";
+import { createDocumentsService } from "./Documents.ts";
+import { registerDocumentsRoutes } from "./Documents/Http.ts";
 import { deduplicateRequests } from "./middleware/deduplication.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
 import { createSettingsService } from "./Settings.ts";
-import { createDocumentsService } from "./Documents.ts";
-import { createUsersService } from "./Users.ts";
 import { registerSettingsRoutes } from "./Settings/Http.ts";
-import { registerDocumentsRoutes } from "./Documents/Http.ts";
+import { createUsersService } from "./Users.ts";
 import { registerUsersRoutes } from "./Users/Http.ts";
 
 const app = express();
@@ -28,14 +28,24 @@ app.use(
 
 // CORS middleware
 const nodeEnv = process.env.NODE_ENV || "development";
-const corsOrigin =
-  nodeEnv === "development"
-    ? ["http://localhost:3000", "http://localhost:3001", "http://localhost:5173"]
-    : process.env.CORS_ORIGIN?.split(",") || false;
+const corsOrigin = nodeEnv === "development"
+  ? [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:5173",
+    "http://localhost:4173", // Added Vite preview port
+  ]
+  : process.env.CORS_ORIGIN?.split(",") || ["https://fidudoc.app"];
 
 app.use(
   cors({
-    origin: corsOrigin,
+    origin: (origin, callback) => {
+      if (!origin || corsOrigin.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
@@ -60,7 +70,6 @@ app.use("/test", (_req, res) => {
 // ============================================================================
 // Initialize Business Services
 // ============================================================================
-
 const settingsService = createSettingsService();
 const documentsService = createDocumentsService();
 const usersService = createUsersService();
@@ -68,7 +77,6 @@ const usersService = createUsersService();
 // ============================================================================
 // Register Routes - HTTP adapters for bounded contexts
 // ============================================================================
-
 registerSettingsRoutes(app, settingsService);
 registerDocumentsRoutes(app, documentsService);
 registerUsersRoutes(app, usersService);

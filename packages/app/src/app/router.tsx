@@ -1,5 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
+import { AdminRoute } from "../features/admin/routes";
 import { InboxRoute } from "../features/inbox/routes";
+import { SettingsRoute } from "../features/settings/routes";
 import { AppShell } from "../ui/AppShell";
 
 export const router = createBrowserRouter([
@@ -9,11 +11,12 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <InboxRoute /> },
       {
-        path: "kyc",
-        lazy: () =>
-          import("../features/kyc/routes").then((m) => ({
-            Component: m.KycRoute,
-          })),
+        path: "settings",
+        element: <SettingsRoute />,
+      },
+      {
+        path: "admin",
+        element: <AdminRoute />,
       },
     ],
   },

@@ -6,10 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "lingui extract && lingui compile && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "i18n:extract": "lingui extract",
-    "i18n:compile": "lingui compile",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "dprint fmt",
@@ -20,10 +18,9 @@
   },
   "dependencies": {
     "@effect/schema": "^0.72.0",
-    "@lingui/core": "^4.11.0",
-    "@lingui/react": "^4.11.0",
     "@tanstack/react-query": "^5.50.0",
     "effect": "^3.0.0",
+    "lucide-react": "^0.546.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-resizable-panels": "^2.0.0",
@@ -31,13 +28,10 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
-    "@lingui/cli": "^4.11.0",
-    "@lingui/format-json": "^5.5.1",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
-    "make-plural": "^7.3.0",
     "typescript": "^5.9.0",
     "vite": "^5.4.0"
   },

@@ -2,7 +2,12 @@
  * Domain Constants - Business domain values
  */
 
-import type { DocumentType, DocumentStatus, ValidationStatus, UserRole } from "./types.ts";
+import type {
+  DocumentStatus,
+  DocumentType,
+  UserRole,
+  ValidationStatus,
+} from "./types.ts";
 
 export const DOCUMENT_TYPES: DocumentType[] = [
   "invoice",
@@ -14,7 +19,7 @@ export const DOCUMENT_TYPES: DocumentType[] = [
 ];
 
 export const DOCUMENT_STATUSES: DocumentStatus[] = [
-  "pending_approval",
+  "pending",
   "approved",
   "rejected",
 ];

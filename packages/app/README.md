@@ -1,487 +1,165 @@
 # Fidudoc Web Application
 
-A modern, production-ready web application for intelligent document operations platform serving European professional services. Built with industry best practices for type safety, internationalization, and performance.
+Front-end for the Fidudoc intelligent document platform. The app delivers a multi-panel workspace for European fiduciary and accounting teams to triage, validate, and enrich high-volume document flows with realtime status tracking.
 
-## Project Overview
+## Overview
 
-The Fidudoc web application provides infrastructure for document storage → validation → intelligence → search, helping professional services firms (fiduciaries, accountants, fund administrators) process hundreds of documents monthly with automated classification, compliance validation, and entity relationship tracking.
+The application glues together document ingestion, storage, validation, and knowledge graph services. It surfaces document state, entity relationships, and operational insights while keeping UX fast, accessible, and ready for production hardening.
 
 ## Technology Stack
 
-### Core Framework & Routing
+### Framework & Routing
+- **React 19** with concurrent rendering
+- **React Router v7** for route-based code splitting
+- **Vite 5.4** development & build tooling
+- **TypeScript 5.9** with `strict` mode
 
-- **React 19** - Modern UI library with concurrent rendering
-- **React Router v7** - Client-side routing with lazy code splitting
-- **TypeScript 5.9** - Strict type safety (strict mode enabled)
-- **Vite 5.4** - Fast dev server and optimized build
-
-### State Management & Data
-
-- **TanStack Query v5** - Server state, caching, and synchronization
-- **Zustand v4.5** - Lightweight UI state management
-- **Effect/Schema** - Typed services, runtime validation, and structured error handling
+### Data & Domain
+- **TanStack Query v5** for server state caching
+- **Zustand v4.5** for app/UI stores
+- **Effect** & **@effect/schema** for typed services and runtime validation
 
 ### Internationalization
+- **i18nano-style store** backed by Zustand (`src/i18n/i18n.ts`)
+- JSON message catalogs per locale (`src/i18n/locales/*.json`)
+- Lazy loading, browser locale detection, and persisted language preference
+- `useI18nContext()` hook exposes `t`, `locale`, `setLocale`
 
-- **Lingui i18n** - ICU-compliant message formatting and plural handling
-- Supported languages: English (en), Spanish (es), French (fr), German (de)
-- Browser locale detection with localStorage persistence
-- Language switcher component in header
+### UI & Experience
+- **react-resizable-panels** powers a flexible, resizable workspace
+- Default layout ships with navigation, content, and details panels, but panels can be hidden or repurposed per view
+- Inline styles with shared design tokens for fast iteration
+- Toast notifications and other primitives live in `src/ui/primitives.tsx`
 
-### UI & Layout
+### Tooling
+- **pnpm 10.13.1+**
+- **Node.js 23+**
+- **Biome** for linting
+- **dprint** for formatting
 
-- **React Resizable Panels** - 3-pane resizable dashboard layout
-- **CSS-in-JS** - Inline styles with TypeScript type safety
-- Professional design with accessibility in mind
-
-### Development Tools
-
-- **Biome** - Fast linting and formatting
-- **dprint** - Code formatter (line width: 86)
-- **Node.js 23+** - Runtime environment
-
-## Project Structure
+## Repository Layout
 
 ```
 packages/app/
 ├── src/
 │   ├── app/
-│   │   ├── router.tsx              # React Router configuration
-│   │   └── providers.tsx           # App-level providers (Query, i18n, Router)
-│   ├── features/
-│   │   ├── inbox/
-│   │   │   ├── routes.tsx          # Inbox page component
-│   │   │   └── useInvoices.ts      # React Query hook for invoices
-│   │   └── kyc/
-│   │       └── routes.tsx          # KYC page component
-│   ├── ui/
-│   │   ├── AppShell.tsx            # 3-pane layout shell
-│   │   ├── LanguageSwitcher.tsx    # Language selector component
-│   │   └── primitives.tsx          # Reusable UI components (placeholder)
-│   ├── services/
-│   │   ├── client.ts               # Effect service adapter for React Query
-│   │   └── invoices.ts             # Invoice service with Effect & Schema
-│   ├── stores/
-│   │   └── ui.ts                   # Zustand UI state store
+│   │   ├── providers.tsx          # App-level providers (Query, i18n, Router)
+│   │   └── router.tsx             # Route configuration
+│   ├── features/                  # Route-mounted feature modules
+│   │   ├── inbox/routes.tsx
+│   │   ├── settings/routes.tsx
+│   │   └── admin/routes.tsx
 │   ├── i18n/
-│   │   ├── i18n.ts                 # Lingui configuration & locale detection
+│   │   ├── i18n.ts                # i18nano store & helpers
 │   │   └── locales/
-│   │       ├── en/messages.js      # English messages
-│   │       ├── es/messages.js      # Spanish messages
-│   │       ├── fr/messages.js      # French messages
-│   │       └── de/messages.js      # German messages
-│   ├── main.tsx                    # Application entry point
-│   └── index.css                   # Global styles
-├── index.html                      # HTML template
-├── vite.config.ts                  # Vite configuration
-├── tsconfig.json                   # TypeScript configuration
-├── biome.json                      # Biome linter configuration
-├── lingui.config.js                # Lingui i18n configuration
-└── package.json                    # Dependencies and scripts
+│   │       ├── en.json
+│   │       ├── es.json
+│   │       ├── fr.json
+│   │       └── de.json
+│   ├── services/
+│   │   ├── api.ts                 # REST client for document APIs
+│   │   └── invoices.ts            # Effect-based invoice schema & fetcher
+│   ├── stores/
+│   │   ├── api.ts                 # Health/status store
+│   │   └── ui.ts                  # UI selection state
+│   ├── ui/
+│   │   ├── AppShell.tsx           # Resizable panel workspace
+│   │   ├── LanguageSwitcher.tsx
+│   │   └── primitives.tsx
+│   ├── index.css                  # Global styles
+│   └── main.tsx                   # App entry point
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── biome.json
+└── package.json
 ```
 
-## Development Setup
+## Getting Started
 
 ### Prerequisites
+- Node.js **23+**
+- pnpm **10.13.1+**
 
-- **Node.js**: v23 or higher
-- **pnpm**: v10.13.1 or higher (workspace package manager)
-
-### Installation
-
-From the monorepo root:
-
+### Install Dependencies
 ```bash
-# Install all dependencies
+# From the monorepo root
 pnpm install
 
-# Install app-specific dependencies (if needed)
+# (Optional) focus install for this package
 pnpm --filter @fidudoc/app install
 ```
 
-## Development Commands
-
-### Running the Development Server
-
+### Development Workflow
 ```bash
 # Start Vite dev server with HMR
 pnpm dev
 
-# Or directly in app package
+# Or scoped to this package
 pnpm --filter @fidudoc/app dev
 ```
-
-The app will be available at `http://localhost:5173`
-
-### Code Quality
-
-#### Linting (Biome)
+Visit `http://localhost:5173`.
 
 ```bash
-# Check for linting issues
+# Type checking
+pnpm typecheck
+
+# Lint and format checks
 pnpm lint
-
-# Fix linting issues automatically
-pnpm lint:fix
-```
-
-#### Code Formatting (dprint)
-
-```bash
-# Check code formatting
 pnpm format:check
 
-# Format all files
-pnpm format
-```
-
-#### Type Checking (TypeScript)
-
-```bash
-# Strict type checking
-pnpm typecheck
-```
-
-#### Full Quality Check
-
-```bash
-# Run lint + format check (same as CI)
+# One-shot quality gate
 pnpm check
-
-# Fix all issues automatically
-pnpm check:fix
 ```
 
-### Build
-
+### Production Build
 ```bash
-# Production build with i18n compilation
 pnpm build
-
-# Preview production build
 pnpm preview
 ```
 
-### Internationalization
+## Internationalization Guide
 
-```bash
-# Extract messages from code (generates .po files)
-pnpm i18n:extract
+- Message catalogs live under `src/i18n/locales/<locale>.json`.
+- Add new keys directly to the locale JSON files—no compile step is required.
+- `initializeI18n()` runs before render to load the preferred locale from localStorage or the browser.
+- Use `const { t } = useI18nContext();` in components and call `t("key.path", { placeholder: value })`.
+- When introducing a new language, add the locale code to `SUPPORTED_LOCALES` in `src/i18n/i18n.ts` and create a matching JSON file.
 
-# Compile message catalogs to JS (generates .js files)
-pnpm i18n:compile
-```
+## Panel Workspace
 
-## Architecture
+`AppShell.tsx` wires the resizable panel system:
+- Navigation, content, and details panels are defaults, not requirements.
+- Feature modules can resize or hide panels depending on the view.
+- Panel state is kept minimal so the layout feels responsive across devices.
 
-### Separation of Concerns
+## Data & Services
 
-- **Routing**: HTTP routing and client-side navigation via React Router
-- **Effect**: Domain logic, services, and business rules with typed error handling
-- **React Query**: Server state synchronization and caching
-- **Zustand**: UI state (selections, modals, filters)
-
-### Type Safety
-
-- TypeScript with **strict mode** enabled from day one
-- Schema validation at service layer with `@effect/schema`
-- All API contracts defined with typed schemas
-- No `any` types in application code
-
-### State Management Pattern
-
-```
-┌─────────────────────────────────────┐
-│         React Component              │
-├─────────────────────────────────────┤
-│  Local State (useState)              │
-│  UI State (useUI - Zustand)          │
-│  Server State (useQuery - React Query)
-└─────────────────────────────────────┘
-          v
-┌─────────────────────────────────────┐
-│      Zustand (UI State)              │
-│  - selectedId, filters, modals       │
-└─────────────────────────────────────┘
-          v
-┌─────────────────────────────────────┐
-│   React Query (Server State)         │
-│  - Caching, deduplication, sync      │
-│  - Stale time management             │
-└─────────────────────────────────────┘
-          v
-┌─────────────────────────────────────┐
-│   Effect Services (Business Logic)   │
-│  - Typed APIs, error handling        │
-│  - Schema validation                 │
-│  - Effect.runPromise adapter         │
-└─────────────────────────────────────┘
-```
-
-### Internationalization Pattern
-
-1. **Extract**: Mark text with `<Trans id="msg.key">Text</Trans>`
-2. **Compile**: `pnpm i18n:compile` generates JS catalogs
-3. **Detect**: Browser locale detected on first load
-4. **Persist**: User preference saved to localStorage
-5. **Switch**: Language switcher buttons update locale in real-time
-
-## Key Features
-
-### Browser Locale Detection
-
-The app automatically detects and applies the user's browser language on first visit:
-
-- Checks browser's `navigator.language`
-- Falls back to saved preference in localStorage
-- Defaults to English if unsupported language detected
-- Supports: English, Spanish, French, German
-
-### 3-Pane Layout
-
-Resizable dashboard with three panels:
-
-- **Left Panel** (22%, min 15%) - Navigation
-- **Center Panel** (flex, min 30%) - Main content area
-- **Right Panel** (28%, min 20%) - Details/properties
-- **Resizable separators** with visual feedback on hover
-
-### Route-Level Code Splitting
-
-Features are lazily loaded via React Router for optimal bundle size:
-
-```typescript
-{
-  path: "kyc",
-  lazy: () => import("../features/kyc/routes").then(m => ({
-    Component: m.KycRoute,
-  })),
-}
-```
-
-### API Integration Ready
-
-Service layer prepared for backend integration:
-
-```typescript
-// src/services/invoices.ts
-export const fetchInvoices = Effect.tryPromise({
-  try: async () => {
-    const res = await fetch("/api/invoices");
-    // Response validated with Effect/Schema
-    return Schema.decodeUnknownSync(Schema.Array(Invoice))(json);
-  },
-  catch: (e) => e as Error,
-});
-
-// Usage in components
-const { data } = useQuery({
-  queryKey: ["invoices"],
-  queryFn: () => run(fetchInvoices),
-  staleTime: 30_000,
-});
-```
-
-## Configuration Files
-
-### vite.config.ts
-
-```typescript
-export default defineConfig({
-  plugins: [react()],
-  server: { port: 5173, host: "localhost" },
-});
-```
-
-### tsconfig.json
-
-- **Target**: ES2022
-- **Module**: ESNext
-- **Strict**: true (no implicit any, strict null checks)
-- **JSX**: react-jsx
-
-### biome.json
-
-Extends root biome config with app-specific overrides:
-
-- Disables `useUniqueElementIds` rule for Lingui Trans message IDs
-
-### lingui.config.js
-
-```javascript
-export default {
-  locales: ["en", "es", "fr", "de"],
-  catalogs: [{
-    path: "src/i18n/locales/{locale}/messages",
-    include: ["src"],
-  }],
-  format: formatter({ style: "minimal" }),
-};
-```
-
-## Development Best Practices
-
-### Code Organization
-
-1. **Keep server state in React Query** - API responses, lists, pagination
-2. **Keep UI state in Zustand** - Selected items, open modals, sorting/filtering
-3. **Keep side-effects in Effect** - API calls, file operations, async work
-
-### Import Ordering
-
-Imports are sorted alphabetically by dprint:
-
-```typescript
-// 1. External packages
-import { Trans } from "@lingui/react";
-import { useQuery } from "@tanstack/react-query";
-
-// 2. Relative imports (parent)
-import { activateLocale } from "../i18n/i18n";
-
-// 3. Relative imports (sibling)
-import { LanguageSwitcher } from "./LanguageSwitcher";
-```
-
-### Message IDs in i18n
-
-Use hierarchical, descriptive message IDs:
-
-```typescript
-// Good
-<Trans id="msg.app.title">Fiduciary Ops</Trans>
-<Trans id="msg.inbox.description">Document processing interface</Trans>
-<Trans id="msg.status.connected">Status: Connected</Trans>
-
-// Avoid
-<Trans id="title">Fiduciary Ops</Trans>
-<Trans id="desc1">Document processing interface</Trans>
-```
-
-### Error Handling
-
-Use Effect for structured error handling:
-
-```typescript
-export const fetchInvoices = Effect.tryPromise({
-  try: async () => {/* ... */},
-  catch: (e) => new InvoiceError(e),
-});
-```
-
-### Testing Query Functions
-
-Use `run` adapter to convert Effect to Promise:
-
-```typescript
-import { run } from "../services/client";
-
-// In tests or hooks
-const result = await run(fetchInvoices);
-```
-
-## Performance Considerations
-
-### Bundle Size
-
-- Route-level code splitting reduces initial bundle
-- Tree-shaking enabled in Vite
-- Message catalogs are separate files (loaded on demand by locale)
-
-### Rendering Optimization
-
-- Zustand provides atomic updates (no provider re-renders)
-- React Query manages server state efficiently
-- Memoization available via `memo()` and `useMemo()` for expensive renders
-
-### Network
-
-- React Query caches responses with configurable `staleTime`
-- Deduplication prevents duplicate requests in-flight
-- Consider pagination for large lists
+- `services/api.ts` wraps browser `fetch` for document-related endpoints and centralizes shapes for `Document`, `User`, `AuditLog`, and `Settings`.
+- `services/invoices.ts` demonstrates using Effect + Schema for typed calls; `run()` helper in `services/client.ts` bridges Effects to Promises.
+- Global API health indicator lives in `stores/api.ts` and is surfaced in the `AppShell` footer.
+- UI-specific selections are stored in `stores/ui.ts`.
 
 ## Troubleshooting
 
-### Dev Server Won't Start
+- **Dev server fails to start** → Kill stray Vite processes (`pkill -f "vite"`) and rerun `pnpm dev`.
+- **Type errors in IDE** → `pnpm typecheck` then restart the TypeScript/IDE server.
+- **Translations missing** → Confirm the key exists in the current locale JSON. Clear `localStorage.language` and reload.
+- **Stale HMR updates** → Restart the dev server and hard-refresh the browser cache.
 
-```bash
-# Kill existing process
-pkill -f "vite"
+## Roadmap Ideas
 
-# Clear cache and restart
-pnpm dev
-```
+1. Flesh out feature routes with real data and forms.
+2. Connect `services/api.ts` to live backend endpoints.
+3. Expand the UI primitive library and theme tokens.
+4. Add component and integration tests (Vitest/Testing Library).
 
-### Type Errors in IDE
+## Contributing Guidelines
 
-```bash
-# Rebuild TypeScript
-pnpm typecheck
-
-# Restart IDE/LSP server
-```
-
-### i18n Messages Not Appearing
-
-```bash
-# Ensure messages are compiled
-pnpm i18n:compile
-
-# Clear browser localStorage
-localStorage.clear();
-
-# Reload browser
-```
-
-### Stale HMR Updates
-
-```bash
-# Restart dev server
-# Clear browser cache (Cmd/Ctrl + Shift + Delete)
-# Reload page
-```
-
-## Environment Variables
-
-Currently, the app doesn't require environment variables for development. When connecting to the backend API, add:
-
-```bash
-# .env (not committed)
-VITE_API_BASE_URL=http://localhost:3000/api
-```
-
-Then use in services:
-
-```typescript
-const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
-```
-
-## Next Steps for Team
-
-1. **Implement feature pages** - Add more routes in `src/features/`
-2. **Connect API endpoints** - Update services with real API calls
-3. **Add UI components** - Build component library in `src/ui/primitives.tsx`
-4. **Expand tests** - Add unit tests (Jest/Vitest recommended)
-5. **Polish i18n** - Review and improve translations
-6. **Performance audit** - Run Lighthouse and optimize
-
-## Resources
-
-- [React 19 Docs](https://react.dev)
-- [React Router v7 Docs](https://reactrouter.com)
-- [TanStack Query Docs](https://tanstack.com/query/latest)
-- [Zustand Docs](https://github.com/pmndrs/zustand)
-- [Effect Documentation](https://effect.website)
-- [Lingui i18n Docs](https://lingui.dev)
-- [Vite Docs](https://vitejs.dev)
-
-## Contributing
-
-- Follow the architecture and file structure outlined above
-- Run `pnpm check` before committing
-- Write meaningful commit messages
-- Keep components focused and reusable
-- Add translations for new UI text
+- Keep modules cohesive and prefer feature-based structure.
+- Add translations for any new UI text.
+- Run `pnpm check` before opening a PR.
+- Use descriptive commit messages and document notable UX changes in `UX.md` when relevant.
 
 ## License
 

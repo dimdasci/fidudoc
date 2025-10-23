@@ -1,5 +1,4 @@
-import { useLingui } from "@lingui/react";
-import { activateLocale } from "../i18n/i18n";
+import { useI18nContext } from "../i18n/i18n";
 
 const LANGUAGES = {
   en: { label: "English", flag: "🇬🇧" },
@@ -9,29 +8,28 @@ const LANGUAGES = {
 };
 
 export function LanguageSwitcher() {
-  const { i18n } = useLingui();
+  const { locale, setLocale } = useI18nContext();
 
-  const handleLanguageChange = (locale: string) => {
-    activateLocale(locale);
-    localStorage.setItem("language", locale);
+  const handleLanguageChange = (newLocale: string) => {
+    void setLocale(newLocale as "en" | "es" | "fr" | "de");
   };
 
   return (
     <div style={{ display: "flex", gap: "4px" }}>
-      {Object.entries(LANGUAGES).map(([locale, { flag, label }]) => (
+      {Object.entries(LANGUAGES).map(([localeCode, { flag, label }]) => (
         <button
-          key={locale}
+          key={localeCode}
           type="button"
-          onClick={() => handleLanguageChange(locale)}
+          onClick={() => handleLanguageChange(localeCode)}
           title={label}
           style={{
-            background: i18n.locale === locale ? "#e5e7eb" : "transparent",
+            background: locale === localeCode ? "#e5e7eb" : "transparent",
             border: "1px solid #d1d5db",
             borderRadius: "4px",
             padding: "4px 8px",
             cursor: "pointer",
             fontSize: "16px",
-            fontWeight: i18n.locale === locale ? "bold" : "normal",
+            fontWeight: locale === localeCode ? "bold" : "normal",
           }}
         >
           {flag}

@@ -5,7 +5,7 @@
  * without needing a full backend implementation.
  */
 
-import type { Settings, Document, User, AuditLog } from "./types.ts";
+import type { AuditLog, Document, Settings, User } from "./types.ts";
 
 // ============================================================================
 // Mock Settings Generator
@@ -61,14 +61,14 @@ export function generateMockSettings(): Settings {
       {
         name: "Last 24h Inbox",
         query: {
-          status: "pending_approval",
+          status: "pending",
           period: "24h",
         },
       },
       {
         name: "Pending Approval",
         query: {
-          status: "pending_approval",
+          status: "pending",
         },
       },
       {
@@ -154,13 +154,17 @@ function generateMockExtractedData(
       };
     case "lease":
       return {
-        propertyAddress: `Street ${Math.floor(Math.random() * 100)} ${Math.floor(Math.random() * 10)}, City`,
-        leaseStartDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0],
-        leaseEndDate: new Date(Date.now() + Math.random() * 1825 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0],
+        propertyAddress: `Street ${Math.floor(Math.random() * 100)} ${
+          Math.floor(Math.random() * 10)
+        }, City`,
+        leaseStartDate:
+          new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+        leaseEndDate:
+          new Date(Date.now() + Math.random() * 1825 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
         monthlyRent: Math.round(Math.random() * 5000 * 100) / 100,
         currency: "EUR",
         vatApplicable: Math.random() > 0.5,
@@ -184,15 +188,19 @@ function generateMockDocument(index: number): Document {
   const docType: Document["documentType"] = selectedType || "unknown";
   const createdDays = Math.floor(Math.random() * 60);
   const uploadedAt = new Date(Date.now() - createdDays * 24 * 60 * 60 * 1000);
-  const inspectionType =
-    docType === "invoice" ? "vat" : docType === "lease" ? "lease_vat" : null;
+  const inspectionType = docType === "invoice"
+    ? "vat"
+    : docType === "lease"
+    ? "lease_vat"
+    : null;
 
   return {
     id: `doc-${String(index + 1).padStart(5, "0")}`,
-    fileName: `${docType}_${uploadedAt.getFullYear()}_${String(index).padStart(3, "0")}.pdf`,
+    fileName: `${docType}_${uploadedAt.getFullYear()}_${
+      String(index).padStart(3, "0")
+    }.pdf`,
     documentType: docType,
-    status:
-      Math.random() > 0.3 ? "approved" : "pending_approval",
+    status: Math.random() > 0.3 ? "approved" : "pending",
     validation_status: Math.random() > 0.15 ? "passed" : "failed",
     client_id: `client-${String((index % 6) + 1).padStart(3, "0")}`,
     clientName,
@@ -201,11 +209,14 @@ function generateMockDocument(index: number): Document {
     processedAt: Math.random() > 0.2
       ? new Date(uploadedAt.getTime() + 30 * 60 * 1000).toISOString()
       : undefined,
-    pdfStoragePath: `storage/clients/${(index % 6) + 1}/${docType}s/${uploadedAt.getFullYear()}/${index}.pdf`,
-    jsonStoragePath:
-      docType !== "receipt"
-        ? `storage/clients/${(index % 6) + 1}/${docType}s/${uploadedAt.getFullYear()}/${index}.json`
-        : undefined,
+    pdfStoragePath: `storage/clients/${
+      (index % 6) + 1
+    }/${docType}s/${uploadedAt.getFullYear()}/${index}.pdf`,
+    jsonStoragePath: docType !== "receipt"
+      ? `storage/clients/${
+        (index % 6) + 1
+      }/${docType}s/${uploadedAt.getFullYear()}/${index}.json`
+      : undefined,
     extractedData: generateMockExtractedData(docType),
     inspectionType,
   };
@@ -260,7 +271,8 @@ const ROLE_PERMISSIONS: Record<User["role"], string[]> = {
 };
 
 function generateMockUser(index: number): User {
-  const userInfo = USER_NAMES[index % USER_NAMES.length] || { name: "Unknown", email: "unknown@example.com" };
+  const userInfo = USER_NAMES[index % USER_NAMES.length]
+    || { name: "Unknown", email: "unknown@example.com" };
   const role: User["role"] = [
     "admin",
     "operator",
@@ -271,10 +283,9 @@ function generateMockUser(index: number): User {
   const createdDays = Math.floor(Math.random() * 180);
   const createdAt = new Date(Date.now() - createdDays * 24 * 60 * 60 * 1000);
   const lastLoginDays = Math.floor(Math.random() * 30);
-  const lastLogin =
-    lastLoginDays > 7
-      ? undefined
-      : new Date(Date.now() - lastLoginDays * 24 * 60 * 60 * 1000);
+  const lastLogin = lastLoginDays > 7
+    ? undefined
+    : new Date(Date.now() - lastLoginDays * 24 * 60 * 60 * 1000);
 
   const permissions = ROLE_PERMISSIONS[role] || [];
 
@@ -312,7 +323,7 @@ export function generateMockAuditLog(): AuditLog[] {
       action: "document_approved",
       resourceType: "document",
       resourceId: "doc-00001",
-      details: { status: "pending_approval", newStatus: "approved" },
+      details: { status: "pending", newStatus: "approved" },
     },
     {
       id: "audit-002",
