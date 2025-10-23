@@ -60,7 +60,7 @@ export function AppShell() {
                   <Link
                     key={path}
                     to={path}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                    className="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
                   >
                     {t(label)}
                   </Link>
@@ -82,7 +82,7 @@ export function AppShell() {
           <Panel defaultSize={28} minSize={20}>
             <section className="h-full bg-surface border-l border-gray-200">
               <div className="p-6">
-                <p className="text-sm text-gray-600">
+                <p className="text-gray-600">
                   {t("panel.details")}
                 </p>
               </div>
@@ -92,8 +92,8 @@ export function AppShell() {
       </div>
 
       {/* Footer - Fixed height */}
-      <footer className="flex-none h-10 bg-surface border-t border-gray-200 px-6 flex items-center">
-        <div className="flex items-center gap-2 text-xs">
+      <footer className="flex-none h-12 bg-surface border-t border-gray-200 px-6 flex items-center">
+        <div className="flex items-center gap-2 text-sm">
           {isHealthy
             ? (
               <>
