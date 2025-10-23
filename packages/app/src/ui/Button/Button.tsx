@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import styles from "./Button.module.css";
 
 export interface ButtonProps {
   children: ReactNode;
@@ -14,19 +15,30 @@ export interface ButtonProps {
 export function Button({
   children,
   onClick,
+  variant = "secondary",
+  size = "md",
   disabled = false,
   type = "button",
   className = "",
   icon,
 }: ButtonProps) {
+  const classes = [
+    styles.button,
+    styles[variant],
+    styles[size],
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={className}
+      className={classes}
     >
-      {icon && icon}
+      {icon && <span className={styles.icon}>{icon}</span>}
       {children}
     </button>
   );

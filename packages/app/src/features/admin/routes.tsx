@@ -3,7 +3,7 @@ import { AlertCircle, ChevronDown, ChevronUp, Loader, UserPlus } from "lucide-re
 import React, { useState } from "react";
 import { useI18nContext } from "../../i18n/i18n";
 import { fetchAuditLog, fetchUsers } from "../../services/api";
-import { Button } from "../../ui/Button";
+import { Button } from "../../ui/Button/Button";
 import { Table, TableBadge, type TableColumn } from "../../ui/Table";
 import { showToast } from "../../ui/toast";
 

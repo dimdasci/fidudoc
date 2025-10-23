@@ -1,14 +1,15 @@
-import { Checkbox as BaseCheckbox } from "@base-ui-components/react/checkbox";
-import { Input as BaseInput } from "@base-ui-components/react/input";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Clock, FileText, Upload, X } from "lucide-react";
+import { Check, FileText, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { useI18nContext } from "../../i18n/i18n";
 import { fetchDocuments } from "../../services/api";
-import { Button } from "../../ui/Button";
-import { Select } from "../../ui/Select";
+import { Button } from "../../ui/Button/Button";
+import { ChevronDownIcon } from "../../ui/icons/ChevronDownIcon";
+import { Input } from "../../ui/Input";
+import { MenuItem, MenuPopup, MenuRoot, MenuTrigger } from "../../ui/Menu";
 import { Table, TableBadge, type TableColumn } from "../../ui/Table";
 import { showToast } from "../../ui/toast";
+import { ToolbarGroup, ToolbarRoot, ToolbarSeparator } from "../../ui/Toolbar";
 
 // Helper functions
 function formatFileSize(bytes: number): string {
@@ -77,25 +78,19 @@ export function InboxRoute() {
   });
 
   // Filter documents based on search query
-  const documents = data?.documents || [];
-  const filteredDocuments = documents.filter((doc) => {
+  // BUGFIX: Hot module reloading sometimes causes data to be serialized as string
+  const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+  const documents = parsedData?.documents || [];
+  const filteredDocuments = documents.filter((doc: DocumentRow) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
       doc.fileName.toLowerCase().includes(query)
       || doc.clientName.toLowerCase().includes(query)
     );
-  }) as unknown as DocumentRow[];
+  });
 
   // Selection handlers
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedIds(new Set(filteredDocuments.map((doc) => doc.id)));
-    } else {
-      setSelectedIds(new Set());
-    }
-  };
-
   const handleSelectOne = (id: string, checked: boolean) => {
     const newSelected = new Set(selectedIds);
     if (checked) {
@@ -140,59 +135,15 @@ export function InboxRoute() {
     setSelectedIds(new Set());
   };
 
-  const handleDefer = () => {
-    if (selectedIds.size === 0) {
-      showToast(t("inbox.toast.noSelection"), "error");
-      return;
-    }
-    showToast(
-      t("inbox.toast.deferSuccess", { count: selectedIds.size }),
-      "success",
-    );
-    setSelectedIds(new Set());
-  };
-
-  const handleSaveMetadata = () => {
-    if (selectedIds.size === 0) {
-      showToast(t("inbox.toast.noSelection"), "error");
-      return;
-    }
-    showToast(
-      t("inbox.toast.metadataSaved", { count: selectedIds.size }),
-      "success",
-    );
-  };
-
   // Table configuration
-  const allSelected = filteredDocuments.length > 0
-    && filteredDocuments.every((doc) => selectedIds.has(doc.id));
-
   const columns: TableColumn<DocumentRow>[] = [
-    {
-      key: "select",
-      label: "",
-      width: "40px",
-      render: (_, row) => (
-        <BaseCheckbox.Root
-          checked={selectedIds.has(row.id)}
-          onCheckedChange={(checked) => {
-            handleSelectOne(row.id, checked);
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <BaseCheckbox.Indicator>
-            <Check size={14} strokeWidth={3} />
-          </BaseCheckbox.Indicator>
-        </BaseCheckbox.Root>
-      ),
-    },
     {
       key: "fileName",
       label: t("inbox.column.fileName"),
       render: (value) => (
-        <div>
-          <FileText size={16} />
-          <span>
+        <div className="flex items-center gap-2">
+          <FileText size={16} className="text-secondary flex-shrink-0" />
+          <span className="text-body text-primary truncate">
             {String(value)}
           </span>
         </div>
@@ -229,7 +180,7 @@ export function InboxRoute() {
       key: "clientName",
       label: t("inbox.column.client"),
       render: (value) => (
-        <span>
+        <span className="text-body text-primary">
           {String(value)}
         </span>
       ),
@@ -239,7 +190,7 @@ export function InboxRoute() {
       label: t("inbox.column.size"),
       align: "right",
       render: () => (
-        <span>
+        <span className="text-body-sm text-secondary tabular-nums">
           {formatFileSize(Math.floor(Math.random() * 5000000 + 100000))}
         </span>
       ),
@@ -248,7 +199,7 @@ export function InboxRoute() {
       key: "uploadedAt",
       label: t("inbox.column.received"),
       render: (value) => (
-        <span>
+        <span className="text-body-sm text-secondary tabular-nums">
           {formatDate(String(value))}
         </span>
       ),
@@ -260,7 +211,7 @@ export function InboxRoute() {
       render: (value, _row) => {
         const confidence = Number(value);
         return (
-          <span>
+          <span className="text-body-sm text-primary tabular-nums font-medium">
             {Math.round(confidence * 100)}%
           </span>
         );
@@ -270,7 +221,7 @@ export function InboxRoute() {
       key: "processedAt",
       label: t("inbox.column.updated"),
       render: (value, row) => (
-        <span>
+        <span className="text-body-sm text-secondary tabular-nums">
           {formatDate(String(value || row.uploadedAt))}
         </span>
       ),
@@ -278,13 +229,13 @@ export function InboxRoute() {
   ];
 
   const headerActions = (
-    <div>
+    <div className="mb-6">
       {/* Header */}
-      <div>
-        <h2>
+      <div className="space-y-1">
+        <h2 className="text-headline font-semibold text-primary">
           {t("inbox.title")}
         </h2>
-        <p>
+        <p className="text-body text-secondary">
           {t("inbox.subtitle")}
         </p>
       </div>
@@ -294,17 +245,60 @@ export function InboxRoute() {
   const tableHeaderActions = (
     <>
       {/* Toolbar */}
-      <div>
-        {/* Left side - Actions */}
-        <div>
-          <Button
-            onClick={handleUpload}
-            variant="primary"
-            size="sm"
-            icon={<Upload size={16} />}
-          >
-            {t("inbox.button.upload")}
-          </Button>
+      <ToolbarRoot className="justify-between mb-6">
+        {/* Filters */}
+        <ToolbarGroup>
+          <div className="w-64">
+            <Input
+              placeholder={t("inbox.search.placeholder")}
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="w-40">
+            <MenuRoot>
+              <MenuTrigger>
+                {statusFilter === "all"
+                  ? t("inbox.filter.all")
+                  : statusFilter === "pending"
+                  ? t("inbox.filter.pending")
+                  : statusFilter === "approved"
+                  ? t("inbox.filter.approved")
+                  : t("inbox.filter.rejected")}
+                <ChevronDownIcon />
+              </MenuTrigger>
+              <MenuPopup>
+                <MenuItem
+                  onClick={() => setStatusFilter("all")}
+                  selected={statusFilter === "all"}
+                >
+                  {t("inbox.filter.all")}
+                </MenuItem>
+                <MenuItem
+                  onClick={() => setStatusFilter("pending")}
+                  selected={statusFilter === "pending"}
+                >
+                  {t("inbox.filter.pending")}
+                </MenuItem>
+                <MenuItem
+                  onClick={() => setStatusFilter("approved")}
+                  selected={statusFilter === "approved"}
+                >
+                  {t("inbox.filter.approved")}
+                </MenuItem>
+                <MenuItem
+                  onClick={() => setStatusFilter("rejected")}
+                  selected={statusFilter === "rejected"}
+                >
+                  {t("inbox.filter.rejected")}
+                </MenuItem>
+              </MenuPopup>
+            </MenuRoot>
+          </div>
+        </ToolbarGroup>
+        <ToolbarSeparator orientation="vertical" />
+        <ToolbarGroup>
           <Button
             onClick={handleApprove}
             disabled={selectedIds.size === 0}
@@ -323,87 +317,53 @@ export function InboxRoute() {
           >
             {t("inbox.button.reject")}
           </Button>
+        </ToolbarGroup>
+        {/* Actions */}
+        <ToolbarSeparator orientation="vertical" />
+        <ToolbarGroup>
           <Button
-            onClick={handleDefer}
-            disabled={selectedIds.size === 0}
-            variant="secondary"
+            onClick={handleUpload}
+            variant="primary"
             size="sm"
-            icon={<Clock size={16} />}
+            icon={<Upload size={16} />}
           >
-            {t("inbox.button.defer")}
+            {t("inbox.button.upload")}
           </Button>
-          <Button
-            onClick={handleSaveMetadata}
-            disabled={selectedIds.size === 0}
-            variant="secondary"
-            size="sm"
-          >
-            {t("inbox.button.saveMetadata")}
-          </Button>
-        </div>
+        </ToolbarGroup>
+      </ToolbarRoot>
 
-        {/* Right side - Filters */}
-        <div>
-          <div>
-            <BaseInput
-              placeholder={t("inbox.search.placeholder")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div>
-            <Select
-              value={statusFilter}
-              onChange={setStatusFilter}
-              options={[
-                { value: "all", label: t("inbox.filter.all") },
-                { value: "pending", label: t("inbox.filter.pending") },
-                { value: "approved", label: t("inbox.filter.approved") },
-                { value: "rejected", label: t("inbox.filter.rejected") },
-              ]}
-            />
-          </div>
+      {/* Selection info */}
+      {selectedIds.size > 0 && (
+        <div className="mb-3 text-body-sm text-secondary">
+          {selectedIds.size} document{selectedIds.size > 1 ? "s" : ""} selected
         </div>
-      </div>
-
-      {/* Select All Header */}
-      <div>
-        <BaseCheckbox.Root
-          checked={allSelected}
-          onCheckedChange={(checked) => handleSelectAll(checked)}
-        >
-          <BaseCheckbox.Indicator>
-            <Check size={14} strokeWidth={3} />
-          </BaseCheckbox.Indicator>
-        </BaseCheckbox.Root>
-        <span>
-          Select All
-        </span>
-      </div>
+      )}
     </>
   );
 
   const footer = !isLoading && !error && filteredDocuments.length > 0
     ? (
-      <div>
-        <div>
+      <div className="flex items-center justify-between px-4 py-3 bg-surface border-t border-subtle">
+        <div className="text-body-sm text-secondary">
           {t("inbox.footer.showing", {
             count: filteredDocuments.length,
             total: documents.length,
           })}
         </div>
         {selectedIds.size > 0 && (
-          <div>{t("inbox.footer.selected", { count: selectedIds.size })}</div>
+          <div className="text-body-sm font-medium text-primary">
+            {t("inbox.footer.selected", { count: selectedIds.size })}
+          </div>
         )}
       </div>
     )
     : undefined;
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       {headerActions}
 
-      <div>
+      <div className="flex-1 overflow-hidden">
         <Table
           columns={columns}
           data={filteredDocuments}

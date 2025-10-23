@@ -1,0 +1,50 @@
+/* Toolbar Root */
+
+.root {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.root[data-orientation="vertical"] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.root[data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Toolbar Group */
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.group[data-orientation="vertical"] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.group[data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Toolbar Separator */
+
+.separator {
+  width: 1px;
+  height: 1.5rem;
+  background-color: var(--border-subtle);
+  align-self: center;
+}
+
+.separator[data-orientation="horizontal"] {
+  width: 100%;
+  height: 1px;
+  margin: 0.5rem 0;
+}
