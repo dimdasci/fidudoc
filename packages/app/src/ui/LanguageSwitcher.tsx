@@ -1,31 +1,42 @@
+import { MenuRoot, MenuTrigger, MenuPopup, MenuItem } from "./Menu";
+import { ChevronDownIcon } from "./icons";
 import { useI18nContext } from "../i18n/i18n";
 
 const LANGUAGES = {
-  en: { label: "English", flag: "🇬🇧" },
-  es: { label: "Español", flag: "🇪🇸" },
-  fr: { label: "Français", flag: "🇫🇷" },
-  de: { label: "Deutsch", flag: "🇩🇪" },
+  en: { label: "English" },
+  es: { label: "Español" },
+  fr: { label: "Français" },
+  de: { label: "Deutsch" },
 };
 
+type Locale = keyof typeof LANGUAGES;
+
 export function LanguageSwitcher() {
-  const { setLocale } = useI18nContext();
+  const { locale, setLocale } = useI18nContext();
 
   const handleLanguageChange = (newLocale: string) => {
-    void setLocale(newLocale as "en" | "es" | "fr" | "de");
+    void setLocale(newLocale as Locale);
   };
 
+  const currentLanguage = LANGUAGES[locale as Locale]?.label || "English";
+
   return (
-    <div>
-      {Object.entries(LANGUAGES).map(([localeCode, { flag, label }]) => (
-        <button
-          key={localeCode}
-          type="button"
-          onClick={() => handleLanguageChange(localeCode)}
-          title={label}
-        >
-          {flag}
-        </button>
-      ))}
-    </div>
+    <MenuRoot>
+      <MenuTrigger>
+        {currentLanguage} <ChevronDownIcon />
+      </MenuTrigger>
+
+      <MenuPopup>
+        {Object.entries(LANGUAGES).map(([localeCode, { label }]) => (
+          <MenuItem
+            key={localeCode}
+            onClick={() => handleLanguageChange(localeCode)}
+            selected={locale === localeCode}
+          >
+            {label}
+          </MenuItem>
+        ))}
+      </MenuPopup>
+    </MenuRoot>
   );
 }

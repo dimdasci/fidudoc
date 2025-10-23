@@ -32,11 +32,11 @@ export function AppShell() {
   }, [setHealthy, setError, t]);
 
   return (
-    <div>
-      {/* Header */}
-      <header>
+    <div className="flex flex-col h-full">
+      {/* Header - Fixed height */}
+      <header className="flex-none h-16 bg-surface border-b border-gray-200 px-6 flex items-center justify-between">
         <div>
-          <h1>
+          <h1 className="logo-text text-2xl text-gray-900">
             {t("app.title")}
           </h1>
         </div>
@@ -45,19 +45,23 @@ export function AppShell() {
         </div>
       </header>
 
-      {/* Main content with 3-pane layout */}
-      <div>
-        <PanelGroup direction="horizontal">
+      {/* Main content - Flexible height with 3-pane layout */}
+      <div className="flex-1 overflow-hidden">
+        <PanelGroup direction="horizontal" className="h-full">
           {/* Left sidebar - Navigation */}
           <Panel defaultSize={18} minSize={15}>
-            <aside>
-              <nav>
+            <aside className="h-full bg-surface border-r border-gray-200">
+              <nav className="flex flex-col p-4 gap-2">
                 {[
                   { path: "/", label: "nav.inbox" },
                   { path: "/settings", label: "nav.settings" },
                   { path: "/admin", label: "nav.admin" },
                 ].map(({ path, label }) => (
-                  <Link key={path} to={path}>
+                  <Link
+                    key={path}
+                    to={path}
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                  >
                     {t(label)}
                   </Link>
                 ))}
@@ -68,7 +72,7 @@ export function AppShell() {
 
           {/* Center - Main content */}
           <Panel minSize={30}>
-            <main>
+            <main className="h-full overflow-auto bg-background">
               <Outlet />
             </main>
           </Panel>
@@ -76,9 +80,9 @@ export function AppShell() {
 
           {/* Right sidebar - Details */}
           <Panel defaultSize={28} minSize={20}>
-            <section>
-              <div>
-                <p>
+            <section className="h-full bg-surface border-l border-gray-200">
+              <div className="p-6">
+                <p className="text-sm text-gray-600">
                   {t("panel.details")}
                 </p>
               </div>
@@ -87,22 +91,22 @@ export function AppShell() {
         </PanelGroup>
       </div>
 
-      {/* Footer - Status */}
-      <footer>
-        <div>
+      {/* Footer - Fixed height */}
+      <footer className="flex-none h-10 bg-surface border-t border-gray-200 px-6 flex items-center">
+        <div className="flex items-center gap-2 text-xs">
           {isHealthy
             ? (
               <>
-                <div />
-                <span>
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-gray-600">
                   {t("header.connected")}
                 </span>
               </>
             )
             : (
               <>
-                <AlertCircle size={14} />
-                <span>
+                <AlertCircle size={14} className="text-red-500" />
+                <span className="text-red-600">
                   {t("header.disconnected")}
                 </span>
               </>

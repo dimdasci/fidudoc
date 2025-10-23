@@ -1,0 +1,139 @@
+/* Menu Trigger */
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.trigger:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.trigger[data-pressed] {
+  background-color: var(--color-surface-active);
+}
+
+.trigger[data-pressed] svg {
+  transform: rotate(180deg);
+}
+
+.trigger svg {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Menu Popup */
+
+.positioner {
+  z-index: 1000;
+}
+
+.popup {
+  min-width: 140px;
+  padding: 0.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  opacity: 0;
+  transform: translateY(-0.5rem);
+  transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.popup[data-open] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.popup[data-closed] {
+  pointer-events: none;
+}
+
+/* Menu Arrow */
+
+.arrow {
+  color: var(--color-surface);
+}
+
+.arrow[data-side="bottom"] {
+  top: -8px;
+}
+
+.arrow[data-side="top"] {
+  bottom: -8px;
+  rotate: 180deg;
+}
+
+.arrow[data-side="left"] {
+  right: -13px;
+  rotate: 90deg;
+}
+
+.arrow[data-side="right"] {
+  left: -13px;
+  rotate: -90deg;
+}
+
+/* Menu Items */
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background-color: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.1s ease-in-out;
+  text-align: left;
+}
+
+.item:hover,
+.item[data-highlighted] {
+  background-color: var(--color-surface-hover);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.checkmark {
+  display: block;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.checkmarkPlaceholder {
+  display: block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Menu Separator */
+
+.separator {
+  height: 1px;
+  margin: 0.25rem 0;
+  background-color: var(--color-border);
+}

@@ -1,32 +1,143 @@
-:root {
-  color-scheme: light dark;
+@import "tailwindcss";
+
+@theme {
+  /* Custom color tokens for light/dark mode */
+  --color-background: #f9fafb;
+  --color-surface: #ffffff;
+  --color-accent: #c2410c;
+  --color-accent-hover: #9a3412;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-border-subtle: #e5e7eb;
+  --color-neutral-bg: #e5e7eb;
+
+  /* Dark mode variants */
+  --color-background-dark: #111827;
+  --color-surface-dark: #1f2937;
+  --color-accent-dark: #f97316;
+  --color-accent-hover-dark: #ea580c;
+  --color-text-primary-dark: #ffffff;
+  --color-text-secondary-dark: #9ca3af;
+  --color-border-subtle-dark: #374151;
+  --color-neutral-bg-dark: #374151;
+
+  /* Font families */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Lora', Georgia, serif;
+
+  /* Base font size */
+  --font-size-base: 14px;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer base {
+  :root {
+    font-size: var(--font-size-base);
+    /* Expose custom colors as CSS variables for use in components */
+    --background: var(--color-background);
+    --surface: var(--color-surface);
+    --accent: var(--color-accent);
+    --accent-hover: var(--color-accent-hover);
+    --text-primary: var(--color-text-primary);
+    --text-secondary: var(--color-text-secondary);
+    --border-subtle: var(--color-border-subtle);
+    --neutral-bg: var(--color-neutral-bg);
+  }
+
+  .dark {
+    /* Override with dark mode values */
+    --background: var(--color-background-dark);
+    --surface: var(--color-surface-dark);
+    --accent: var(--color-accent-dark);
+    --accent-hover: var(--color-accent-hover-dark);
+    --text-primary: var(--color-text-primary-dark);
+    --text-secondary: var(--color-text-secondary-dark);
+    --border-subtle: var(--color-border-subtle-dark);
+    --neutral-bg: var(--color-neutral-bg-dark);
+  }
 }
 
-html,
-body,
-#root {
-  height: 100%;
-  width: 100%;
+@layer base {
+  /* Color scheme support */
+  :root {
+    color-scheme: light dark;
+  }
+
+  /* Full-height layout (preserve original requirement) */
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+  }
+
+  /* Body base styles */
+  body {
+    background: var(--background);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Global font settings for consistency */
+  .font-serif {
+    font-family: var(--font-serif);
+    font-variant-ligatures: common-ligatures;
+    font-kerning: normal;
+    letter-spacing: 0.01em;
+    font-feature-settings: 'kern', 'liga';
+  }
+
+  /* Logo text styling for cross-browser consistency */
+  .logo-text {
+    /* Shared properties for all browsers */
+    font-weight: 600;
+    font-synthesis: none;
+
+    /* Fine-tune for specific browsers */
+    @supports (-webkit-touch-callout: none) {
+      /* Safari-only styles */
+      -webkit-font-smoothing: subpixel-antialiased;
+      letter-spacing: 0.015em; /* Slightly wider letter spacing in Safari */
+    }
+
+    @supports not (-webkit-touch-callout: none) {
+      /* Non-Safari browsers (Chrome, Firefox, etc.) */
+      font-variant-numeric: lining-nums;
+    }
+  }
 }
 
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+@layer utilities {
+  /* Custom background colors using CSS variables */
+  .bg-background {
+    background-color: var(--background);
+  }
+
+  .bg-surface {
+    background-color: var(--surface);
+  }
+
+  .bg-accent {
+    background-color: var(--accent);
+  }
+
+  .text-accent {
+    color: var(--accent);
+  }
 }
 
-.resizer {
-  width: 6px;
-  background: color-mix(in oklab, canvas, canvastext 8%);
-  cursor: col-resize;
-}
+@layer components {
+  /* Resizer for react-resizable-panels (preserve original requirement) */
+  .resizer {
+    width: 6px;
+    background: color-mix(in oklab, canvas, canvastext 8%);
+    cursor: col-resize;
+  }
 
-.resizer:hover {
-  background: color-mix(in oklab, canvas, canvastext 16%);
+  .resizer:hover {
+    background: color-mix(in oklab, canvas, canvastext 16%);
+  }
 }
