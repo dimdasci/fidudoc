@@ -1,0 +1,23 @@
+{
+  "users.title": "Users",
+  "users.subtitle": "Manage user accounts and permissions",
+  "users.loading": "Loading users...",
+  "users.empty": "No users found",
+  "users.error": "Error loading users. Please try again.",
+  "users.table.name": "Name",
+  "users.table.email": "Email",
+  "users.table.role": "Role",
+  "users.table.status": "Status",
+  "users.table.created": "Created",
+  "users.table.lastLogin": "Last Login",
+  "users.table.actions": "Actions",
+  "users.status.active": "Active",
+  "users.status.inactive": "Inactive",
+  "users.roles.admin": "Admin",
+  "users.roles.operator": "Operator",
+  "users.roles.viewer": "Viewer",
+  "users.actions.add": "Add User",
+  "users.actions.edit": "Edit",
+  "users.toast.add": "User creation initiated",
+  "users.toast.edit": "User edit initiated for {{email}}"
+}

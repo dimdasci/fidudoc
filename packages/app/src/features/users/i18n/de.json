@@ -1,0 +1,23 @@
+{
+  "users.title": "Benutzer",
+  "users.subtitle": "Verwalten Sie Benutzerkonten und Berechtigungen",
+  "users.loading": "Benutzer werden geladen...",
+  "users.empty": "Keine Benutzer gefunden",
+  "users.error": "Fehler beim Laden der Benutzer. Bitte erneut versuchen.",
+  "users.table.name": "Name",
+  "users.table.email": "E-Mail",
+  "users.table.role": "Rolle",
+  "users.table.status": "Status",
+  "users.table.created": "Erstellt",
+  "users.table.lastLogin": "Letzte Anmeldung",
+  "users.table.actions": "Aktionen",
+  "users.status.active": "Aktiv",
+  "users.status.inactive": "Inaktiv",
+  "users.roles.admin": "Administrator",
+  "users.roles.operator": "Operator",
+  "users.roles.viewer": "Betrachter",
+  "users.actions.add": "Benutzer hinzufügen",
+  "users.actions.edit": "Bearbeiten",
+  "users.toast.add": "Benutzererstellung gestartet",
+  "users.toast.edit": "Benutzerbearbeitung gestartet für {{email}}"
+}

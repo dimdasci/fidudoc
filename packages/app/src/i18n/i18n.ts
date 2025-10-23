@@ -3,8 +3,50 @@ import { create } from "zustand";
 const SUPPORTED_LOCALES = ["en", "es", "fr", "de"];
 type Locale = typeof SUPPORTED_LOCALES[number];
 
-// Type for translations
 type Messages = Record<string, string>;
+
+const featureMessageModules = import.meta.glob("../features/*/i18n/*.json", {
+  eager: true,
+}) as Record<string, { default: Messages }>;
+
+const FEATURE_MESSAGES: Record<string, Record<string, Messages>> = {};
+
+for (const [path, module] of Object.entries(featureMessageModules)) {
+  const match = path.match(/\.\.\/features\/([^/]+)\/i18n\/([a-zA-Z-]+)\.json$/);
+  if (!match) continue;
+  const [, feature, locale] = match;
+  if (!FEATURE_MESSAGES[feature]) {
+    FEATURE_MESSAGES[feature] = {};
+  }
+  FEATURE_MESSAGES[feature][locale] = module.default;
+}
+
+async function loadBaseMessages(locale: Locale): Promise<Messages> {
+  try {
+    const module = await import(`./locales/${locale}.json`);
+    return module.default;
+  } catch {
+    const module = await import("./locales/en.json");
+    return module.default;
+  }
+}
+
+function loadFeatureMessages(locale: Locale): Messages {
+  const messages: Messages = {};
+  Object.values(FEATURE_MESSAGES).forEach((localeMap) => {
+    const localized = localeMap[locale] ?? localeMap.en;
+    if (localized) {
+      Object.assign(messages, localized);
+    }
+  });
+  return messages;
+}
+
+async function loadMessages(locale: Locale): Promise<Messages> {
+  const baseMessages = await loadBaseMessages(locale);
+  const featureMessages = loadFeatureMessages(locale);
+  return { ...baseMessages, ...featureMessages };
+}
 
 interface I18nStore {
   locale: Locale;
@@ -13,19 +55,6 @@ interface I18nStore {
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
-// Load messages for a locale
-async function loadMessages(locale: Locale): Promise<Messages> {
-  try {
-    const module = await import(`./locales/${locale}.json`);
-    return module.default;
-  } catch {
-    // Fallback to English
-    const module = await import("./locales/en.json");
-    return module.default;
-  }
-}
-
-// Create the store
 const useI18n = create<I18nStore>((set, get) => ({
   locale: "en",
   messages: {},
@@ -44,7 +73,6 @@ const useI18n = create<I18nStore>((set, get) => ({
     const { messages } = get();
     let message = messages[key] || key;
 
-    // Replace parameters in message (e.g., {{count}} with actual value)
     if (params) {
       Object.entries(params).forEach(([paramKey, paramValue]) => {
         message = message.replace(

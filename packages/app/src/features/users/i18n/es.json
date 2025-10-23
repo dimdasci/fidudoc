@@ -1,0 +1,23 @@
+{
+  "users.title": "Usuarios",
+  "users.subtitle": "Gestiona cuentas de usuario y permisos",
+  "users.loading": "Cargando usuarios...",
+  "users.empty": "No se encontraron usuarios",
+  "users.error": "Error al cargar usuarios. Inténtalo de nuevo.",
+  "users.table.name": "Nombre",
+  "users.table.email": "Correo",
+  "users.table.role": "Rol",
+  "users.table.status": "Estado",
+  "users.table.created": "Creado",
+  "users.table.lastLogin": "Último acceso",
+  "users.table.actions": "Acciones",
+  "users.status.active": "Activo",
+  "users.status.inactive": "Inactivo",
+  "users.roles.admin": "Administrador",
+  "users.roles.operator": "Operador",
+  "users.roles.viewer": "Observador",
+  "users.actions.add": "Añadir usuario",
+  "users.actions.edit": "Editar",
+  "users.toast.add": "Creación de usuario iniciada",
+  "users.toast.edit": "Edición de usuario iniciada para {{email}}"
+}

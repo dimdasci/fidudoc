@@ -53,7 +53,7 @@ export function AppShell() {
               <nav className="flex flex-col p-4 gap-2">
                 {[
                   { path: "/", label: "nav.inbox" },
-                  { path: "/admin", label: "nav.users" },
+                  { path: "/users", label: "nav.users" },
                   { path: "/audit", label: "nav.audit" },
                   { path: "/settings", label: "nav.settings" },
                 ].map(({ path, label }) => (

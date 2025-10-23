@@ -1,0 +1,23 @@
+{
+  "users.title": "Utilisateurs",
+  "users.subtitle": "Gérer les comptes utilisateurs et les autorisations",
+  "users.loading": "Chargement des utilisateurs...",
+  "users.empty": "Aucun utilisateur trouvé",
+  "users.error": "Erreur lors du chargement des utilisateurs. Veuillez réessayer.",
+  "users.table.name": "Nom",
+  "users.table.email": "Email",
+  "users.table.role": "Rôle",
+  "users.table.status": "Statut",
+  "users.table.created": "Créé",
+  "users.table.lastLogin": "Dernière connexion",
+  "users.table.actions": "Actions",
+  "users.status.active": "Actif",
+  "users.status.inactive": "Inactif",
+  "users.roles.admin": "Administrateur",
+  "users.roles.operator": "Opérateur",
+  "users.roles.viewer": "Lecteur",
+  "users.actions.add": "Ajouter un utilisateur",
+  "users.actions.edit": "Modifier",
+  "users.toast.add": "Création d'utilisateur démarrée",
+  "users.toast.edit": "Modification d'utilisateur démarrée pour {{email}}"
+}
