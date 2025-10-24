@@ -49,22 +49,91 @@ export function AppShell() {
         <PanelGroup direction="horizontal" className="h-full">
           {/* Left sidebar - Navigation */}
           <Panel defaultSize={14} minSize={10}>
-            <aside className="h-full bg-surface border-r border-subtle">
-              <nav className="flex flex-col p-4 gap-2">
-                {[
-                  { path: "/", label: "nav.inbox" },
-                  { path: "/users", label: "nav.users" },
-                  { path: "/audit", label: "nav.audit" },
-                  { path: "/settings", label: "nav.settings" },
-                ].map(({ path, label }) => (
-                  <Link
-                    key={path}
-                    to={path}
-                    className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
-                  >
-                    {t(label)}
-                  </Link>
-                ))}
+            <aside className="h-full bg-surface border-r border-subtle overflow-y-auto">
+              <nav className="flex flex-col p-4 gap-6">
+                {/* Documents Group */}
+                <div>
+                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                    {t("nav.group.documents")}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Link
+                      to="/documents/inbox"
+                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                    >
+                      {t("nav.inbox")}
+                    </Link>
+                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                      {t("nav.registry")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Clients Group */}
+                <div>
+                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                    {t("nav.group.clients")}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                      {t("nav.clients")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Inspections Group */}
+                <div>
+                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                    {t("nav.group.inspections")}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                      {t("nav.vat")}
+                    </span>
+                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                      {t("nav.renewal")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Settings Group */}
+                <div>
+                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                    {t("nav.group.settings")}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Link
+                      to="/settings"
+                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                    >
+                      {t("nav.settings")}
+                    </Link>
+                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                      {t("nav.integrations")}
+                    </span>
+                    <Link
+                      to="/users"
+                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                    >
+                      {t("nav.users")}
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Audit Group */}
+                <div>
+                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                    {t("nav.group.audit")}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Link
+                      to="/audit"
+                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                    >
+                      {t("nav.audit")}
+                    </Link>
+                  </div>
+                </div>
               </nav>
             </aside>
           </Panel>

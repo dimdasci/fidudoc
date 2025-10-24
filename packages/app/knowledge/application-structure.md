@@ -17,24 +17,34 @@ Available for users with emails from allowed domains. (We will introduce real au
 
 Left panel (sidebar) with navigation links to the following sections:
 
-- Inbox: scenario focused on document intake queue management. Operator watches incoming documents, reviews them, approves or rejects them.
-- Documents: scenario focused on document repository management. Operator can search, filter, view, edit metadata, and delete documents.
-- Clients: scenario focused on client management. Operator should pickup client and view associated documents.
-- Inspections: group of availabe inspections
+- Documents (group of document-related scenarios):
+  - Inbox: scenario focused on document intake queue management. Operator watches incoming documents that require attention: review, approval or manual correction of metadata. Access only on newly arrived documents.
+  - Registry: scenario focused on document repository management. Operator can search, filter, view, edit metadata, and delete documents. Access to all registered documents, including on inbox stage.
+
+- Clients (group of client-related scenarios):
+  - Clients: scenario focused on client management. Operator should pickup client and view associated documents.
+
+- Inspections: group of available automated inspections
   - VAT: view and manage VAT inspections
   - Renewal: view and manage Renewal inspections
+
 - Settings: group for application configuration
   - Users: manage application users and permissions
   - Integrations: manage third-party integrations (e.g., cloud storage, email services)
-- Audit Log: view system activity logs for security and compliance
+
+- Audit: view system activity logs for security and compliance
+  - Audit Log: view system activity logs for security and compliance
+
+**RULE** No collapsible menus. All sections always visible. Treat group names as semantic labels only.
 
 ## Landing Page Content
 
 ### HERO SECTION
 
-Headline: Stop filing documents manually. Start processing them automatically.
+Headline: Intelligent document operations for European fiduciaries
 
-Subheadline: Fidudoc organizes client documents from email, portals, and chat into your firm's folder structure—no manual sorting required.
+Fidudoc organizes, validates, and manages client documents automatically—so your team can focus on advisory and compliance work.
+
 CTA: Request early access (form to ask email and company name) [Request access]
 
 ### PROBLEM
@@ -43,15 +53,18 @@ CTA: Request early access (form to ask email and company name) [Request access]
 
 Every document creates work:
 
-- Emails, portals, chats—documents arrive from everywhere
-- Manual classification takes hours each day
-- Critical files get lost in folder chaos
+- Files arrive from everywhere—email, portals, chat
+- Manual classification and validation takes hours daily
+- Critical information gets buried in folder structures
+- Compliance checks happen too late
 
 ### SOLUTION
 
 Automatic document intake and organization
 
-Fidudoc connects to your document sources, classifies incoming files, extracts key metadata, and routes them to the right folders following your firm's taxonomy.
+Fidudoc handles the full document lifecycle: automatic classification, metadata extraction, compliance validation, and smart organization following your firm's taxonomy.
+
+Whether it's VAT invoices, lease contracts, or KYC packs—documents flow through validation workflows and land in the right place with key data already extracted.
 
 Built for fiduciary and accounting firms handling hundreds of client documents monthly.
 
@@ -64,8 +77,13 @@ Built for fiduciary and accounting firms handling hundreds of client documents m
 3. Everything lands in the right place
    Organized by client, type, and date in your existing folder structure
 
+### BUILT ON A SIMPLE PRINCIPLE
+
+1. Software handles repetitive tasks faster than humans.
+2. Humans handle complex decisions better than software.
+3. Fidudoc automates document intake so your team focuses on advisory, compliance, and client relationships—not filing.
+
 ### CLOSING CTA
 
-Early access starting Q4 2025
 Fidudoc is currently in pilot with select European fiduciary firms.
 [Request access]
