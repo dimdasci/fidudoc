@@ -17,6 +17,7 @@ export function HeroSection({ onCTA }: HeroSectionProps) {
           {t("landing.hero.description")}
         </p>
         <button
+          type="button"
           onClick={onCTA}
           className="px-8 py-3 bg-accent text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
         >

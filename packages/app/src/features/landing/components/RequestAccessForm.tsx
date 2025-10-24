@@ -1,7 +1,7 @@
+import { useI18nContext } from "@shared/i18n/i18n";
 import { Button } from "@shared/ui/Button/Button";
 import { Input } from "@shared/ui/Input";
-import { useI18nContext } from "@shared/i18n/i18n";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 interface RequestAccessFormProps {
   onSubmit: (email: string, company: string) => void;
@@ -13,6 +13,8 @@ export function RequestAccessForm({ onSubmit, onBack }: RequestAccessFormProps) 
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const emailId = useId();
+  const companyId = useId();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,11 +43,11 @@ export function RequestAccessForm({ onSubmit, onBack }: RequestAccessFormProps) 
     <form onSubmit={handleSubmit} className="w-full max-w-sm">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="text-body font-medium text-primary">
+          <label htmlFor={emailId} className="text-body font-medium text-primary">
             {t("landing.form.emailLabel")}
           </label>
           <Input
-            id="email"
+            id={emailId}
             type="email"
             placeholder={t("landing.form.emailPlaceholder")}
             value={email}
@@ -56,11 +58,11 @@ export function RequestAccessForm({ onSubmit, onBack }: RequestAccessFormProps) 
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="company" className="text-body font-medium text-primary">
+          <label htmlFor={companyId} className="text-body font-medium text-primary">
             {t("landing.form.companyLabel")}
           </label>
           <Input
-            id="company"
+            id={companyId}
             type="text"
             placeholder={t("landing.form.companyPlaceholder")}
             value={company}
@@ -76,6 +78,14 @@ export function RequestAccessForm({ onSubmit, onBack }: RequestAccessFormProps) 
         >
           {t("landing.form.submit")}
         </Button>
+
+        <button
+          type="button"
+          onClick={onBack}
+          className="w-full text-body text-secondary hover:text-primary transition-colors py-2"
+        >
+          ← Back
+        </button>
       </div>
     </form>
   );

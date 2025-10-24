@@ -29,10 +29,13 @@ export function StepsSection() {
           {t("landing.steps.title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {steps.map((step, index) => {
+          {steps.map((step) => {
             const IconComponent = step.icon;
             return (
-              <div key={index} className="flex flex-col items-center text-center">
+              <div
+                key={`step-${step.title.slice(0, 20)}`}
+                className="flex flex-col items-center text-center"
+              >
                 <div className="mb-6 p-3 bg-accent bg-opacity-10 rounded-lg">
                   <IconComponent
                     size={40}

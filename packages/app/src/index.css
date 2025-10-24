@@ -268,11 +268,12 @@
   /* Resizer for react-resizable-panels (preserve original requirement) */
   .resizer {
     width: 6px;
-    background: color-mix(in oklab, canvas, canvastext 8%);
+    background: var(--border-subtle);
     cursor: col-resize;
+    transition: background-color 0.2s ease;
   }
 
   .resizer:hover {
-    background: color-mix(in oklab, canvas, canvastext 16%);
+    background: var(--text-secondary);
   }
 }

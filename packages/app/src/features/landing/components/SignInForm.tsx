@@ -1,7 +1,7 @@
+import { useI18nContext } from "@shared/i18n/i18n";
 import { Button } from "@shared/ui/Button/Button";
 import { Input } from "@shared/ui/Input";
-import { useI18nContext } from "@shared/i18n/i18n";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 const ALLOWED_DOMAINS = ["fastmail.com", "3f.lu", "easybiz.lu"];
 
@@ -14,6 +14,7 @@ export function SignInForm({ onSignIn, onRequestAccess }: SignInFormProps) {
   const { t } = useI18nContext();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const emailId = useId();
 
   const getDomainFromEmail = (emailStr: string): string => {
     const parts = emailStr.split("@");
@@ -50,11 +51,11 @@ export function SignInForm({ onSignIn, onRequestAccess }: SignInFormProps) {
     <form onSubmit={handleSubmit} className="w-full max-w-sm">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="text-body font-medium text-primary">
+          <label htmlFor={emailId} className="text-body font-medium text-primary">
             {t("landing.signin.emailLabel")}
           </label>
           <Input
-            id="email"
+            id={emailId}
             type="email"
             placeholder={t("landing.signin.emailPlaceholder")}
             value={email}

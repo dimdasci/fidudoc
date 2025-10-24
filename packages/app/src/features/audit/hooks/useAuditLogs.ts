@@ -1,5 +1,5 @@
+import { type AuditLogResponse, listAuditLogs } from "@features/audit/api/audit.api";
 import { useQuery } from "@tanstack/react-query";
-import { listAuditLogs, type AuditLogResponse } from "@features/audit/api/audit.api";
 
 export function useAuditLogs() {
   const queryResult = useQuery({

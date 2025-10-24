@@ -11,7 +11,9 @@ interface SettingsEditorProps {
   t: TranslateFn;
 }
 
-export function SettingsEditor({ value, onChange, isLoading, error, t }: SettingsEditorProps) {
+export function SettingsEditor(
+  { value, onChange, isLoading, error, t }: SettingsEditorProps,
+) {
   if (isLoading) {
     return (
       <div className="flex items-center gap-3 text-body text-secondary">

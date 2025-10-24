@@ -1,7 +1,7 @@
-import { AlertCircle, ChevronDown, ChevronUp, Loader } from "lucide-react";
 import type { AuditLog } from "@features/audit/api/audit.api";
 import { formatDateTime } from "@features/audit/lib/formatters";
 import { Button } from "@shared/ui/Button/Button";
+import { AlertCircle, ChevronDown, ChevronUp, Loader } from "lucide-react";
 import { Fragment, useState } from "react";
 
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
@@ -127,13 +127,18 @@ export function AuditTable({ logs, loading, error, t }: AuditTableProps) {
                         ? <ChevronUp size={14} />
                         : <ChevronDown size={14} />}
                     >
-                      {expandedRow === log.id ? t("audit.actions.hide") : t("audit.actions.show")}
+                      {expandedRow === log.id
+                        ? t("audit.actions.hide")
+                        : t("audit.actions.show")}
                     </Button>
                   </td>
                 </tr>
                 {expandedRow === log.id && (
                   <tr key={`${log.id}-details`}>
-                    <td colSpan={5} className="px-4 py-3 border-b border-subtle bg-neutral-bg">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-3 border-b border-subtle bg-neutral-bg"
+                    >
                       <pre className="text-body-sm text-secondary whitespace-pre-wrap overflow-x-auto">
                         {JSON.stringify(log.details, null, 2)}
                       </pre>

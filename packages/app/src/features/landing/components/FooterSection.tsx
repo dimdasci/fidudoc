@@ -11,6 +11,7 @@ export function FooterSection() {
             {t("landing.closing.title")}
           </p>
           <button
+            type="button"
             className="px-8 py-3 bg-accent text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
           >
             {t("landing.closing.cta")}
@@ -19,13 +20,13 @@ export function FooterSection() {
 
         <div className="border-t border-subtle pt-8 flex justify-center gap-8">
           <a
-            href="#"
+            href="/privacy"
             className="text-body text-secondary hover:text-primary transition-colors"
           >
             {t("landing.footer.privacy")}
           </a>
           <a
-            href="#"
+            href="/terms"
             className="text-body text-secondary hover:text-primary transition-colors"
           >
             {t("landing.footer.terms")}
@@ -33,7 +34,7 @@ export function FooterSection() {
         </div>
 
         <div className="text-center mt-8 text-body-sm text-secondary">
-          <p>© 2024 Fidudoc. All rights reserved.</p>
+          <p>© 2025 Fidudoc. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -7,6 +7,7 @@ import { checkApiHealth } from "../services/api";
 import { useApiStore } from "../stores/api";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Logo } from "./Logo";
+import { ThemeSwitcher } from "./ThemeSwitcher/ThemeSwitcher";
 import { showToast } from "./toast";
 import { ToastContainer } from "./ToastContainer";
 
@@ -39,7 +40,8 @@ export function AppShell() {
         <div>
           <Logo />
         </div>
-        <div>
+        <div className="flex items-center gap-4">
+          <ThemeSwitcher />
           <LanguageSwitcher />
         </div>
       </header>

@@ -1,5 +1,5 @@
-import { AlertCircle } from "lucide-react";
 import { Button } from "@shared/ui/Button/Button";
+import { AlertCircle } from "lucide-react";
 
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
 

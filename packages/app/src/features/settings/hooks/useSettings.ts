@@ -1,5 +1,9 @@
+import {
+  getSettings,
+  putSettings,
+  type Settings,
+} from "@features/settings/api/settings.api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getSettings, putSettings, type Settings } from "@features/settings/api/settings.api";
 
 const SETTINGS_QUERY_KEY = ["settings"];
 

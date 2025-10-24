@@ -1,5 +1,5 @@
-import { AlertCircle, Mail, Clock, FolderOpen, CheckCircle } from "lucide-react";
 import { useI18nContext } from "@shared/i18n/i18n";
+import { CheckCircle, Clock, FolderOpen, Mail } from "lucide-react";
 
 export function ProblemSection() {
   const { t } = useI18nContext();
@@ -30,10 +30,13 @@ export function ProblemSection() {
           {t("landing.problem.title")}
         </h2>
         <div className="space-y-6">
-          {problems.map((problem, index) => {
+          {problems.map((problem) => {
             const IconComponent = problem.icon;
             return (
-              <div key={index} className="flex gap-4 items-center">
+              <div
+                key={`problem-${problem.text.slice(0, 20)}`}
+                className="flex gap-4 items-center"
+              >
                 <div className="flex-none flex-shrink-0">
                   <IconComponent
                     size={24}

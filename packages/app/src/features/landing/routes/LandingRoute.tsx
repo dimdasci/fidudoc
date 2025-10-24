@@ -1,18 +1,19 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Logo } from "@shared/ui/Logo";
-import { LanguageSwitcher } from "@shared/ui/LanguageSwitcher";
-import { showToast } from "@shared/ui/toast";
-import { ToastContainer } from "@shared/ui/ToastContainer";
-import { useI18nContext } from "@shared/i18n/i18n";
+import { FooterSection } from "@features/landing/components/FooterSection";
 import { HeroSection } from "@features/landing/components/HeroSection";
+import { PrinciplesSection } from "@features/landing/components/PrinciplesSection";
 import { ProblemSection } from "@features/landing/components/ProblemSection";
+import { RequestAccessForm } from "@features/landing/components/RequestAccessForm";
+import { SignInForm } from "@features/landing/components/SignInForm";
 import { SolutionSection } from "@features/landing/components/SolutionSection";
 import { StepsSection } from "@features/landing/components/StepsSection";
-import { PrinciplesSection } from "@features/landing/components/PrinciplesSection";
-import { FooterSection } from "@features/landing/components/FooterSection";
-import { SignInForm } from "@features/landing/components/SignInForm";
-import { RequestAccessForm } from "@features/landing/components/RequestAccessForm";
+import { useI18nContext } from "@shared/i18n/i18n";
+import { LanguageSwitcher } from "@shared/ui/LanguageSwitcher";
+import { Logo } from "@shared/ui/Logo";
+import { ThemeSwitcher } from "@shared/ui/ThemeSwitcher/ThemeSwitcher";
+import { showToast } from "@shared/ui/toast";
+import { ToastContainer } from "@shared/ui/ToastContainer";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ALLOWED_DOMAINS = ["fastmail.com", "3f.lu", "easybiz.lu"];
 
@@ -51,7 +52,10 @@ export function LandingRoute() {
         {/* Header */}
         <header className="flex-none h-16 bg-surface border-b border-subtle px-6 flex items-center justify-between">
           <Logo />
-          <LanguageSwitcher />
+          <div className="flex items-center gap-4">
+            <ThemeSwitcher />
+            <LanguageSwitcher />
+          </div>
         </header>
 
         {/* Main content */}
@@ -66,20 +70,23 @@ export function LandingRoute() {
               </p>
             </div>
 
-            {showRequestForm ? (
-              <RequestAccessForm
-                onSubmit={handleFormSubmit}
-                onBack={() => setShowRequestForm(false)}
-              />
-            ) : (
-              <SignInForm
-                onSignIn={handleSignIn}
-                onRequestAccess={handleRequestAccess}
-              />
-            )}
+            {showRequestForm
+              ? (
+                <RequestAccessForm
+                  onSubmit={handleFormSubmit}
+                  onBack={() => setShowRequestForm(false)}
+                />
+              )
+              : (
+                <SignInForm
+                  onSignIn={handleSignIn}
+                  onRequestAccess={handleRequestAccess}
+                />
+              )}
 
             <div className="text-center mt-6">
               <button
+                type="button"
                 onClick={() => setShowSignIn(false)}
                 className="text-body text-secondary hover:text-primary transition-colors"
               >
@@ -101,11 +108,13 @@ export function LandingRoute() {
         <Logo />
         <div className="flex items-center gap-4">
           <button
+            type="button"
             onClick={() => setShowSignIn(true)}
             className="text-accent hover:opacity-80 transition-opacity font-medium text-body"
           >
             {t("landing.header.signin")}
           </button>
+          <ThemeSwitcher />
           <LanguageSwitcher />
         </div>
       </header>

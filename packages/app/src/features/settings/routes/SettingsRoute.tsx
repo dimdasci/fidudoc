@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
-import { SettingsHeader } from "@features/settings/components/SettingsHeader";
 import { SettingsActions } from "@features/settings/components/SettingsActions";
 import { SettingsEditor } from "@features/settings/components/SettingsEditor";
+import { SettingsHeader } from "@features/settings/components/SettingsHeader";
 import {
+  type SettingsData,
   useSettingsQuery,
   useUpdateSettings,
-  type SettingsData,
 } from "@features/settings/hooks/useSettings";
 import { useI18nContext } from "@shared/i18n/i18n";
 import { showToast } from "@shared/ui/toast";
+import { useEffect, useState } from "react";
 
 export function SettingsRoute() {
   const { t } = useI18nContext();

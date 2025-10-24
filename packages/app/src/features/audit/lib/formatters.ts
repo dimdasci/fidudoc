@@ -1,5 +1,3 @@
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
-
 export function formatDateTime(dateString: string | undefined): string {
   if (!dateString) return "-";
   const date = new Date(dateString);

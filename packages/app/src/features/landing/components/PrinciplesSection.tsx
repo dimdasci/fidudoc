@@ -16,8 +16,11 @@ export function PrinciplesSection() {
           {t("landing.principles.title")}
         </h2>
         <ul className="space-y-6">
-          {principles.map((principle, index) => (
-            <li key={index} className="flex gap-4 items-start">
+          {principles.map((principle) => (
+            <li
+              key={`principle-${principle.slice(0, 20)}`}
+              className="flex gap-4 items-start"
+            >
               <div className="flex-none w-2 h-2 bg-accent rounded-full flex-shrink-0 mt-3" />
               <p className="text-body-lg text-secondary text-left">
                 {principle}
