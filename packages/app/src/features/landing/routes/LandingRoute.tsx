@@ -27,7 +27,6 @@ export function LandingRoute() {
     if (ALLOWED_DOMAINS.includes(domain)) {
       // Store email in sessionStorage for now (not real auth)
       sessionStorage.setItem("userEmail", email);
-      showToast(t("landing.form.success"), "success");
       navigate("/documents/inbox");
     }
   };
@@ -100,7 +99,15 @@ export function LandingRoute() {
       {/* Header */}
       <header className="flex-none h-16 bg-surface border-b border-subtle px-6 flex items-center justify-between">
         <Logo />
-        <LanguageSwitcher />
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowSignIn(true)}
+            className="text-accent hover:opacity-80 transition-opacity font-medium text-body"
+          >
+            {t("landing.header.signin")}
+          </button>
+          <LanguageSwitcher />
+        </div>
       </header>
 
       {/* Main content */}

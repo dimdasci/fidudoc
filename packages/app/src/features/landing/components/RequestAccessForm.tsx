@@ -33,9 +33,6 @@ export function RequestAccessForm({ onSubmit, onBack }: RequestAccessFormProps) 
         <p className="text-body text-primary mb-4">
           {t("landing.form.success")}
         </p>
-        <Button variant="secondary" onClick={onBack}>
-          {t("landing.signin.button")}
-        </Button>
       </div>
     );
   }
@@ -73,22 +70,12 @@ export function RequestAccessForm({ onSubmit, onBack }: RequestAccessFormProps) 
           />
         </div>
 
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onBack}
-            className="flex-1"
-          >
-            {t("landing.signin.button")}
-          </Button>
-          <Button
-            type="submit"
-            className="flex-1"
-          >
-            {t("landing.form.submit")}
-          </Button>
-        </div>
+        <Button
+          type="submit"
+          className="w-full"
+        >
+          {t("landing.form.submit")}
+        </Button>
       </div>
     </form>
   );

@@ -24,6 +24,7 @@
   "landing.principles.point3": "Fidudoc automatise l'ingestion de documents afin que votre équipe se concentre sur le conseil, la conformité et les relations clients, pas sur les fichiers.",
   "landing.closing.title": "Fidudoc est actuellement en phase pilote avec des cabinets fiduciaires européens sélectionnés.",
   "landing.closing.cta": "Demander un accès",
+  "landing.header.signin": "Se connecter",
   "landing.signin.title": "Se connecter",
   "landing.signin.emailLabel": "Adresse e-mail",
   "landing.signin.emailPlaceholder": "votre@email.com",
