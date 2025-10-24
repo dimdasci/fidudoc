@@ -35,7 +35,7 @@ const corsOrigin = nodeEnv === "development"
     "http://localhost:5173",
     "http://localhost:4173", // Added Vite preview port
   ]
-  : process.env.CORS_ORIGIN?.split(",") || ["https://fidudoc.app"];
+  : process.env.CORS_ORIGIN?.split(",") || ["https://fidudoc.eu"];
 
 app.use(
   cors({
@@ -93,7 +93,7 @@ const startServer = async () => {
       process.exit(1);
     }
     console.info(
-      `backend listening on http://${host}:${port}`,
+      `${process.env.NODE_ENV} backend listening on http://${host}:${port}`,
     );
     console.info(`Health check: http://${host}:${port}/health`);
   });
