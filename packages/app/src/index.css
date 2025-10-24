@@ -7,7 +7,9 @@
   --color-surface: #ffffff;
   --color-accent: #15803d;
   --color-accent-hover: #14532d;
-  --color-text-primary: #14532d;
+  --color-text-primary: #1f2937; /* Neutral for body text */
+  --color-text-heading: #14532d; /* Green for headings only */
+  --color-text-accent: #15803d; /* Green for emphasis/links */
   --color-text-secondary: #6b7280;
   --color-border-subtle: #e5e7eb;
   --color-neutral-bg: #e5e7eb;
@@ -25,7 +27,9 @@
   --color-surface-dark: #1f2937;
   --color-accent-dark: #22c55e;
   --color-accent-hover-dark: #bbf7d0;
-  --color-text-primary-dark: #ffffff;
+  --color-text-primary-dark: #f9fafb; /* Clean white for readability */
+  --color-text-heading-dark: #22c55e; /* Green for headings */
+  --color-text-accent-dark: #34d399; /* Brighter green for emphasis */
   --color-text-secondary-dark: #9ca3af;
   --color-border-subtle-dark: #374151;
   --color-neutral-bg-dark: #374151;
@@ -74,6 +78,8 @@
     --accent: var(--color-accent);
     --accent-hover: var(--color-accent-hover);
     --text-primary: var(--color-text-primary);
+    --text-heading: var(--color-text-heading);
+    --text-accent: var(--color-text-accent);
     --text-secondary: var(--color-text-secondary);
     --border-subtle: var(--color-border-subtle);
     --neutral-bg: var(--color-neutral-bg);
@@ -94,6 +100,8 @@
     --accent: var(--color-accent-dark);
     --accent-hover: var(--color-accent-hover-dark);
     --text-primary: var(--color-text-primary-dark);
+    --text-heading: var(--color-text-heading-dark);
+    --text-accent: var(--color-text-accent-dark);
     --text-secondary: var(--color-text-secondary-dark);
     --border-subtle: var(--color-border-subtle-dark);
     --neutral-bg: var(--color-neutral-bg-dark);
@@ -178,11 +186,15 @@
 
   /* Text colors */
   .text-accent {
-    color: var(--accent);
+    color: var(--text-accent);
   }
 
   .text-primary {
     color: var(--text-primary);
+  }
+
+  .text-heading {
+    color: var(--text-heading);
   }
 
   .text-secondary {
