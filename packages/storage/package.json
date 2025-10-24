@@ -14,7 +14,7 @@
     "format:check": "dprint check",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check",
     "check:fix": "pnpm typecheck && pnpm lint:fix && pnpm format",
-    "build": "tsc && tsup --no-dts",
+    "build": "tsc && tsup src/index.ts --no-dts --format esm",
     "start": "NODE_OPTIONS='--import ./instruments.mjs' node dist/index.js",
     "dev": "NODE_OPTIONS='--import ./instruments.mjs' tsx --watch src/index.ts"
   },
@@ -37,6 +37,7 @@
     "@types/node": "^20.10.0",
     "vitest": "^3.2.4",
     "tsx": "^4.20.6",
+    "tsup": "^8.3.5",
     "typescript": "^5.9.3"
   }
 }
