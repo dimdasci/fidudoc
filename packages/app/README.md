@@ -6,6 +6,8 @@ Front-end for the Fidudoc intelligent document platform. The app delivers a mult
 
 The application glues together document ingestion, storage, validation, and knowledge graph services. It surfaces document state, entity relationships, and operational insights while keeping UX fast, accessible, and ready for production hardening.
 
+👉 For the full breakdown of feature slices, shared layers, and architectural guidelines, read [ARCHITECTURE.md](./knowledge/ARCHITECTURE.md).
+
 ## Technology Stack
 
 ### Framework & Routing
@@ -47,38 +49,29 @@ The application glues together document ingestion, storage, validation, and know
 ```
 packages/app/
 ├── src/
-│   ├── app/
-│   │   ├── providers.tsx          # App-level providers (Query, i18n, Router)
-│   │   └── router.tsx             # Route configuration
-│   ├── features/                  # Route-mounted feature modules
-│   │   ├── inbox/routes.tsx
-│   │   ├── settings/routes.tsx
-│   │   └── admin/routes.tsx
-│   ├── i18n/
-│   │   ├── i18n.ts                # i18nano store & helpers
-│   │   └── locales/
-│   │       ├── en.json
-│   │       ├── es.json
-│   │       ├── fr.json
-│   │       └── de.json
-│   ├── services/
-│   │   ├── api.ts                 # REST client for document APIs
-│   │   └── invoices.ts            # Effect-based invoice schema & fetcher
-│   ├── stores/
-│   │   ├── api.ts                 # Health/status store
-│   │   └── ui.ts                  # UI selection state
-│   ├── ui/
-│   │   ├── AppShell.tsx           # Resizable panel workspace
-│   │   ├── LanguageSwitcher.tsx
-│   │   └── primitives.tsx
-│   ├── index.css                  # Global styles
-│   └── main.tsx                   # App entry point
+│   ├── app/                  # Vite entry points, router, providers
+│   ├── features/             # Feature-first slices (Inbox, Users, Audit, Settings)
+│   │   └── <feature>/
+│   │       ├── api/          # Feature-scoped fetchers & contracts
+│   │       ├── components/   # View components composed by the route
+│   │       ├── hooks/        # TanStack Query hooks + local state
+│   │       ├── i18n/         # Feature-specific message bundles
+│   │       └── routes/       # Public route entry points
+│   ├── i18n/                 # Shared i18n store + base locale strings
+│   ├── services/             # Cross-feature service clients
+│   ├── stores/               # Global Zustand stores
+│   ├── ui/                   # Design-system primitives & layout
+│   ├── index.css
+│   └── main.tsx
+├── ARCHITECTURE.md           # Expanded structure & conventions
 ├── index.html
 ├── vite.config.ts
 ├── tsconfig.json
 ├── biome.json
 └── package.json
 ```
+
+> The tree above is high level—see [ARCHITECTURE.md](./knowledge/ARCHITECTURE.md) for detailed notes on dependencies, naming, and “feature-first” rules.
 
 ## Getting Started
 
@@ -130,15 +123,15 @@ pnpm preview
 
 ## Internationalization Guide
 
-- Message catalogs live under `src/i18n/locales/<locale>.json`.
-- Add new keys directly to the locale JSON files—no compile step is required.
+- Shared/base strings live in `src/i18n/locales/<locale>.json`.
+- Feature-specific strings live next to the code that consumes them (`src/features/<feature>/i18n/<locale>.json`). The i18n store auto-loads everything via `import.meta.glob`.
+- Add new languages by updating `SUPPORTED_LOCALES` in `src/i18n/i18n.ts` and creating matching base + feature locale files.
 - `initializeI18n()` runs before render to load the preferred locale from localStorage or the browser.
-- Use `const { t } = useI18nContext();` in components and call `t("key.path", { placeholder: value })`.
-- When introducing a new language, add the locale code to `SUPPORTED_LOCALES` in `src/i18n/i18n.ts` and create a matching JSON file.
+- Use `const { t } = useI18nContext();` and call `t("key.path", { placeholder: value })`.
 
 ## Panel Workspace
 
-`AppShell.tsx` wires the resizable panel system:
+`src/ui/AppShell.tsx` wires the resizable panel system:
 
 - Navigation, content, and details panels are defaults, not requirements.
 - Feature modules can resize or hide panels depending on the view.
@@ -147,7 +140,7 @@ pnpm preview
 ## Data & Services
 
 - `services/api.ts` wraps browser `fetch` for document-related endpoints and centralizes shapes for `Document`, `User`, `AuditLog`, and `Settings`.
-- `services/invoices.ts` demonstrates using Effect + Schema for typed calls; `run()` helper in `services/client.ts` bridges Effects to Promises.
+- `services/client.ts` is the bridge for integrating Effect-based clients (incoming).
 - Global API health indicator lives in `stores/api.ts` and is surfaced in the `AppShell` footer.
 - UI-specific selections are stored in `stores/ui.ts`.
 
@@ -157,20 +150,6 @@ pnpm preview
 - **Type errors in IDE** → `pnpm typecheck` then restart the TypeScript/IDE server.
 - **Translations missing** → Confirm the key exists in the current locale JSON. Clear `localStorage.language` and reload.
 - **Stale HMR updates** → Restart the dev server and hard-refresh the browser cache.
-
-## Roadmap Ideas
-
-1. Flesh out feature routes with real data and forms.
-2. Connect `services/api.ts` to live backend endpoints.
-3. Expand the UI primitive library and theme tokens.
-4. Add component and integration tests (Vitest/Testing Library).
-
-## Contributing Guidelines
-
-- Keep modules cohesive and prefer feature-based structure.
-- Add translations for any new UI text.
-- Run `pnpm check` before opening a PR.
-- Use descriptive commit messages and document notable UX changes in `UX.md` when relevant.
 
 ## License
 
