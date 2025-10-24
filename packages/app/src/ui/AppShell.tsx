@@ -48,7 +48,7 @@ export function AppShell() {
       <div className="flex-1 overflow-hidden">
         <PanelGroup direction="horizontal" className="h-full">
           {/* Left sidebar - Navigation */}
-          <Panel defaultSize={14} minSize={10}>
+          <Panel defaultSize={12} minSize={12} maxSize={12}>
             <aside className="h-full bg-surface border-r border-subtle overflow-y-auto">
               <nav className="flex flex-col p-4 gap-6">
                 {/* Documents Group */}
@@ -137,7 +137,6 @@ export function AppShell() {
               </nav>
             </aside>
           </Panel>
-          <PanelResizeHandle className="resizer" />
 
           {/* Center - Main content */}
           <Panel minSize={40}>
