@@ -15,18 +15,16 @@ export function PrinciplesSection() {
         <h2 className="text-3xl font-bold text-primary mb-10">
           {t("landing.principles.title")}
         </h2>
-        <ol className="space-y-6">
+        <ul className="space-y-6">
           {principles.map((principle, index) => (
-            <li key={index} className="flex gap-4">
-              <span className="flex-none w-8 h-8 bg-accent text-white rounded-full flex items-center justify-center font-bold">
-                {index + 1}
-              </span>
-              <p className="text-body text-secondary text-left pt-1">
+            <li key={index} className="flex gap-4 items-start">
+              <div className="flex-none w-2 h-2 bg-accent rounded-full flex-shrink-0 mt-3" />
+              <p className="text-body-lg text-secondary text-left">
                 {principle}
               </p>
             </li>
           ))}
-        </ol>
+        </ul>
       </div>
     </section>
   );

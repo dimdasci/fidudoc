@@ -25,22 +25,22 @@ export function ProblemSection() {
 
   return (
     <section className="py-16 px-6 bg-surface">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         <h2 className="text-3xl font-bold text-primary mb-12 text-center">
           {t("landing.problem.title")}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
           {problems.map((problem, index) => {
             const IconComponent = problem.icon;
             return (
-              <div key={index} className="flex gap-4">
-                <div className="flex-none pt-1">
+              <div key={index} className="flex gap-4 items-center">
+                <div className="flex-none flex-shrink-0">
                   <IconComponent
                     size={24}
                     className="text-accent"
                   />
                 </div>
-                <p className="text-body text-secondary">
+                <p className="text-body-lg text-secondary">
                   {problem.text}
                 </p>
               </div>

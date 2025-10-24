@@ -1,5 +1,5 @@
-import { Zap, Tag, FolderCheck } from "lucide-react";
 import { useI18nContext } from "@shared/i18n/i18n";
+import { FolderCheck, Tag, Zap } from "lucide-react";
 
 export function StepsSection() {
   const { t } = useI18nContext();
@@ -33,14 +33,12 @@ export function StepsSection() {
             const IconComponent = step.icon;
             return (
               <div key={index} className="flex flex-col items-center text-center">
-                <div className="mb-4 p-3 bg-accent bg-opacity-10 rounded-lg">
+                <div className="mb-6 p-3 bg-accent bg-opacity-10 rounded-lg">
                   <IconComponent
-                    size={32}
-                    className="text-accent"
+                    size={40}
+                    className="text-surface"
+                    strokeWidth={1.5}
                   />
-                </div>
-                <div className="flex items-center justify-center w-8 h-8 bg-accent text-white rounded-full font-bold mb-4">
-                  {index + 1}
                 </div>
                 <h3 className="text-lg font-semibold text-primary mb-2">
                   {step.title}
