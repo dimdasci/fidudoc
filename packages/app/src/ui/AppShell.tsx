@@ -53,7 +53,7 @@ export function AppShell() {
               <nav className="flex flex-col p-4 gap-6">
                 {/* Documents Group */}
                 <div>
-                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
                     {t("nav.group.documents")}
                   </div>
                   <div className="flex flex-col gap-1">
@@ -71,7 +71,7 @@ export function AppShell() {
 
                 {/* Clients Group */}
                 <div>
-                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
                     {t("nav.group.clients")}
                   </div>
                   <div className="flex flex-col gap-1">
@@ -83,7 +83,7 @@ export function AppShell() {
 
                 {/* Inspections Group */}
                 <div>
-                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
                     {t("nav.group.inspections")}
                   </div>
                   <div className="flex flex-col gap-1">
@@ -98,7 +98,7 @@ export function AppShell() {
 
                 {/* Settings Group */}
                 <div>
-                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
                     {t("nav.group.settings")}
                   </div>
                   <div className="flex flex-col gap-1">
@@ -122,7 +122,7 @@ export function AppShell() {
 
                 {/* Audit Group */}
                 <div>
-                  <div className="text-body-sm font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
                     {t("nav.group.audit")}
                   </div>
                   <div className="flex flex-col gap-1">
