@@ -3,10 +3,12 @@
   "build": {
     "builder": "RAILPACK",
     "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter @fidudoc/storage build",
-    "watchPatterns": ["packages/storage/**", "packages/domain/**", "pnpm-lock.yaml"]
+    "watchPatterns": ["**", "../domain/**", "../../pnpm-lock.yaml"]
   },
   "deploy": {
     "startCommand": "pnpm --filter @fidudoc/storage start",
-    "restartPolicyType": "ON_FAILURE"
+    "restartPolicyType": "ON_FAILURE",
+    "restartLimit": 3,
+    "healthcheckPath": "/health"
   }
 }
