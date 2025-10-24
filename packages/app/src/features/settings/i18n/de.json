@@ -1,0 +1,15 @@
+{
+  "settings.title": "Einstellungen",
+  "settings.subtitle": "Systemkonfiguration verwalten",
+  "settings.buttons.save": "Speichern",
+  "settings.buttons.saving": "Speichern...",
+  "settings.buttons.revert": "Zurücksetzen",
+  "settings.buttons.apply": "Anwenden",
+  "settings.status.unsaved": "Nicht gespeicherte Änderungen",
+  "settings.loading": "Einstellungen werden geladen...",
+  "settings.error": "Fehler beim Laden oder Speichern der Einstellungen",
+  "settings.toast.saved": "Einstellungen erfolgreich gespeichert",
+  "settings.toast.error": "Fehler beim Speichern der Einstellungen",
+  "settings.toast.reverted": "Änderungen zurückgesetzt",
+  "settings.toast.applied": "Einstellungen angewendet"
+}

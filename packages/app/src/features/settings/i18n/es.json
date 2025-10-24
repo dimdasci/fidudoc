@@ -1,0 +1,15 @@
+{
+  "settings.title": "Configuración",
+  "settings.subtitle": "Gestionar la configuración del sistema",
+  "settings.buttons.save": "Guardar",
+  "settings.buttons.saving": "Guardando...",
+  "settings.buttons.revert": "Revertir",
+  "settings.buttons.apply": "Aplicar",
+  "settings.status.unsaved": "Cambios sin guardar",
+  "settings.loading": "Cargando configuración...",
+  "settings.error": "Error al cargar o guardar la configuración",
+  "settings.toast.saved": "Configuración guardada exitosamente",
+  "settings.toast.error": "Error al guardar la configuración",
+  "settings.toast.reverted": "Cambios revertidos",
+  "settings.toast.applied": "Configuración aplicada"
+}

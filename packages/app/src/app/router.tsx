@@ -1,6 +1,6 @@
 import { AuditRoute } from "@features/audit";
 import { InboxRoute } from "@features/inbox";
-import { SettingsRoute } from "@features/settings/routes";
+import { SettingsRoute } from "@features/settings";
 import { UsersRoute } from "@features/users";
 import { AppShell } from "@shared/ui/AppShell";
 import { createBrowserRouter } from "react-router-dom";

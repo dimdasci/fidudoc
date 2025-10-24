@@ -1,0 +1,15 @@
+{
+  "settings.title": "Settings",
+  "settings.subtitle": "Manage system configuration",
+  "settings.buttons.save": "Save",
+  "settings.buttons.saving": "Saving...",
+  "settings.buttons.revert": "Revert",
+  "settings.buttons.apply": "Apply",
+  "settings.status.unsaved": "Unsaved changes",
+  "settings.loading": "Loading settings...",
+  "settings.error": "Failed to load or save settings",
+  "settings.toast.saved": "Settings saved successfully",
+  "settings.toast.error": "Failed to save settings",
+  "settings.toast.reverted": "Changes reverted",
+  "settings.toast.applied": "Settings applied"
+}

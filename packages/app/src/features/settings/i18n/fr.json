@@ -1,0 +1,15 @@
+{
+  "settings.title": "Paramètres",
+  "settings.subtitle": "Gérer la configuration du système",
+  "settings.buttons.save": "Enregistrer",
+  "settings.buttons.saving": "Enregistrement...",
+  "settings.buttons.revert": "Annuler",
+  "settings.buttons.apply": "Appliquer",
+  "settings.status.unsaved": "Modifications non enregistrées",
+  "settings.loading": "Chargement des paramètres...",
+  "settings.error": "Échec du chargement ou de l'enregistrement des paramètres",
+  "settings.toast.saved": "Paramètres enregistrés avec succès",
+  "settings.toast.error": "Échec de l'enregistrement des paramètres",
+  "settings.toast.reverted": "Modifications annulées",
+  "settings.toast.applied": "Paramètres appliqués"
+}
