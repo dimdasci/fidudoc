@@ -1,6 +1,6 @@
 // Express Handler Bridge for Effect TS
 
-import { Effect, type ManagedRuntime } from "effect";
+import { Cause, Effect, Exit, type ManagedRuntime } from "effect";
 import type { NextFunction, Request, Response } from "express";
 import type { AppRuntime } from "../runtime.ts";
 
@@ -28,17 +28,42 @@ export const effectHandler =
       controller.abort();
     });
 
-    try {
-      // Run Effect program with cancellation support
-      const program = Effect.scoped(handler(req));
-      const result = await runtime.runPromise(program, {
-        signal: controller.signal,
-      });
+    // Run Effect program with cancellation support (type-safe, doesn't throw)
+    const program = Effect.scoped(handler(req));
+    const exit = await runtime.runPromiseExit(program, {
+      signal: controller.signal,
+    });
 
-      // Success: send JSON response
-      res.json(result);
-    } catch (error) {
-      // Handle errors through Express error middleware
-      next(error);
-    }
+    // Pattern match on Exit to handle success/failure
+    Exit.match(exit, {
+      // Success case: send JSON response
+      onSuccess: (value) => {
+        res.json(value);
+      },
+      // Failure case: extract error and pass to Express error middleware
+      onFailure: (cause) => {
+        // Check if request was interrupted (cancelled)
+        if (Cause.isInterrupted(cause)) {
+          // Don't send response for cancelled requests
+          return;
+        }
+
+        // Try to extract the domain error (Effect.fail)
+        const failure = Cause.failureOption(cause);
+        if (failure._tag === "Some") {
+          // Pass unwrapped domain error to error handler
+          return next(failure.value);
+        }
+
+        // Try to extract defect (unexpected error like throw)
+        const defect = Cause.dieOption(cause);
+        if (defect._tag === "Some") {
+          // Pass unwrapped defect to error handler
+          return next(defect.value);
+        }
+
+        // Fallback for other cause types
+        next(new Error("Unknown Effect error"));
+      },
+    });
   };

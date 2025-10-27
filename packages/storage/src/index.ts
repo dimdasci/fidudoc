@@ -4,6 +4,7 @@ import helmet from "helmet";
 import { createDocumentsService } from "./Documents.ts";
 import { registerDocumentsRoutes } from "./Documents/Http.ts";
 import { deduplicateRequests } from "./middleware/deduplication.ts";
+import { errorHandler } from "./middleware/errorHandler.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
 import { createRuntime } from "./runtime.ts";
 import { createSettingsService } from "./Settings.ts";
@@ -87,6 +88,11 @@ registerSettingsRoutes(app, settingsService);
 registerDocumentsRoutes(app, documentsService);
 registerUsersRoutes(app, usersService, runtime);
 
+// ============================================================================
+// Error Handler Middleware - MUST be registered LAST
+// ============================================================================
+app.use(errorHandler);
+
 const startServer = async () => {
   // Load Port and Host from environment variables
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -102,7 +108,6 @@ const startServer = async () => {
       `${
         process.env.NODE_ENV || "development"
       } backend listening on http://${host}:${port}`,
-      `DB: ${process.env.DATABASE_URL}`,
     );
     console.info(`Health check: http://${host}:${port}/health`);
   });

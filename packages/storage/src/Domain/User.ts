@@ -26,7 +26,7 @@ export class CurrentUser extends Context.Tag("@fidudoc/User/CurrentUser")<
 
 export class UserNotFound extends Schema.TaggedError<UserNotFound>()(
   "UserNotFound",
-  { id: UserId },
+  { id: Schema.String },
 ) {}
 
 // Json schemas for API input/output

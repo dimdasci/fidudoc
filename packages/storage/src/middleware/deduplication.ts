@@ -8,13 +8,23 @@ import type { NextFunction, Request, Response } from "express";
 import * as crypto from "node:crypto";
 
 /**
+ * Cached response data including status code and body
+ */
+interface CachedResponse {
+  /** HTTP status code (200, 404, 500, etc.) */
+  statusCode: number;
+  /** Response body (JSON) */
+  body: unknown;
+}
+
+/**
  * Record stored for each unique request in the cache
  */
 interface RequestRecord {
   /** Timestamp when the request was first seen */
   timestamp: number;
   /** Promise that resolves when the request completes */
-  promise: Promise<unknown>;
+  promise: Promise<CachedResponse>;
   /** When this cache entry expires */
   expiresAt: number;
 }
@@ -107,9 +117,10 @@ export const deduplicateRequests = (
   if (existingRequest && now <= existingRequest.expiresAt) {
     /** Duplicate request: wait for the original to complete */
     existingRequest.promise
-      .then((responseData) => {
+      .then((cachedResponse) => {
         res.setHeader("X-Cache-Status", "hit");
-        res.status(200).json(responseData);
+        // Use cached status code (preserves 404, 500, etc.)
+        res.status(cachedResponse.statusCode).json(cachedResponse.body);
       })
       .catch(() => {
         /** If original request failed, process this one normally */
@@ -119,10 +130,10 @@ export const deduplicateRequests = (
   }
 
   /** First request: create a promise that duplicates will wait for */
-  let resolveResponse: (value: unknown) => void;
+  let resolveResponse: (value: CachedResponse) => void;
   let rejectResponse: (reason?: unknown) => void;
 
-  const promise = new Promise<unknown>((resolve, reject) => {
+  const promise = new Promise<CachedResponse>((resolve, reject) => {
     resolveResponse = resolve;
     rejectResponse = reject;
   });
@@ -135,9 +146,13 @@ export const deduplicateRequests = (
 
   const originalSend = res.send.bind(res);
 
-  /** Intercept res.send to capture and resolve the response */
+  /** Intercept res.send to capture status code and body for caching */
   res.send = function(this: Response, body: unknown) {
-    resolveResponse?.(body);
+    // Cache both status code and body so duplicates get correct status
+    resolveResponse?.({
+      statusCode: this.statusCode,
+      body,
+    });
     this.setHeader("X-Cache-Status", "miss");
     return originalSend(body);
   };
@@ -145,8 +160,12 @@ export const deduplicateRequests = (
   /** Handle errors during request processing */
   res.on("error", () => {
     rejectResponse?.(new Error("Response error"));
+    requestStore.delete(signature);
   });
 
+  // Continue to next middleware
+  // Note: Error responses (4xx/5xx) are cached with their status codes
+  // via res.send() interception above, protecting backend from overload
   next();
 };
 

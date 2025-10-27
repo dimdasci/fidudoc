@@ -23,8 +23,14 @@ export function registerUsersRoutes(
     effectHandler(runtime, (req) =>
       Effect.gen(function*() {
         // Parse and validate UUID from URL parameter
+        // If parsing fails (invalid UUID), convert to UserNotFound error
         const userId = yield* Schema.decodeUnknown(UserId)(
           req.params.id,
+        ).pipe(
+          Effect.catchTag("ParseError", (_parseError) =>
+            // Treat invalid UUID same as nonexistent user (404)
+            // Preserve the invalid input in error details for debugging
+            Effect.fail(new UserNotFound({ id: req.params.id || "<undefined>" }))),
         );
 
         // Get the users repository from context
