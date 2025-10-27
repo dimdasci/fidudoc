@@ -2,6 +2,16 @@ import { Model } from "@effect/sql";
 import { Schema } from "effect";
 import { AccountId } from "./Account.ts";
 
+export const DocumentStatusType = Schema.Literal(
+  "new",
+  "classifying",
+  "extracting",
+  "validating",
+  "pending",
+  "approved",
+  "rejected",
+);
+
 export const MimeType = Schema.String.pipe(
   Schema.pattern(
     /^[a-zA-Z0-9]+\/[a-zA-Z0-9\-.+]+(;[a-zA-Z0-9\-.+=]+=[a-zA-Z0-9\-.+=]+)*$/,
@@ -34,6 +44,7 @@ export class Document extends Model.Class<Document>("Document")({
   fileName: Schema.NonEmptyTrimmedString,
   fileSize: Schema.Number.pipe(Schema.positive()),
   mimeType: MimeType,
+  status: DocumentStatusType,
   numberOfPages: Model.FieldOption(Schema.Number.pipe(Schema.positive())),
   documentType: Model.FieldOption(Schema.NonEmptyTrimmedString),
   confidenceScore: Model.FieldOption(ConfidenceScore),
