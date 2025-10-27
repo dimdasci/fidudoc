@@ -13,7 +13,7 @@ export function registerUsersRoutes(app: Express, usersService: IUsers) {
     try {
       const result = await usersService.listUsers();
       res.json(result);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to list users" });
     }
   });
@@ -31,7 +31,7 @@ export function registerUsersRoutes(app: Express, usersService: IUsers) {
 
       const result = await usersService.createUser({ email, name, role });
       res.status(201).json(result);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to create user" });
     }
   });
@@ -47,7 +47,7 @@ export function registerUsersRoutes(app: Express, usersService: IUsers) {
         isActive,
       });
       res.json(result);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to update user" });
     }
   });
@@ -61,7 +61,7 @@ export function registerUsersRoutes(app: Express, usersService: IUsers) {
         resourceType: req.query.resourceType as string,
       });
       res.json(result);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to retrieve audit log" });
     }
   });

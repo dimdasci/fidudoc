@@ -6,14 +6,16 @@
  * this business capability.
  */
 
-import type { User, AuditLog } from "./Domain/types.ts";
-import { generateMockUsers, generateMockAuditLog } from "./Domain/mocks.ts";
+import { generateMockAuditLog, generateMockUsers } from "./Domain/mocks.ts";
+import type { AuditLog, User } from "./Domain/types.ts";
 
 export interface IUsers {
   listUsers: () => Promise<{ total: number; users: User[] }>;
   createUser: (data: CreateUserRequest) => Promise<CreateUserResponse>;
   updateUser: (id: string, data: UpdateUserRequest) => Promise<UpdateUserResponse>;
-  getAuditLog: (filters?: AuditLogFilters) => Promise<{ total: number; auditLogs: AuditLog[] }>;
+  getAuditLog: (
+    filters?: AuditLogFilters,
+  ) => Promise<{ total: number; auditLogs: AuditLog[] }>;
 }
 
 export interface CreateUserRequest {
@@ -107,7 +109,9 @@ export function createUsersService(): IUsers {
       }
 
       if (filters?.resourceType) {
-        filtered = filtered.filter((log) => log.resourceType === filters.resourceType);
+        filtered = filtered.filter((log) =>
+          log.resourceType === filters.resourceType
+        );
       }
 
       return { total: filtered.length, auditLogs: filtered };

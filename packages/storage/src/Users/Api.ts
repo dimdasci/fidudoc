@@ -4,7 +4,7 @@
  * Defines the HTTP endpoints for the Users bounded context
  */
 
-import type { User, AuditLog } from "../Domain/types.ts";
+import type { AuditLog, User } from "../Domain/types.ts";
 
 export const UsersEndpoints = {
   LIST: "list_users",

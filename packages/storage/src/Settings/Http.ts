@@ -13,7 +13,7 @@ export function registerSettingsRoutes(app: Express, settingsService: ISettings)
     try {
       const settings = await settingsService.getSettings();
       res.json(settings);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to retrieve settings" });
     }
   });
@@ -27,7 +27,7 @@ export function registerSettingsRoutes(app: Express, settingsService: ISettings)
         message: "Settings updated (mock - not persisted)",
         settings: result.settings,
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(400).json({ error: "Failed to update settings" });
     }
   });

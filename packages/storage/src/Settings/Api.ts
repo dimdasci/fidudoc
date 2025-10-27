@@ -9,9 +9,7 @@ export const SettingsEndpoints = {
   PUT_SETTINGS: "put_settings",
 } as const;
 
-export interface GetSettingsRequest {
-  // No parameters needed
-}
+export type GetSettingsRequest = Record<string, never>;
 
 export interface GetSettingsResponse {
   intake: {

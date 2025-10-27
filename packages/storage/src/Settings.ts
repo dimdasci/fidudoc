@@ -5,12 +5,14 @@
  * top level to immediately communicate this business capability.
  */
 
-import type { Settings } from "./Domain/types.ts";
 import { generateMockSettings } from "./Domain/mocks.ts";
+import type { Settings } from "./Domain/types.ts";
 
 export interface ISettings {
   getSettings: () => Promise<Settings>;
-  updateSettings: (settings: Settings) => Promise<{ success: boolean; settings: Settings }>;
+  updateSettings: (
+    settings: Settings,
+  ) => Promise<{ success: boolean; settings: Settings }>;
 }
 
 /**

@@ -22,7 +22,7 @@ export const loggingMiddleware = (
   // Note: res.json() calls res.send() internally, so we only need to intercept send
   const originalSend = res.send.bind(res);
 
-  res.send = function (this: Response, data: unknown) {
+  res.send = function(this: Response, data: unknown) {
     const duration = Date.now() - startTime;
     console.log("<- Outgoing Response:", {
       timestamp: new Date().toISOString(),
