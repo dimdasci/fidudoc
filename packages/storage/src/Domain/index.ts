@@ -5,15 +5,11 @@
  * shared across bounded contexts (Settings, Documents, Users, etc.)
  */
 
-export type {
-  Settings,
-  Document,
-  User,
-} from "./types.ts";
+export type { Document, Settings, User } from "./types.ts";
 
 export {
-  DOCUMENT_TYPES,
   DOCUMENT_STATUSES,
-  VALIDATION_STATUSES,
+  DOCUMENT_TYPES,
   USER_ROLES,
+  VALIDATION_STATUSES,
 } from "./constants.ts";
