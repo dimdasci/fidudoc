@@ -4,10 +4,45 @@
  * Maps HTTP requests to Users service operations
  */
 
+import { Effect, Option, Schema } from "effect";
 import type { Express } from "express";
+import { UserId, UserJson, UserNotFound } from "../Domain/User.ts";
+import { effectHandler } from "../middleware/effect.ts";
+import type { AppRuntime } from "../runtime.ts";
 import type { IUsers } from "../Users.ts";
+import { UsersRepo } from "./Repo.ts";
 
-export function registerUsersRoutes(app: Express, usersService: IUsers) {
+export function registerUsersRoutes(
+  app: Express,
+  usersService: IUsers,
+  runtime: AppRuntime,
+) {
+  // GET /users/:id - Get user by ID (Effect-based)
+  app.get(
+    "/users/:id",
+    effectHandler(runtime, (req) =>
+      Effect.gen(function*() {
+        // Parse and validate UUID from URL parameter
+        const userId = yield* Schema.decodeUnknown(UserId)(
+          req.params.id,
+        );
+
+        // Get the users repository from context
+        const repo = yield* UsersRepo;
+
+        // Find user by ID (returns Option<User>)
+        const userOption = yield* repo.findById(userId);
+
+        // Convert Option to Effect, failing with UserNotFound if None
+        const user = yield* Option.match(userOption, {
+          onNone: () => Effect.fail(new UserNotFound({ id: userId })),
+          onSome: (user) => Effect.succeed(user),
+        });
+
+        // Encode to JSON schema for API response
+        return yield* Schema.encode(UserJson)(user);
+      })),
+  );
   // GET /users - List all users
   app.get("/users", async (_req, res) => {
     try {

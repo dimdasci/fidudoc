@@ -5,12 +5,18 @@ import { createDocumentsService } from "./Documents.ts";
 import { registerDocumentsRoutes } from "./Documents/Http.ts";
 import { deduplicateRequests } from "./middleware/deduplication.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
+import { createRuntime } from "./runtime.ts";
 import { createSettingsService } from "./Settings.ts";
 import { registerSettingsRoutes } from "./Settings/Http.ts";
 import { createUsersService } from "./Users.ts";
 import { registerUsersRoutes } from "./Users/Http.ts";
 
 const app = express();
+
+// ============================================================================
+// Initialize Effect Runtime
+// ============================================================================
+const runtime = createRuntime();
 
 // Security headers middleware
 app.use(
@@ -79,7 +85,7 @@ const usersService = createUsersService();
 // ============================================================================
 registerSettingsRoutes(app, settingsService);
 registerDocumentsRoutes(app, documentsService);
-registerUsersRoutes(app, usersService);
+registerUsersRoutes(app, usersService, runtime);
 
 const startServer = async () => {
   // Load Port and Host from environment variables
@@ -93,15 +99,20 @@ const startServer = async () => {
       process.exit(1);
     }
     console.info(
-      `${process.env.NODE_ENV} backend listening on http://${host}:${port}`,
+      `${
+        process.env.NODE_ENV || "development"
+      } backend listening on http://${host}:${port}`,
+      `DB: ${process.env.DATABASE_URL}`,
     );
     console.info(`Health check: http://${host}:${port}/health`);
   });
 };
 
 // Graceful shutdown
-const gracefulShutdown = () => {
+const gracefulShutdown = async () => {
   console.log("🛑 Server is shutting down...");
+  // Dispose of the Effect runtime (closes DB connections, etc.)
+  await runtime.dispose();
   process.exit();
 };
 

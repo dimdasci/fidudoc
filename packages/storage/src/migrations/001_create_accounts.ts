@@ -15,7 +15,6 @@ export default Effect.gen(function*() {
     )
   `;
 
-  // Index for tenant lookups
-  yield* sql`CREATE INDEX idx_accounts_client_id ON accounts(client_id)`;
+  // Index for active accounts lookup
   yield* sql`CREATE INDEX idx_accounts_is_active ON accounts(is_active)`;
 });

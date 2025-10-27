@@ -9,7 +9,7 @@ export class AppConfig extends Effect.Service<AppConfig>()("AppConfig", {
     const supabaseSecretKey = yield* Config.redacted("SUPABASE_SECRET_KEY");
     const supabaseJwtSecret = yield* Config.redacted("SUPABASE_JWT_SECRET");
 
-    const sentryDsn = yield* Config.redacted("SENTRY_DSN");
+    const sentryDsn = yield* Config.redacted("SENTRY_DSN_BACKEND");
     const sentryEnvironment = yield* Config.string("SENTRY_ENVIRONMENT").pipe(
       Config.withDefault("development"),
     );

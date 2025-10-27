@@ -14,8 +14,8 @@ export default Effect.gen(function*() {
       is_active BOOLEAN NOT NULL DEFAULT true,
       title VARCHAR(255),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-      last_login_at TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      last_login_at TIMESTAMP
     )
   `;
 

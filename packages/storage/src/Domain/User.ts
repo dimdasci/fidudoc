@@ -3,12 +3,8 @@ import { Context, Schema } from "effect";
 import { AccountId } from "./Account.js";
 import { Email } from "./Emails.ts";
 
-export const UserId = Schema.Number.pipe(Schema.brand("UserId"));
+export const UserId = Schema.UUID.pipe(Schema.brand("UserId"));
 export type UserId = typeof UserId.Type;
-
-export const UserIdFromString = Schema.NumberFromString.pipe(
-  Schema.compose(UserId),
-);
 
 export class User extends Model.Class<User>("User")({
   id: Model.GeneratedByApp(UserId),
