@@ -33,5 +33,10 @@
   },
   "dependencies": {
     "@trigger.dev/sdk": "4.0.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "source-map": "^0.7.6"
+    }
   }
 }
