@@ -49,3 +49,5 @@ Thumbs.db
 
 # Playwright
 .playwright-mcp/
+
+users.json

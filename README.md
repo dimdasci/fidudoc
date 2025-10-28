@@ -28,3 +28,33 @@ Not another AI tool. Fidudoc is infrastructure that connects storage → validat
 | **Discoverability** | Natural-language and structured search grounded in source documents.                                           | Enables confident, auditable answers.              |
 
 Under the hood: we compose specialized tools where they excel (VIES for VAT, OCR vendors, compliance APIs), not reinvent them. Our LLM layer orchestrates \+ fills gaps, but heavy lifting goes to domain experts when needed.
+
+## CLI Utilities
+
+The project includes CLI utilities for user management and testing:
+
+### User Authentication
+
+```bash
+# Authenticate a user and get access token
+pnpm auth admin@example.com
+
+# Get formatted Authorization header for API testing
+pnpm auth admin@example.com -h
+```
+
+### User Metadata Management
+
+```bash
+# Add account ID to user metadata
+pnpm user-metadata admin@example.com acc-123456
+```
+
+**Setup**:
+
+1. Create a `.env` file from template: `cp .env.template .env`
+2. Create a `users.json` file with user credentials: `cp users.json.template users.json`
+
+Environment variables are automatically loaded by the CLI utilities.
+
+For detailed documentation, see [`packages/utils/README.md`](packages/utils/README.md).

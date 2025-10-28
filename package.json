@@ -14,7 +14,9 @@
     "check": "pnpm lint && pnpm format:check",
     "check:fix": "pnpm lint:fix && pnpm format",
     "typecheck": "pnpm -r typecheck",
-    "clean": "pnpm -r run clean"
+    "clean": "pnpm -r run clean",
+    "auth": "dotenv -- pnpm --filter @fidudoc/utils auth",
+    "user-metadata": "dotenv -- pnpm --filter @fidudoc/utils user-metadata"
   },
   "keywords": [],
   "author": "Dim Kharitonov <dimds@fastmail.com>",

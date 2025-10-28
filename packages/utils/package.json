@@ -1,0 +1,26 @@
+{
+  "name": "@fidudoc/utils",
+  "version": "1.0.0",
+  "description": "CLI utilities for user management and testing",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx --watch src/index.ts",
+    "auth": "tsx src/auth.ts",
+    "user-metadata": "tsx src/user-metadata.ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=23.0.0"
+  }
+}
