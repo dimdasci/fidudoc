@@ -48,10 +48,17 @@ src/
 ├── Settings/
 │   └── Http.ts                   # HTTP handlers (legacy Promise-based)
 │
+├── Auth/
+│   ├── Casbin.ts                 # Casbin enforcer service (Effect scoped)
+│   ├── model.conf                # Casbin RBAC model with domains
+│   ├── Jwt.ts                    # JWT validation with Supabase
+│   └── Supabase.ts               # Supabase client service
+│
 ├── lib/
 │   └── ErrorMapper.ts            # Domain error → HTTP response mapping
 │
 ├── middleware/
+│   ├── auth.ts                   # Authentication middleware (JWT validation)
 │   ├── effect.ts                 # Effect → Express bridge (runPromiseExit)
 │   ├── errorHandler.ts           # Express error middleware
 │   ├── deduplication.ts          # Request deduplication (caches status + body)
@@ -59,7 +66,8 @@ src/
 │
 └── migrations/                   # Database migrations
     ├── 001_create_accounts.ts
-    └── 002_create_users.ts
+    ├── 002_create_users.ts
+    └── 005_create_casbin_policy.ts
 ```
 
 ## Architecture Patterns
@@ -75,8 +83,8 @@ Built once at boot, reused across all requests:
 - `AppConfig` - Environment variables, bucket names, URLs
 - `SqlClient` - Database connection pool (not per-request connections)
 - `Supabase` - Object storage client
+- `CasbinEnforcer` - Loaded RBAC model + policies (scoped service)
 - Repositories - `UsersRepo`, `AccountsRepo`, `DocumentsRepo`
-- Future: `CasbinEnforcer` - Loaded RBAC model + policies
 
 These live in the `ManagedRuntime` created by [runtime.ts](runtime.ts):
 
@@ -84,6 +92,7 @@ These live in the `ManagedRuntime` created by [runtime.ts](runtime.ts):
 const GlobalLayer = Layer.mergeAll(
   SupabaseLive,
   SqlLive,
+  CasbinLive,
   UsersRepo.Default,
 ).pipe(Layer.provide(AppConfigLive));
 
@@ -317,7 +326,225 @@ Schema.decodeUnknown(UserId)(req.params.id).pipe(
 
 Treat invalid UUIDs same as nonexistent users (404) - follows minimal error principle.
 
-### 6. Request Deduplication (Tricky Pattern)
+### 6. Authorization with Casbin (RBAC + Multi-Tenancy)
+
+**Architecture:**
+
+- Casbin enforcer loaded once at boot as global service
+- RBAC with domains model: `(subject, domain, object, action)`
+- Domain = tenant accountId for multi-tenant isolation
+- Policies stored in `casbin_rule` PostgreSQL table
+- Model defined in `Auth/model.conf`
+
+**Service Implementation (Auth/Casbin.ts):**
+
+```typescript
+export class CasbinEnforcer extends Effect.Service<CasbinEnforcer>()(
+  "Casbin",
+  {
+    scoped: Effect.gen(function*() {
+      const config = yield* AppConfig;
+      const databaseUrl = Redacted.value(config.database.url);
+
+      // Create unconnected PostgreSQL client
+      const client = yield* createPgClient(databaseUrl);
+
+      // BasicAdapter will call client.connect() internally
+      const adapter = yield* createAdapter(client);
+
+      // Load model and initialize enforcer with policies from DB
+      const enforcer = yield* createEnforcer(modelPath, adapter);
+
+      return {
+        enforce: (sub, dom, obj, act) => Effect.tryPromise(...),
+        addPolicy: (sub, dom, obj, act) => Effect.tryPromise(...),
+        // ...
+      };
+    }),
+    dependencies: [AppConfig.Default],
+  },
+) {}
+```
+
+**Critical Implementation Details:**
+
+1. **Scoped Service with Separate PostgreSQL Client:**
+   - CasbinEnforcer uses its own `pg.Client`, separate from Effect SQL client
+   - BasicAdapter requires `pg.Client`, not compatible with `@effect/sql`
+   - Client created via `Effect.acquireRelease` for automatic cleanup
+   - Finalizer calls `client.end()` when runtime disposes
+
+2. **BasicAdapter Connection Handling (TRICKY!):**
+   ```typescript
+   // WRONG - causes hang:
+   const client = new Client({ connectionString });
+   await client.connect(); // ❌ Pre-connected
+   await BasicAdapter.newAdapter("pg", client, "casbin_rule"); // Hangs!
+
+   // RIGHT - let BasicAdapter handle connection:
+   const client = new Client({ connectionString }); // ✅ Unconnected
+   await BasicAdapter.newAdapter("pg", client, "casbin_rule"); // Works!
+   ```
+
+   **Why?** BasicAdapter.newAdapter() internally calls:
+   ```javascript
+   // From casbin-basic-adapter source
+   static async newAdapter(drive, client, tableName) {
+     const a = new BasicAdapter(drive, client, tableName);
+     await a.connect();  // Calls client.connect() here!
+     await a.createTable();
+     return a;
+   }
+   ```
+
+   Passing a pre-connected client causes `client.connect()` to hang waiting for connection that's already established.
+
+3. **Resource Lifecycle:**
+   ```typescript
+   const createPgClient = (url): Effect<Client, Error, Scope.Scope> =>
+     Effect.acquireRelease(
+       Effect.sync(() => new Client({ connectionString: url })), // Create unconnected
+       (client) =>
+         Effect.promise(() => client.end()).pipe( // Cleanup on dispose
+           Effect.catchAll(() => Effect.void),
+         ),
+     );
+   ```
+
+   - `Effect.sync` creates client synchronously (not async)
+   - `acquireRelease` requires `Scope.Scope` in requirements
+   - ManagedRuntime automatically provides Scope for scoped services
+   - Finalizer runs when runtime shuts down
+
+4. **Layer Integration:**
+   ```typescript
+   // Runtime.ts
+   const GlobalLayer = Layer.mergeAll(
+     SupabaseLive,
+     SqlLive,
+     CasbinLive, // CasbinEnforcer.Default
+     UsersRepo.Default,
+   ).pipe(Layer.provide(AppConfigLive));
+   ```
+
+   - `CasbinEnforcer.Default` is already a Layer
+   - No need for `Layer.scoped` or `Layer.scopedDiscard` wrapper
+   - Effect.Service automatically handles `scoped` property
+   - ManagedRuntime.make() provides Scope for all scoped services
+
+5. **Error Types:**
+   ```typescript
+   export class CasbinConnectionError
+     extends Data.TaggedError("CasbinConnectionError")<{
+       readonly message: string;
+       readonly cause?: unknown;
+     }>
+   {}
+
+   export class CasbinAdapterError
+     extends Data.TaggedError("CasbinAdapterError")<{
+       readonly message: string;
+       readonly cause?: unknown;
+     }>
+   {}
+
+   export class CasbinEnforcerError
+     extends Data.TaggedError("CasbinEnforcerError")<{
+       readonly message: string;
+       readonly cause?: unknown;
+     }>
+   {}
+   ```
+
+   All Casbin methods return `Effect<A, CasbinEnforcerError>` for type-safe error handling.
+
+6. **Supabase Transaction Pooling:**
+   ```typescript
+   new Client({
+     connectionString: databaseUrl,
+     ssl: { rejectUnauthorized: false }, // Required for Supabase
+     connectionTimeoutMillis: 5000,
+   });
+   ```
+
+**Model Configuration (Auth/model.conf):**
+
+```
+[request_definition]
+r = sub, dom, obj, act
+
+[policy_definition]
+p = sub, dom, obj, act
+
+[role_definition]
+g = _, _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub, r.dom) && r.dom == p.dom && r.obj == p.obj && r.act == p.act
+```
+
+**Database Schema:**
+
+```sql
+CREATE TABLE casbin_rule (
+  id SERIAL PRIMARY KEY,
+  ptype VARCHAR(255) NOT NULL,
+  v0 VARCHAR(255),  -- subject/role
+  v1 VARCHAR(255),  -- domain
+  v2 VARCHAR(255),  -- object
+  v3 VARCHAR(255),  -- action
+  v4 VARCHAR(255),
+  v5 VARCHAR(255)
+);
+CREATE INDEX idx_casbin_rule ON casbin_rule(ptype, v0, v1);
+```
+
+**Usage in Handlers:**
+
+```typescript
+app.get(
+  "/documents",
+  effectHandler(runtime, (req) =>
+    Effect.gen(function*() {
+      const principal = yield* CurrentPrincipal;
+      const casbin = yield* CasbinEnforcer;
+
+      // Check permission: user can read documents in their account domain
+      const allowed = yield* casbin.enforce(
+        principal.userId,
+        principal.accountId, // Domain for tenant isolation
+        "document",
+        "read",
+      );
+
+      if (!allowed) {
+        return yield* Effect.fail(
+          new Forbidden({
+            resource: "document",
+            action: "read",
+          }),
+        );
+      }
+
+      // Proceed with business logic...
+    })),
+);
+```
+
+**Key Differences from Effect SQL Client:**
+
+| Aspect      | Effect SQL (@effect/sql-pg) | Casbin (pg.Client)                           |
+| ----------- | --------------------------- | -------------------------------------------- |
+| Connection  | Connection pool             | Single client                                |
+| Lifecycle   | Managed by Effect Layer     | Manual via acquireRelease                    |
+| API         | Effect-based                | Promise-based (wrapped in Effect.tryPromise) |
+| Usage       | Application data            | Authorization policies                       |
+| Integration | @effect/sql Model           | BasicAdapter interface                       |
+
+### 7. Request Deduplication (Tricky Pattern)
 
 **The Problem:** Concurrent identical requests should wait for first request, not duplicate work.
 
@@ -489,18 +716,20 @@ Sentry.captureException(err, { tags: { trace_id } });
 - Effect → Express bridge
 - Error handling infrastructure
 - GET /users/:id endpoint
+- Authorization with Casbin (CasbinEnforcer service with scoped lifecycle)
+- Authentication with Supabase (JWT validation middleware)
 
 ### 🚧 In Progress
 
 - Migrating remaining endpoints to Effect
 - Converting Promise-based services to Effect Services
+- Integrating Casbin authorization checks in route handlers
 
 ### 📋 Planned
 
-- Authorization with Casbin (Forbidden error)
-- Authentication with Supabase (Unauthorized error)
 - Schema validation for all endpoints
 - Integration tests for Effect flows
+- Role-based access control policy management endpoints
 
 ## Development Workflow
 

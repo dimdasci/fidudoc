@@ -1,6 +1,7 @@
 // Effect runtime
 
 import { Layer, ManagedRuntime } from "effect";
+import { CasbinLive } from "./Auth/Casbin.ts";
 import { SupabaseLive } from "./Auth/Supabase.ts";
 import { AppConfigLive } from "./Config.ts";
 import { SqlLive } from "./Sql.ts";
@@ -12,6 +13,7 @@ import { UsersRepo } from "./Users/Repo.ts";
 const GlobalLayer = Layer.mergeAll(
   SupabaseLive,
   SqlLive,
+  CasbinLive,
   UsersRepo.Default,
 ).pipe(Layer.provide(AppConfigLive));
 

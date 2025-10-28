@@ -4,7 +4,7 @@ import { PgClient, PgMigrator } from "@effect/sql-pg";
 import { Effect, Layer, String as EffectString } from "effect";
 import { identity } from "effect/Function";
 import { fileURLToPath } from "node:url";
-import { AppConfig } from "./config.ts";
+import { AppConfig } from "./Config.ts";
 import { makeTestLayer } from "./lib/Layer.js";
 
 export const pgConfig = {
