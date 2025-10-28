@@ -3,10 +3,11 @@ import express from "express";
 import helmet from "helmet";
 import { createDocumentsService } from "./Documents.ts";
 import { registerDocumentsRoutes } from "./Documents/Http.ts";
+import { authMiddleware } from "./middleware/auth.ts";
 import { deduplicateRequests } from "./middleware/deduplication.ts";
 import { errorHandler } from "./middleware/errorHandler.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
-import { createRuntime } from "./runtime.ts";
+import { createRuntime } from "./Runtime.ts";
 import { createSettingsService } from "./Settings.ts";
 import { registerSettingsRoutes } from "./Settings/Http.ts";
 import { createUsersService } from "./Users.ts";
@@ -66,6 +67,9 @@ app.use(deduplicateRequests);
 // Simple logging middleware
 app.use(loggingMiddleware);
 
+// ============================================================================
+// Public Routes (no authentication required)
+// ============================================================================
 app.use("/health", (_req, res) => {
   res.send("OK");
 });
@@ -82,11 +86,20 @@ const documentsService = createDocumentsService();
 const usersService = createUsersService();
 
 // ============================================================================
-// Register Routes - HTTP adapters for bounded contexts
+// Protected Routes (authentication required)
 // ============================================================================
-registerSettingsRoutes(app, settingsService);
-registerDocumentsRoutes(app, documentsService);
-registerUsersRoutes(app, usersService, runtime);
+const protectedRouter = express.Router();
+
+// Apply authentication middleware to all protected routes
+protectedRouter.use(authMiddleware(runtime));
+
+// Register business routes on the protected router
+registerSettingsRoutes(protectedRouter, settingsService);
+registerDocumentsRoutes(protectedRouter, documentsService);
+registerUsersRoutes(protectedRouter, usersService, runtime);
+
+// Mount the protected router
+app.use(protectedRouter);
 
 // ============================================================================
 // Error Handler Middleware - MUST be registered LAST

@@ -4,7 +4,7 @@
  * Maps HTTP requests to Documents service operations
  */
 
-import type { Express } from "express";
+import type { IRouter } from "express";
 import type { IDocuments } from "../Documents.ts";
 import type {
   DocumentStatus,
@@ -12,7 +12,7 @@ import type {
   ValidationStatus,
 } from "../Domain/types.ts";
 
-export function registerDocumentsRoutes(app: Express, documentsService: IDocuments) {
+export function registerDocumentsRoutes(app: IRouter, documentsService: IDocuments) {
   // GET /documents - List and filter documents
   app.get("/documents", async (req, res) => {
     try {

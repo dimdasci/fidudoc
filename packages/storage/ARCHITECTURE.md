@@ -64,7 +64,89 @@ src/
 
 ## Architecture Patterns
 
-### 1. Effect-First Domain Layer
+### 1. Global vs Per-Request Dependencies
+
+Effect services are provided through two different mechanisms depending on their lifecycle:
+
+**Global Dependencies (ManagedRuntime)**
+
+Built once at boot, reused across all requests:
+
+- `AppConfig` - Environment variables, bucket names, URLs
+- `SqlClient` - Database connection pool (not per-request connections)
+- `Supabase` - Object storage client
+- Repositories - `UsersRepo`, `AccountsRepo`, `DocumentsRepo`
+- Future: `CasbinEnforcer` - Loaded RBAC model + policies
+
+These live in the `ManagedRuntime` created by [runtime.ts](runtime.ts):
+
+```typescript
+const GlobalLayer = Layer.mergeAll(
+  SupabaseLive,
+  SqlLive,
+  UsersRepo.Default,
+).pipe(Layer.provide(AppConfigLive));
+
+export const createRuntime = () => ManagedRuntime.make(GlobalLayer);
+```
+
+**Per-Request Dependencies (Effect.provideService)**
+
+Created fresh for each HTTP request:
+
+- `CurrentUser` - Full user profile from database
+- `CurrentPrincipal` - Lightweight auth identity (userId + accountId)
+- Future: `RequestId`, `TraceSpan`, `IdempotencyKey`
+
+These are provided in [middleware/effect.ts](middleware/effect.ts) via `Effect.provideService`:
+
+```typescript
+// Auth middleware populates req.user and req.principal
+const authReq = req as AuthenticatedRequest;
+
+// Provide per-request services to the Effect program
+if (authReq.user) {
+  program = program.pipe(Effect.provideService(CurrentUser, authReq.user));
+}
+if (authReq.principal) {
+  program = program.pipe(
+    Effect.provideService(CurrentPrincipal, authReq.principal),
+  );
+}
+```
+
+**Key Principle**: Never create heavyweight resources (DB clients, storage clients) per request. Never memoize request-specific data (user, tenant) at the global level.
+
+**Usage in Route Handlers**:
+
+```typescript
+// Route handler can access both global and per-request services
+app.get(
+  "/documents",
+  effectHandler(runtime, (req) =>
+    Effect.gen(function*() {
+      // Global service (from ManagedRuntime)
+      const documentsRepo = yield* DocumentsRepo;
+
+      // Per-request service (from Effect.provideService)
+      const currentUser = yield* CurrentUser;
+      const principal = yield* CurrentPrincipal;
+
+      // Use principal for authorization (Casbin)
+      const canRead = yield* authorize(
+        principal.userId,
+        principal.accountId,
+        "document",
+        "read",
+      );
+
+      // Use user for business logic
+      return yield* documentsRepo.findByAccountId(currentUser.accountId);
+    })),
+);
+```
+
+### 2. Effect-First Domain Layer
 
 Domain entities use `@effect/sql` Model for automatic repository generation:
 
@@ -85,6 +167,7 @@ export class UserNotFound extends Schema.TaggedError<UserNotFound>()(
 ```
 
 **Key benefits:**
+
 - Compile-time type safety
 - Runtime schema validation
 - Automatic JSON serialization
@@ -116,6 +199,7 @@ export class UsersRepo extends Effect.Service<UsersRepo>()("UsersRepo", {
 ```
 
 **Key patterns:**
+
 - Services use Effect's dependency injection
 - Automatic span tracking for observability
 - Type-safe SQL queries via SqlSchema
@@ -136,11 +220,11 @@ export const StorageServiceLive = Layer.mergeAll(
   Layer.provide(UsersRepo.Default),
 );
 
-export const createRuntime = () =>
-  ManagedRuntime.make(StorageServiceLive);
+export const createRuntime = () => ManagedRuntime.make(StorageServiceLive);
 ```
 
 **Effect runtime patterns:**
+
 - Layers compose services via dependency injection
 - Runtime manages resource lifecycle (DB connections, etc.)
 - Single runtime instance per application
@@ -169,6 +253,7 @@ Exit.match(exit, {
 ```
 
 **Why this matters:**
+
 - `runPromise()` throws `FiberFailure` wrapper → error handler sees wrong type
 - `runPromiseExit()` returns `Exit<A, E>` → clean pattern matching
 - Domain errors (Effect.fail) extracted via `Cause.failureOption()`
@@ -177,11 +262,13 @@ Exit.match(exit, {
 ### 5. Error Handling Architecture
 
 **Minimal Domain Error Set:**
+
 - Only expose meaningful business errors to frontend
 - Hide implementation details (ParseError → UserNotFound)
 - 4xx for domain errors, 5xx for system errors
 
 **Error Flow:**
+
 ```
 Effect.fail(UserNotFound)
   → runPromiseExit returns Exit.failure
@@ -192,6 +279,7 @@ Effect.fail(UserNotFound)
 ```
 
 **Error Handler (middleware/errorHandler.ts):**
+
 ```typescript
 // Map domain error → HTTP status
 const statusCode = getStatusCode(errorTag); // UserNotFound → 404
@@ -216,11 +304,13 @@ if (shouldReportToSentry(errorTag)) {
 ```
 
 **Parse Error Handling:**
+
 ```typescript
 // Users/Http.ts - Convert schema validation to domain error
 Schema.decodeUnknown(UserId)(req.params.id).pipe(
-  Effect.catchTag("ParseError", () =>
-    Effect.fail(new UserNotFound({ id: req.params.id }))
+  Effect.catchTag(
+    "ParseError",
+    () => Effect.fail(new UserNotFound({ id: req.params.id })),
   ),
 );
 ```
@@ -254,6 +344,7 @@ res.status(cachedResponse.statusCode).json(cachedResponse.body);
 **Bug #2 Fixed:** Dead `errorAwareNext` override tried to replace closure variable.
 
 **Why cache errors?** During database overload:
+
 - Without caching: 100 requests → 100 DB attempts → cascading failure
 - With caching: 1 DB attempt fails → cached 500 error → backend protected
 
@@ -262,13 +353,15 @@ res.status(cachedResponse.statusCode).json(cachedResponse.body);
 ### Effect-Based Route Handler (GET /users/:id)
 
 ```typescript
-app.get("/users/:id",
+app.get(
+  "/users/:id",
   effectHandler(runtime, (req) =>
     Effect.gen(function*() {
       // 1. Parse & validate (convert ParseError → UserNotFound)
       const userId = yield* Schema.decodeUnknown(UserId)(req.params.id).pipe(
-        Effect.catchTag("ParseError", () =>
-          Effect.fail(new UserNotFound({ id: req.params.id }))
+        Effect.catchTag(
+          "ParseError",
+          () => Effect.fail(new UserNotFound({ id: req.params.id })),
         ),
       );
 
@@ -286,12 +379,12 @@ app.get("/users/:id",
 
       // 5. Encode to JSON schema for response
       return yield* Schema.encode(UserJson)(user);
-    })
-  )
+    })),
 );
 ```
 
 **Benefits:**
+
 - Type-safe error handling (UserNotFound in function signature)
 - Automatic dependency injection (UsersRepo)
 - Composable error handling (catchTag, Option.match)
@@ -302,6 +395,7 @@ app.get("/users/:id",
 ### 1. FiberFailure Unwrapping (CRITICAL!)
 
 **Wrong:**
+
 ```typescript
 runtime.runPromise(program).catch(error => {
   // error is FiberFailure wrapper
@@ -311,19 +405,21 @@ runtime.runPromise(program).catch(error => {
 ```
 
 **Right:**
+
 ```typescript
 const exit = await runtime.runPromiseExit(program);
 Exit.match(exit, {
   onFailure: (cause) => {
     const failure = Cause.failureOption(cause);
     // failure.value is the actual UserNotFound ✅
-  }
+  },
 });
 ```
 
 ### 2. Minimal Domain Errors
 
 Don't expose implementation details:
+
 - ❌ `ParseError`, `ValidationError`, `InvalidUUIDError`
 - ✅ `UserNotFound` (treat all "not found" cases the same)
 
@@ -332,9 +428,9 @@ Don't expose implementation details:
 ```json
 {
   "error": {
-    "_tag": "UserNotFound",      // Frontend i18n key
-    "message": "User not found",  // Fallback
-    "details": { "id": "..." }    // Interpolation context
+    "_tag": "UserNotFound", // Frontend i18n key
+    "message": "User not found", // Fallback
+    "details": { "id": "..." } // Interpolation context
   }
 }
 ```
@@ -344,6 +440,7 @@ Frontend maps `_tag` to translation key, uses `details` for message interpolatio
 ### 4. Cache Error Responses
 
 Don't reject promises on error responses - cache them with status codes:
+
 - Protects backend during overload
 - Prevents thundering herd
 - Requires caching status code, not just body
@@ -385,6 +482,7 @@ Sentry.captureException(err, { tags: { trace_id } });
 ## Migration Status
 
 ### ✅ Completed (Effect-Based)
+
 - Domain entities (User, Account, Document)
 - Repository layer (UsersRepo, AccountsRepo, DocumentsRepo)
 - Effect runtime with Layers
@@ -393,10 +491,12 @@ Sentry.captureException(err, { tags: { trace_id } });
 - GET /users/:id endpoint
 
 ### 🚧 In Progress
+
 - Migrating remaining endpoints to Effect
 - Converting Promise-based services to Effect Services
 
 ### 📋 Planned
+
 - Authorization with Casbin (Forbidden error)
 - Authentication with Supabase (Unauthorized error)
 - Schema validation for all endpoints

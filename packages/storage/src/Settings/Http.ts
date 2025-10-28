@@ -4,10 +4,10 @@
  * Maps HTTP requests to Settings service operations
  */
 
-import type { Express } from "express";
+import type { IRouter } from "express";
 import type { ISettings } from "../Settings.ts";
 
-export function registerSettingsRoutes(app: Express, settingsService: ISettings) {
+export function registerSettingsRoutes(app: IRouter, settingsService: ISettings) {
   // GET /settings - Retrieve current settings
   app.get("/settings", async (_req, res) => {
     try {

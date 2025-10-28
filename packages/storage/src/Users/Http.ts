@@ -5,15 +5,15 @@
  */
 
 import { Effect, Option, Schema } from "effect";
-import type { Express } from "express";
+import type { IRouter } from "express";
 import { UserId, UserJson, UserNotFound } from "../Domain/User.ts";
 import { effectHandler } from "../middleware/effect.ts";
-import type { AppRuntime } from "../runtime.ts";
+import type { AppRuntime } from "../Runtime.ts";
 import type { IUsers } from "../Users.ts";
 import { UsersRepo } from "./Repo.ts";
 
 export function registerUsersRoutes(
-  app: Express,
+  app: IRouter,
   usersService: IUsers,
   runtime: AppRuntime,
 ) {

@@ -60,3 +60,5 @@ export class AppConfig extends Effect.Service<AppConfig>()("AppConfig", {
     };
   }),
 }) {}
+
+export const AppConfigLive = AppConfig.Default;
