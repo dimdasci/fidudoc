@@ -57,7 +57,7 @@ Authenticate a user and retrieve their access token:
 # From project root
 pnpm auth <email> [options]
 
-# Get raw access token
+# Get user details and raw access token 
 pnpm auth admin@example.com
 
 # Get formatted Authorization header for HTTP requests

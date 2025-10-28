@@ -71,17 +71,18 @@ async (
       next();
     },
     onFailure: (cause) => {
-      // Handle cancelled requests
+      // Handle cancelled requests (user navigated away, connection closed)
       if (Cause.isInterrupted(cause)) {
         return;
       }
 
-      // Extract domain error
+      // Extract domain errors (Effect.fail)
       const failure = Cause.failureOption(cause);
       if (failure._tag === "Some") {
         const error = failure.value;
 
         // All auth failures → 401 (minimal error principle)
+        // Don't leak whether token is invalid, expired, or user doesn't exist
         if (
           error._tag === "InvalidToken"
           || error._tag === "TokenExpired"
@@ -92,7 +93,9 @@ async (
         }
       }
 
-      // Unexpected errors
+      // All other errors are unexpected (defects, database failures, etc.)
+      // Log full details for debugging, but return generic 500
+      console.error("[Auth Middleware] Unexpected error:", cause);
       res.status(500).json({ error: "Internal server error" });
     },
   });

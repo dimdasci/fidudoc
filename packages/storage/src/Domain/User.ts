@@ -6,6 +6,18 @@ import { Email } from "./Emails.ts";
 export const UserId = Schema.UUID.pipe(Schema.brand("UserId"));
 export type UserId = typeof UserId.Type;
 
+// Helper schema to transform empty strings to null
+// This handles legacy database data where empty strings were stored instead of null
+const OptionalNonEmptyString = Schema.transform(
+  Schema.String,
+  Schema.NullOr(Schema.NonEmptyTrimmedString),
+  {
+    strict: true,
+    decode: (s) => (s === "" ? null : s),
+    encode: (s) => (s === null ? "" : s),
+  },
+);
+
 export class User extends Model.Class<User>("User")({
   id: Model.GeneratedByApp(UserId),
   accountId: Model.GeneratedByApp(AccountId),
@@ -13,7 +25,7 @@ export class User extends Model.Class<User>("User")({
   displayName: Schema.NonEmptyTrimmedString,
   fullName: Schema.NonEmptyTrimmedString,
   isActive: Schema.Boolean,
-  title: Model.FieldOption(Schema.NonEmptyTrimmedString),
+  title: Model.FieldOption(OptionalNonEmptyString),
   createdAt: Model.DateTimeInsert,
   updatedAt: Model.DateTimeUpdate,
   lastLoginAt: Model.FieldOption(Model.DateTimeFromDate),
