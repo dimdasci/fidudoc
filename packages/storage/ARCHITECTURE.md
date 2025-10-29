@@ -238,35 +238,86 @@ export const createRuntime = () => ManagedRuntime.make(StorageServiceLive);
 - Runtime manages resource lifecycle (DB connections, etc.)
 - Single runtime instance per application
 
-### 4. Effect → Express Bridge (Critical Pattern)
+### 4. Effect → Express Bridge
 
-**The Challenge:** Effect errors are wrapped in `FiberFailure` when using `runPromise()`, losing domain error metadata.
-
-**The Solution:** Use `runPromiseExit()` for type-safe unwrapping:
+**Implementation (middleware/effect.ts):**
 
 ```typescript
-// middleware/effect.ts
-const exit = await runtime.runPromiseExit(program, { signal });
+export const effectHandler = <R, E, A>(
+  runtime: AppRuntime,
+  handler: EffectHandler<R, E, A>,
+) =>
+async (req: Request, res: Response, next: NextFunction) => {
+  let program = handler(req);
 
-Exit.match(exit, {
-  onSuccess: (value) => res.json(value),
-  onFailure: (cause) => {
-    if (Cause.isInterrupted(cause)) return; // Request cancelled
+  // Inject per-request services
+  const authReq = req as AuthenticatedRequest;
+  if (authReq.user) {
+    program = program.pipe(Effect.provideService(CurrentUser, authReq.user));
+  }
+  if (authReq.principal) {
+    program = program.pipe(Effect.provideService(CurrentPrincipal, authReq.principal));
+  }
 
-    const failure = Cause.failureOption(cause);
-    if (failure._tag === "Some") {
-      next(failure.value); // Pass unwrapped UserNotFound to error handler
-    }
-  },
-});
+  // Run Effect program (no AbortSignal - see cancellation note below)
+  const exit = await runtime.runPromiseExit(program);
+
+  Exit.match(exit, {
+    onSuccess: (value) => res.json(value),
+    onFailure: (cause) => {
+      // Unexpected interruption (should not happen without signal)
+      if (Cause.isInterrupted(cause)) {
+        console.error("[effectHandler] UNEXPECTED: Effect interrupted", {
+          method: req.method,
+          url: req.url,
+          cause: Cause.pretty(cause),
+        });
+        return next(new Error("Request processing was interrupted"));
+      }
+
+      // Extract domain error (Effect.fail)
+      const failure = Cause.failureOption(cause);
+      if (failure._tag === "Some") return next(failure.value);
+
+      // Extract defect (throw/Die)
+      const defect = Cause.dieOption(cause);
+      if (defect._tag === "Some") return next(defect.value);
+
+      // Fallback
+      console.error("[effectHandler] Unknown Effect error", {
+        method: req.method,
+        url: req.url,
+        cause: Cause.pretty(cause),
+      });
+      next(new Error("Unknown Effect error"));
+    },
+  });
+};
 ```
 
-**Why this matters:**
+**Request Cancellation Note:**
 
-- `runPromise()` throws `FiberFailure` wrapper → error handler sees wrong type
-- `runPromiseExit()` returns `Exit<A, E>` → clean pattern matching
-- Domain errors (Effect.fail) extracted via `Cause.failureOption()`
-- Defects (throw/Die) extracted via `Cause.dieOption()`
+AbortSignal removed due to Express body parsing behavior:
+- `express.json()` consumes request body stream
+- Stream closure triggers `req.on('close')` event immediately
+- AbortSignal fires prematurely, interrupting Effect before execution
+- Effect returns without sending response → client hangs
+
+Without cancellation:
+- Client disconnect → Effect completes normally
+- Transaction commits/rolls back via Effect transaction management
+- DB connection returns to pool
+- No resource leaks (connections pooled at runtime level, not per-request)
+- Response send fails silently (Express handles closed connection)
+
+Trade-off accepted: Effect continues processing after client disconnect. Acceptable for fast operations (<1s). Effect transaction lifecycle ensures proper cleanup regardless of HTTP response status.
+
+**Error Unwrapping:**
+
+- `runPromise()` throws `FiberFailure` wrapper
+- `runPromiseExit()` returns `Exit<A, E>` for pattern matching
+- `Cause.failureOption()` extracts domain errors (Effect.fail)
+- `Cause.dieOption()` extracts defects (throw/Die)
 
 ### 5. Error Handling Architecture
 

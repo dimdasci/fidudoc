@@ -13,3 +13,5 @@ export class Uuid extends Effect.Service<Uuid>()("Uuid", {
     }),
   );
 }
+
+export const UuidLive = Uuid.Default;

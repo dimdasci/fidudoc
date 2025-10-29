@@ -14,3 +14,5 @@ export class AccountRepo extends Effect.Service<AccountRepo>()(
     }),
   },
 ) {}
+
+export const AccountsRepoLive = AccountRepo.Default;

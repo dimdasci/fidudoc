@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { registerAccountsRoutes } from "./Accounts/Http.ts";
 import { createDocumentsService } from "./Documents.ts";
 import { registerDocumentsRoutes } from "./Documents/Http.ts";
 import { authMiddleware } from "./middleware/auth.ts";
@@ -77,6 +78,9 @@ app.use("/health", (_req, res) => {
 app.use("/test", (_req, res) => {
   res.json({ message: "Test endpoint is working!" });
 });
+
+// Register accounts routes (temporarily public for testing)
+registerAccountsRoutes(app, runtime);
 
 // ============================================================================
 // Initialize Business Services

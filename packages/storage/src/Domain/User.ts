@@ -31,7 +31,9 @@ export class User extends Model.Class<User>("User")({
   lastLoginAt: Model.FieldOption(Model.DateTimeFromDate),
 }) {}
 
-export class CurrentUser extends Context.Tag("@fidudoc/User/CurrentUser")<
+export const UserIdFromString = Schema.UUID.pipe(Schema.compose(UserId));
+
+export class CurrentUser extends Context.Tag("User/CurrentUser")<
   CurrentUser,
   User
 >() {}

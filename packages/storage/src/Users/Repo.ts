@@ -56,3 +56,5 @@ export class UsersRepo extends Effect.Service<UsersRepo>()(
     }),
   },
 ) {}
+
+export const UsersRepoLive = UsersRepo.Default;

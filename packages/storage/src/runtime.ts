@@ -1,11 +1,14 @@
 // Effect runtime
 
 import { Layer, ManagedRuntime } from "effect";
+import { AccountsRepoLive } from "./Accounts/Repo.ts";
+import { AccountsServiceLive } from "./Accounts/Service.ts";
 import { CasbinLive } from "./Auth/Casbin.ts";
 import { SupabaseLive } from "./Auth/Supabase.ts";
 import { AppConfigLive } from "./Config.ts";
 import { SqlLive } from "./Sql.ts";
-import { UsersRepo } from "./Users/Repo.ts";
+import { UsersRepoLive } from "./Users/Repo.ts";
+import { UuidLive } from "./Uuid.ts";
 
 // All heavyweight, long-lived dependencies
 // UsersRepo depends on SqlLive, which depends on AppConfig
@@ -14,7 +17,10 @@ const GlobalLayer = Layer.mergeAll(
   SupabaseLive,
   SqlLive,
   CasbinLive,
-  UsersRepo.Default,
+  UuidLive,
+  AccountsRepoLive,
+  UsersRepoLive,
+  AccountsServiceLive,
 ).pipe(Layer.provide(AppConfigLive));
 
 // Create runtime once at boot

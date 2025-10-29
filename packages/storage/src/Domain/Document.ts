@@ -34,7 +34,7 @@ export const ConfidenceScore = Schema.Number.pipe(
 );
 export type ConfidenceScore = typeof ConfidenceScore.Type;
 
-export const DocumentId = Schema.Number.pipe(Schema.brand("DocumentId"));
+export const DocumentId = Schema.UUID.pipe(Schema.brand("DocumentId"));
 export type DocumentId = typeof DocumentId.Type;
 
 export class Document extends Model.Class<Document>("Document")({
@@ -54,6 +54,8 @@ export class Document extends Model.Class<Document>("Document")({
   createdAt: Model.DateTimeInsert,
   updatedAt: Model.DateTimeUpdate,
 }) {}
+
+export const DocumentIdFromString = Schema.UUID.pipe(Schema.compose(DocumentId));
 
 // Json schemas for API input/output
 export const DocumentJsonCreate = Document.jsonCreate;

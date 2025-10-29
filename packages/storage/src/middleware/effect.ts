@@ -29,16 +29,8 @@ export const effectHandler = <R extends AppContext, E, A>(
   handler: EffectHandler<R, E, A>,
 ) =>
 async (req: Request, res: Response, next: NextFunction) => {
-  // AbortController for request cancellation
-  const controller = new AbortController();
-
-  // Cancel on client disconnect
-  req.on("close", () => {
-    controller.abort();
-  });
-
   // Build the Effect program
-  let program = Effect.scoped(handler(req));
+  let program = handler(req);
 
   // Provide per-request services if authenticated
   // Auth middleware sets req.user and req.principal
@@ -52,10 +44,8 @@ async (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  // Run Effect program with cancellation support (type-safe, doesn't throw)
-  const exit = await runtime.runPromiseExit(program, {
-    signal: controller.signal,
-  });
+  // Run Effect program (type-safe, doesn't throw)
+  const exit = await runtime.runPromiseExit(program);
 
   // Pattern match on Exit to handle success/failure
   Exit.match(exit, {
@@ -65,10 +55,18 @@ async (req: Request, res: Response, next: NextFunction) => {
     },
     // Failure case: extract error and pass to Express error middleware
     onFailure: (cause) => {
-      // Check if request was interrupted (cancelled)
+      // Check if request was interrupted (should not happen without abort signal)
       if (Cause.isInterrupted(cause)) {
-        // Don't send response for cancelled requests
-        return;
+        console.error(
+          "[effectHandler] UNEXPECTED: Effect was interrupted without abort signal",
+          {
+            method: req.method,
+            url: req.url,
+            cause: Cause.pretty(cause),
+          },
+        );
+        // Still send error response instead of hanging
+        return next(new Error("Request processing was interrupted"));
       }
 
       // Try to extract the domain error (Effect.fail)
@@ -85,7 +83,15 @@ async (req: Request, res: Response, next: NextFunction) => {
         return next(defect.value);
       }
 
-      // Fallback for other cause types
+      // Fallback for other cause types (should be rare)
+      console.error(
+        "[effectHandler] Unknown Effect error type",
+        {
+          method: req.method,
+          url: req.url,
+          cause: Cause.pretty(cause),
+        },
+      );
       next(new Error("Unknown Effect error"));
     },
   });

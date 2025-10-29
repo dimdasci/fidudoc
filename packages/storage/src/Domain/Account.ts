@@ -13,9 +13,11 @@ export class Account extends Model.Class<Account>("Account")({
   updatedAt: Model.DateTimeUpdate,
 }) {}
 
+export const AccountIdFromString = Schema.UUID.pipe(Schema.compose(AccountId));
+
 export class AccountNotFound extends Schema.TaggedError<AccountNotFound>()(
   "AccountNotFound",
-  { id: AccountId },
+  { id: Schema.String },
 ) {}
 
 // Json schemas for API input/output
