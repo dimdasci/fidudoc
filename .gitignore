@@ -51,4 +51,4 @@ Thumbs.db
 .playwright-mcp/
 
 users.json
-scratchpad.ts
+scratchpad*.ts

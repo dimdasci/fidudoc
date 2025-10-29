@@ -216,6 +216,101 @@ export class CasbinEnforcer extends Effect.Service<CasbinEnforcer>()(
         });
 
       /**
+       * Get all users that have a specific role in a domain
+       */
+      const getUsersForRole = (
+        role: string,
+        domain: string,
+      ): Effect.Effect<string[], CasbinEnforcerError> =>
+        Effect.tryPromise({
+          try: () => enforcer.getUsersForRole(role, domain),
+          catch: (error) =>
+            new CasbinEnforcerError({
+              message: "Failed to get users for role",
+              cause: error,
+            }),
+        });
+
+      /**
+       * Get all users that have a specific role in a domain (including inherited roles)
+       */
+      const getImplicitUsersForRole = (
+        role: string,
+        domain: string,
+      ): Effect.Effect<string[], CasbinEnforcerError> =>
+        Effect.tryPromise({
+          try: () => enforcer.getImplicitUsersForRole(role, domain),
+          catch: (error) =>
+            new CasbinEnforcerError({
+              message: "Failed to get implicit users for role",
+              cause: error,
+            }),
+        });
+
+      /**
+       * Get all implicit roles for a user in a domain (including inherited roles)
+       */
+      const getImplicitRolesForUser = (
+        user: string,
+        domain: string,
+      ): Effect.Effect<string[], CasbinEnforcerError> =>
+        Effect.tryPromise({
+          try: () => enforcer.getImplicitRolesForUser(user, domain),
+          catch: (error) =>
+            new CasbinEnforcerError({
+              message: "Failed to get implicit roles for user",
+              cause: error,
+            }),
+        });
+
+      /**
+       * Get direct permissions for a user/role
+       */
+      const getPermissionsForUser = (
+        user: string,
+      ): Effect.Effect<string[][], CasbinEnforcerError> =>
+        Effect.tryPromise({
+          try: () => enforcer.getPermissionsForUser(user),
+          catch: (error) =>
+            new CasbinEnforcerError({
+              message: "Failed to get permissions for user",
+              cause: error,
+            }),
+        });
+
+      /**
+       * Get all permissions for a user in a domain (including inherited from roles)
+       */
+      const getImplicitPermissionsForUser = (
+        user: string,
+        domain: string,
+      ): Effect.Effect<string[][], CasbinEnforcerError> =>
+        Effect.tryPromise({
+          try: () => enforcer.getImplicitPermissionsForUser(user, domain),
+          catch: (error) =>
+            new CasbinEnforcerError({
+              message: "Failed to get implicit permissions for user",
+              cause: error,
+            }),
+        });
+
+      /**
+       * Get all policies/resources that a user can access in a domain
+       */
+      const getImplicitResourcesForUser = (
+        user: string,
+        domain: string,
+      ): Effect.Effect<string[][], CasbinEnforcerError> =>
+        Effect.tryPromise({
+          try: () => enforcer.getImplicitResourcesForUser(user, domain),
+          catch: (error) =>
+            new CasbinEnforcerError({
+              message: "Failed to get implicit resources for user",
+              cause: error,
+            }),
+        });
+
+      /**
        * Reload all policies from database
        */
       const reloadPolicy = (): Effect.Effect<void, CasbinEnforcerError> =>
@@ -228,6 +323,49 @@ export class CasbinEnforcer extends Effect.Service<CasbinEnforcer>()(
             }),
         });
 
+      /**
+       * Get all roles defined in a specific domain
+       * Returns unique role names from grouping policies (g) for the domain
+       */
+      const getAllRolesInDomain = (
+        domain: string,
+      ): Effect.Effect<string[], CasbinEnforcerError> =>
+        Effect.tryPromise({
+          try: async () => {
+            // Get all grouping policies (g, user, role, domain)
+            const allGroupings = await enforcer.getFilteredGroupingPolicy(
+              2,
+              domain,
+            );
+            // Extract unique role names (index 1 in each grouping)
+            const roles = new Set(
+              allGroupings.map((g) => g[1]).filter((r) => r !== undefined),
+            );
+            return Array.from(roles);
+          },
+          catch: (error) =>
+            new CasbinEnforcerError({
+              message: "Failed to get all roles in domain",
+              cause: error,
+            }),
+        });
+
+      /**
+       * Get all policies (permissions) defined in a specific domain
+       * Returns all policy rules for the domain
+       */
+      const getAllPoliciesInDomain = (
+        domain: string,
+      ): Effect.Effect<string[][], CasbinEnforcerError> =>
+        Effect.tryPromise({
+          try: () => enforcer.getFilteredPolicy(1, domain),
+          catch: (error) =>
+            new CasbinEnforcerError({
+              message: "Failed to get all policies in domain",
+              cause: error,
+            }),
+        });
+
       return {
         enforce,
         addPolicy,
@@ -235,7 +373,15 @@ export class CasbinEnforcer extends Effect.Service<CasbinEnforcer>()(
         addRoleForUser,
         removeRoleForUser,
         getRolesForUser,
+        getUsersForRole,
+        getImplicitUsersForRole,
+        getImplicitRolesForUser,
+        getPermissionsForUser,
+        getImplicitPermissionsForUser,
+        getImplicitResourcesForUser,
         reloadPolicy,
+        getAllRolesInDomain,
+        getAllPoliciesInDomain,
       } as const;
     }),
     dependencies: [AppConfig.Default],

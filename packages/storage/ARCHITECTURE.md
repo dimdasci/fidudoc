@@ -50,6 +50,9 @@ src/
 │
 ├── Auth/
 │   ├── Casbin.ts                 # Casbin enforcer service (Effect scoped)
+│   ├── AccountPermissions.ts     # Role/permission management service
+│   ├── Http.ts                   # Auth API endpoints (roles, permissions)
+│   ├── Api.ts                    # Auth endpoint definitions
 │   ├── model.conf                # Casbin RBAC model with domains
 │   ├── Jwt.ts                    # JWT validation with Supabase
 │   └── Supabase.ts               # Supabase client service
@@ -256,7 +259,9 @@ async (req: Request, res: Response, next: NextFunction) => {
     program = program.pipe(Effect.provideService(CurrentUser, authReq.user));
   }
   if (authReq.principal) {
-    program = program.pipe(Effect.provideService(CurrentPrincipal, authReq.principal));
+    program = program.pipe(
+      Effect.provideService(CurrentPrincipal, authReq.principal),
+    );
   }
 
   // Run Effect program (no AbortSignal - see cancellation note below)
@@ -298,12 +303,14 @@ async (req: Request, res: Response, next: NextFunction) => {
 **Request Cancellation Note:**
 
 AbortSignal removed due to Express body parsing behavior:
+
 - `express.json()` consumes request body stream
 - Stream closure triggers `req.on('close')` event immediately
 - AbortSignal fires prematurely, interrupting Effect before execution
 - Effect returns without sending response → client hangs
 
 Without cancellation:
+
 - Client disconnect → Effect completes normally
 - Transaction commits/rolls back via Effect transaction management
 - DB connection returns to pool
@@ -757,6 +764,89 @@ Sentry.captureException(err, { tags: { trace_id } });
 - `GET /settings` - Retrieve settings
 - `PUT /settings` - Update settings
 
+### Auth Context (Effect-Based)
+
+**Role Discovery:**
+
+- `GET /accounts/:accountId/roles` - List all roles in domain
+  - Query: `?includeStats=true` - Include permission/user counts
+  - Returns: `{domain, roles: string[]}` or `{domain, roles: [{role, permissionCount, userCount}]}`
+
+**Role-Permission Management:**
+
+- `POST /accounts/:accountId/roles/:roleName/permissions` - Add permission to role
+  - Body: `{object: string, action: string}`
+  - Returns: `{success, roleName, domain, object, action}`
+- `DELETE /accounts/:accountId/roles/:roleName/permissions` - Remove permission from role
+  - Body: `{object: string, action: string}`
+- `GET /accounts/:accountId/roles/:roleName/permissions` - List role permissions
+  - Returns: `{role, domain, permissions: [{domain, object, action}]}`
+
+**User-Role Assignment:**
+
+- `POST /accounts/:accountId/users/:userId/roles/:roleName` - Assign role to user
+  - Returns: `{success, userId, roleName, domain}`
+- `DELETE /accounts/:accountId/users/:userId/roles/:roleName` - Unassign role from user
+- `GET /accounts/:accountId/users/:userId/roles` - List user's roles
+  - Query: `?includeInherited=true` - Include inherited roles
+  - Returns: `{userId, domain, roles: string[], includeInherited}`
+- `GET /accounts/:accountId/roles/:roleName/users` - List users with role
+  - Query: `?includeInherited=true` - Include users with inherited role
+  - Returns: `{roleName, domain, users: string[], includeInherited}`
+
+**User Information:**
+
+- `GET /accounts/:accountId/users/:userId/info` - Get comprehensive user info
+  - Returns: `{domain, user, directRoles, inheritedRoles, allPermissions: [{subject, domain, object, action}]}`
+- `POST /accounts/:accountId/users/:userId/check-permission` - Check user permission
+  - Body: `{object: string, action: string}`
+  - Returns: `{userId, domain, object, action, hasPermission: boolean}`
+
+**Domain Management:**
+
+- `POST /accounts/:accountId/users` - Get all users in domain with roles
+  - Body: `{roles: string[]}`
+  - Returns: `{domain, users: [{user, roles: string[]}]}`
+
+**Implementation (Auth/):**
+
+```typescript
+// Auth/AccountPermissions.ts - Service layer
+export class AccountPermissionsService extends Effect.Service<AccountPermissionsService>() {
+  // Wraps CasbinEnforcer with domain-specific operations
+  getAllRolesInDomain(domain): Effect<string[], CasbinEnforcerError>
+  getAllRolesWithPermissions(domain): Effect<RoleWithStats[], CasbinEnforcerError>
+  getPermissionsForRole(role): Effect<RoleInfo, CasbinEnforcerError>
+  // ...
+}
+
+// Auth/Http.ts - HTTP handlers
+registerAuthRoutes(app, runtime) {
+  app.get("/accounts/:accountId/roles", effectHandler(...));
+  app.post("/accounts/:accountId/roles/:roleName/permissions", effectHandler(...));
+  // ...
+}
+
+// Runtime.ts - Global layer
+const GlobalLayer = Layer.mergeAll(
+  CasbinLive,
+  AccountPermissionsLive, // Added to global runtime
+  // ...
+);
+```
+
+**No Domain Entity:**
+
+- Roles are pure Casbin strings, no Role table/repository
+- Role names stored in `casbin_rule` table via grouping policies
+- `getAllRolesInDomain()` queries `getFilteredGroupingPolicy(2, domain)` to extract unique role names
+
+**Multi-Tenancy:**
+
+- All endpoints require `:accountId` parameter
+- `accountId` maps to Casbin `domain` for tenant isolation
+- Cross-account role queries return empty results
+
 ## Migration Status
 
 ### ✅ Completed (Effect-Based)
@@ -769,6 +859,7 @@ Sentry.captureException(err, { tags: { trace_id } });
 - GET /users/:id endpoint
 - Authorization with Casbin (CasbinEnforcer service with scoped lifecycle)
 - Authentication with Supabase (JWT validation middleware)
+- Role & permission management API (AccountPermissionsService, Auth HTTP endpoints)
 
 ### 🚧 In Progress
 
@@ -780,7 +871,6 @@ Sentry.captureException(err, { tags: { trace_id } });
 
 - Schema validation for all endpoints
 - Integration tests for Effect flows
-- Role-based access control policy management endpoints
 
 ## Development Workflow
 
@@ -814,6 +904,37 @@ curl http://localhost:3000/users/00000000-0000-0000-0000-000000000000
 
 # Invalid UUID (404 UserNotFound - parse error converted)
 curl http://localhost:3000/users/invalid-uuid
+```
+
+### Testing Auth API
+
+```bash
+# Run integration test (requires dev server running)
+pnpm exec tsx src/scratchpad-api.ts
+
+# Test manually
+ACCOUNT_ID="019a261c-e755-708f-8240-ab4ec58e594e"
+USER_ID="ff60f64e-76cc-4234-b232-c9fa47327549"
+
+# List all roles in account
+curl "http://localhost:3000/accounts/$ACCOUNT_ID/roles"
+curl "http://localhost:3000/accounts/$ACCOUNT_ID/roles?includeStats=true"
+
+# Assign role to user
+curl -X POST "http://localhost:3000/accounts/$ACCOUNT_ID/users/$USER_ID/roles/admin"
+
+# Add permission to role
+curl -X POST "http://localhost:3000/accounts/$ACCOUNT_ID/roles/admin/permissions" \
+  -H "Content-Type: application/json" \
+  -d '{"object": "documents", "action": "read"}'
+
+# Check user permission
+curl -X POST "http://localhost:3000/accounts/$ACCOUNT_ID/users/$USER_ID/check-permission" \
+  -H "Content-Type: application/json" \
+  -d '{"object": "documents", "action": "read"}'
+
+# Get comprehensive user info
+curl "http://localhost:3000/accounts/$ACCOUNT_ID/users/$USER_ID/info"
 ```
 
 ## Benefits of This Architecture

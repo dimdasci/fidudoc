@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import { registerAccountsRoutes } from "./Accounts/Http.ts";
+import { registerAuthRoutes } from "./Auth/Http.ts";
 import { createDocumentsService } from "./Documents.ts";
 import { registerDocumentsRoutes } from "./Documents/Http.ts";
 import { authMiddleware } from "./middleware/auth.ts";
@@ -81,6 +82,9 @@ app.use("/test", (_req, res) => {
 
 // Register accounts routes (temporarily public for testing)
 registerAccountsRoutes(app, runtime);
+
+// Register auth routes (role and permission management, temporarily public)
+registerAuthRoutes(app, runtime);
 
 // ============================================================================
 // Initialize Business Services

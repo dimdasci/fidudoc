@@ -3,6 +3,7 @@
 import { Layer, ManagedRuntime } from "effect";
 import { AccountsRepoLive } from "./Accounts/Repo.ts";
 import { AccountsServiceLive } from "./Accounts/Service.ts";
+import { AccountPermissionsLive } from "./Auth/AccountPermissions.ts";
 import { CasbinLive } from "./Auth/Casbin.ts";
 import { SupabaseLive } from "./Auth/Supabase.ts";
 import { AppConfigLive } from "./Config.ts";
@@ -21,6 +22,7 @@ const GlobalLayer = Layer.mergeAll(
   AccountsRepoLive,
   UsersRepoLive,
   AccountsServiceLive,
+  AccountPermissionsLive,
 ).pipe(Layer.provide(AppConfigLive));
 
 // Create runtime once at boot
