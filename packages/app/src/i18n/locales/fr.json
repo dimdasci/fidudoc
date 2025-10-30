@@ -41,6 +41,8 @@
   "auth.backToEmail": "Retour à l'e-mail",
   "auth.backToLanding": "Retour à la page d'accueil",
   "auth.signout": "Se déconnecter",
+  "auth.profile": "Profil",
+  "nav.application": "Application",
   "auth.errors.sendOTPFailed": "Échec de l'envoi du code de vérification. Veuillez réessayer.",
   "auth.errors.verifyOTPFailed": "Code invalide ou expiré. Veuillez réessayer.",
   "auth.errors.userNotFound": "Utilisateur non trouvé. Veuillez demander l'accès.",

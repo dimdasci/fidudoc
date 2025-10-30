@@ -41,6 +41,8 @@
   "auth.backToEmail": "Back to email",
   "auth.backToLanding": "Back to landing page",
   "auth.signout": "Sign out",
+  "auth.profile": "Profile",
+  "nav.application": "Application",
   "auth.errors.sendOTPFailed": "Failed to send verification code. Please try again.",
   "auth.errors.verifyOTPFailed": "Invalid or expired code. Please try again.",
   "auth.errors.userNotFound": "User not found. Please request access.",

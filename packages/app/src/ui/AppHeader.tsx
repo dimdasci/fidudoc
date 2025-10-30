@@ -4,6 +4,7 @@ import { useI18nContext } from "../i18n/i18n";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Logo } from "./Logo";
 import { ThemeSwitcher } from "./ThemeSwitcher/ThemeSwitcher";
+import { UserMenu } from "./UserMenu";
 
 interface AppHeaderProps {
   showBackToLanding?: boolean;
@@ -12,37 +13,38 @@ interface AppHeaderProps {
 export function AppHeader({ showBackToLanding = false }: AppHeaderProps) {
   const navigate = useNavigate();
   const { t } = useI18nContext();
-  const { authState, signOut } = useAuth();
-
-  const handleAuthAction = async () => {
-    if (authState.status === "authenticated") {
-      await signOut();
-      navigate("/");
-    } else {
-      navigate("/signin");
-    }
-  };
-
-  const getAuthButtonText = () => {
-    if (authState.status === "loading") return "...";
-    if (authState.status === "authenticated") return t("auth.signout");
-    return t("landing.header.signin");
-  };
+  const { authState } = useAuth();
 
   return (
     <header className="flex-none h-16 bg-surface border-b border-subtle px-6 flex items-center justify-between">
-      <Logo />
-      <div className="flex items-center gap-4">
-        {/* Authentication Button - Show on all screens when user is authenticated, or on landing/signin when not authenticated */}
-        {authState.status !== "loading" && (
+      <div className="flex items-center gap-6">
+        <Logo />
+        {/* Application link - Only show when authenticated */}
+        {authState.status === "authenticated" && (
           <button
             type="button"
-            onClick={handleAuthAction}
-            className="text-accent hover:opacity-80 transition-opacity font-medium text-body"
+            onClick={() => navigate("/documents/inbox")}
+            className="text-primary hover:text-accent transition-colors font-medium text-body"
           >
-            {getAuthButtonText()}
+            {t("nav.application")}
           </button>
         )}
+      </div>
+      <div className="flex items-center gap-4">
+        {/* Authentication - Show UserMenu when authenticated, Sign in button when not */}
+        {authState.status === "authenticated"
+          ? <UserMenu />
+          : authState.status === "unauthenticated"
+          ? (
+            <button
+              type="button"
+              onClick={() => navigate("/signin")}
+              className="text-accent hover:opacity-80 transition-opacity font-medium text-body"
+            >
+              {t("landing.header.signin")}
+            </button>
+          )
+          : null}
 
         {/* Back to Landing - Only show on signin page */}
         {showBackToLanding && (

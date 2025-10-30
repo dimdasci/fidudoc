@@ -41,6 +41,8 @@
   "auth.backToEmail": "Volver al correo",
   "auth.backToLanding": "Volver a la página principal",
   "auth.signout": "Cerrar sesión",
+  "auth.profile": "Perfil",
+  "nav.application": "Aplicación",
   "auth.errors.sendOTPFailed": "Error al enviar el código de verificación. Por favor, inténtalo de nuevo.",
   "auth.errors.verifyOTPFailed": "Código inválido o expirado. Por favor, inténtalo de nuevo.",
   "auth.errors.userNotFound": "Usuario no encontrado. Por favor, solicita acceso.",

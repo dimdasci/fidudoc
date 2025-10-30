@@ -46,6 +46,8 @@ export async function verifyOTP(
         id: data.user.id,
         email: data.user.email ?? "",
         createdAt: data.user.created_at,
+        userMetadata: data.user.user_metadata,
+        accountId: data.user.user_metadata?.accountId as string | undefined,
       },
       accessToken: data.session.access_token,
       expiresAt: data.session.expires_at || 0,
@@ -68,6 +70,8 @@ export async function getSession(): Promise<Session | null> {
       id: data.session.user.id,
       email: data.session.user.email ?? "",
       createdAt: data.session.user.created_at,
+      userMetadata: data.session.user.user_metadata,
+      accountId: data.session.user.user_metadata?.accountId as string | undefined,
     },
     accessToken: data.session.access_token,
     expiresAt: data.session.expires_at || 0,
@@ -104,6 +108,10 @@ export function onAuthStateChange(
         id: supabaseSession.user.id,
         email: supabaseSession.user.email ?? "",
         createdAt: supabaseSession.user.created_at,
+        userMetadata: supabaseSession.user.user_metadata,
+        accountId: supabaseSession.user.user_metadata?.accountId as
+          | string
+          | undefined,
       },
       accessToken: supabaseSession.access_token,
       expiresAt: supabaseSession.expires_at || 0,

@@ -41,6 +41,8 @@
   "auth.backToEmail": "Zurück zur E-Mail",
   "auth.backToLanding": "Zurück zur Startseite",
   "auth.signout": "Abmelden",
+  "auth.profile": "Profil",
+  "nav.application": "Anwendung",
   "auth.errors.sendOTPFailed": "Fehler beim Senden des Bestätigungscodes. Bitte versuchen Sie es erneut.",
   "auth.errors.verifyOTPFailed": "Ungültiger oder abgelaufener Code. Bitte versuchen Sie es erneut.",
   "auth.errors.userNotFound": "Benutzer nicht gefunden. Bitte fordern Sie Zugriff an.",

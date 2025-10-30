@@ -2,6 +2,8 @@ export interface User {
   id: string;
   email: string;
   createdAt: string;
+  userMetadata?: Record<string, unknown>;
+  accountId?: string;
 }
 
 export interface Session {
