@@ -130,12 +130,17 @@ export function AppShell() {
             </aside>
           </Panel>
 
+          {/* Disabled resize handle between left and center panels */}
+          <PanelResizeHandle className="pointer-events-none opacity-0 w-0" />
+
           {/* Center - Main content */}
-          <Panel minSize={40}>
+          <Panel defaultSize={60} minSize={40}>
             <main className="h-full overflow-auto bg-background p-6">
               <Outlet />
             </main>
           </Panel>
+
+          {/* Active resize handle between center and right panels */}
           <PanelResizeHandle className="resizer" />
 
           {/* Right sidebar - Details */}
