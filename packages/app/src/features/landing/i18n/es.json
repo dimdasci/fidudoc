@@ -25,18 +25,6 @@
   "landing.closing.title": "Fidudoc actualmente está en piloto con fiduciarias europeas seleccionadas.",
   "landing.closing.cta": "Solicitar acceso",
   "landing.header.signin": "Iniciar sesión",
-  "landing.signin.title": "Iniciar sesión",
-  "landing.signin.emailLabel": "Dirección de correo electrónico",
-  "landing.signin.emailPlaceholder": "tu@email.com",
-  "landing.signin.button": "Iniciar sesión",
-  "landing.signin.betaMessage": "El sistema está en beta privada. Solicita una invitación para comenzar.",
-  "landing.signin.requestAccess": "Solicitar acceso",
-  "landing.form.emailLabel": "Dirección de correo electrónico",
-  "landing.form.emailPlaceholder": "tu@email.com",
-  "landing.form.companyLabel": "Nombre de la empresa",
-  "landing.form.companyPlaceholder": "Tu empresa",
-  "landing.form.submit": "Solicitar acceso",
-  "landing.form.success": "¡Gracias! Nos pondremos en contacto pronto.",
   "landing.footer.privacy": "Política de privacidad",
   "landing.footer.terms": "Términos de servicio"
 }

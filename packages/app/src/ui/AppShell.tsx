@@ -5,9 +5,7 @@ import { Link, Outlet } from "react-router-dom";
 import { useI18nContext } from "../i18n/i18n";
 import { checkApiHealth } from "../services/api";
 import { useApiStore } from "../stores/api";
-import { LanguageSwitcher } from "./LanguageSwitcher";
-import { Logo } from "./Logo";
-import { ThemeSwitcher } from "./ThemeSwitcher/ThemeSwitcher";
+import { AppHeader } from "./AppHeader";
 import { showToast } from "./toast";
 import { ToastContainer } from "./ToastContainer";
 
@@ -36,15 +34,7 @@ export function AppShell() {
   return (
     <div className="flex flex-col h-full">
       {/* Header - Fixed height */}
-      <header className="flex-none h-16 bg-surface border-b border-subtle px-6 flex items-center justify-between">
-        <div>
-          <Logo />
-        </div>
-        <div className="flex items-center gap-4">
-          <ThemeSwitcher />
-          <LanguageSwitcher />
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Main content - Flexible height with 3-pane layout */}
       <div className="flex-1 overflow-hidden">

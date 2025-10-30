@@ -1,4 +1,5 @@
 import { AuditRoute } from "@features/audit";
+import { ProtectedRoute, SignInRoute } from "@features/auth";
 import { InboxRoute } from "@features/inbox";
 import { LandingRoute } from "@features/landing";
 import { SettingsRoute } from "@features/settings";
@@ -12,8 +13,16 @@ export const router = createBrowserRouter([
     element: <LandingRoute />,
   },
   {
+    path: "/signin",
+    element: <SignInRoute />,
+  },
+  {
     path: "/documents",
-    element: <AppShell />,
+    element: (
+      <ProtectedRoute>
+        <AppShell />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "inbox",
@@ -23,7 +32,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/audit",
-    element: <AppShell />,
+    element: (
+      <ProtectedRoute>
+        <AppShell />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -33,7 +46,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/settings",
-    element: <AppShell />,
+    element: (
+      <ProtectedRoute>
+        <AppShell />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -43,7 +60,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/users",
-    element: <AppShell />,
+    element: (
+      <ProtectedRoute>
+        <AppShell />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

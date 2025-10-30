@@ -235,6 +235,305 @@ Response:
 
 ---
 
+## Roles & Permissions
+
+All role and permission endpoints require an `accountId` parameter for multi-tenant isolation.
+
+**Permission Model:**
+
+- **Roles** are string identifiers (e.g., `"admin"`, `"member"`, `"viewer"`)
+- **Permissions** are defined as `{object, action}` pairs (e.g., `{object: "documents", action: "read"}`)
+- **Multi-tenancy** is enforced via `accountId` (used as Casbin domain)
+- Users can have different roles in different accounts
+- Role inheritance is supported (use `?includeInherited=true`)
+
+### GET `/accounts/:accountId/roles`
+
+List all roles in an account.
+
+Query parameters:
+
+- `includeStats`: `"true"` (optional) - Include permission and user counts
+
+Response (without stats):
+
+```json
+{
+  "domain": string,
+  "roles": string[]
+}
+```
+
+Response (with stats):
+
+```json
+{
+  "domain": string,
+  "roles": [
+    {
+      "role": string,
+      "permissionCount": number,
+      "userCount": number
+    }
+  ]
+}
+```
+
+### GET `/accounts/:accountId/roles/:roleName/permissions`
+
+Get all permissions for a specific role.
+
+Response:
+
+```json
+{
+  "role": string,
+  "domain": string,
+  "permissions": [
+    {
+      "domain": string,
+      "object": string,
+      "action": string
+    }
+  ]
+}
+```
+
+### POST `/accounts/:accountId/roles/:roleName/permissions`
+
+Add a permission to a role.
+
+Request:
+
+```json
+{
+  "object": string,
+  "action": string
+}
+```
+
+Response:
+
+```json
+{
+  "success": boolean,
+  "roleName": string,
+  "domain": string,
+  "object": string,
+  "action": string
+}
+```
+
+### DELETE `/accounts/:accountId/roles/:roleName/permissions`
+
+Remove a permission from a role.
+
+Request:
+
+```json
+{
+  "object": string,
+  "action": string
+}
+```
+
+Response:
+
+```json
+{
+  "success": boolean,
+  "roleName": string,
+  "domain": string,
+  "object": string,
+  "action": string
+}
+```
+
+### POST `/accounts/:accountId/users/:userId/roles/:roleName`
+
+Assign a role to a user.
+
+Response:
+
+```json
+{
+  "success": boolean,
+  "userId": string,
+  "roleName": string,
+  "domain": string
+}
+```
+
+### DELETE `/accounts/:accountId/users/:userId/roles/:roleName`
+
+Remove a role from a user.
+
+Response:
+
+```json
+{
+  "success": boolean,
+  "userId": string,
+  "roleName": string,
+  "domain": string
+}
+```
+
+### GET `/accounts/:accountId/users/:userId/roles`
+
+Get all roles assigned to a user.
+
+Query parameters:
+
+- `includeInherited`: `"true"` (optional) - Include inherited roles
+
+Response:
+
+```json
+{
+  "userId": string,
+  "domain": string,
+  "roles": string[],
+  "includeInherited": boolean
+}
+```
+
+### GET `/accounts/:accountId/roles/:roleName/users`
+
+Get all users assigned to a role.
+
+Query parameters:
+
+- `includeInherited`: `"true"` (optional) - Include users with inherited role
+
+Response:
+
+```json
+{
+  "roleName": string,
+  "domain": string,
+  "users": string[],
+  "includeInherited": boolean
+}
+```
+
+### GET `/accounts/:accountId/users/:userId/info`
+
+Get comprehensive user information including all roles and permissions.
+
+Response:
+
+```json
+{
+  "domain": string,
+  "user": string,
+  "directRoles": string[],
+  "inheritedRoles": string[],
+  "allPermissions": [
+    {
+      "subject": string,
+      "domain": string,
+      "object": string,
+      "action": string
+    }
+  ]
+}
+```
+
+### POST `/accounts/:accountId/users/:userId/check-permission`
+
+Check if a user has a specific permission.
+
+Request:
+
+```json
+{
+  "object": string,
+  "action": string
+}
+```
+
+Response:
+
+```json
+{
+  "userId": string,
+  "domain": string,
+  "object": string,
+  "action": string,
+  "hasPermission": boolean
+}
+```
+
+### POST `/accounts/:accountId/users`
+
+Get all users in an account with their assigned roles.
+
+Request:
+
+```json
+{
+  "roles": string[]
+}
+```
+
+Response:
+
+```json
+{
+  "domain": string,
+  "users": [
+    {
+      "user": string,
+      "roles": string[]
+    }
+  ]
+}
+```
+
+**Example Usage:**
+
+```typescript
+// 1. List all roles in account
+const { roles } = await fetch("/accounts/acc-123/roles").then(r => r.json());
+// roles: ["admin", "member", "viewer"]
+
+// 2. Get role details with stats
+const { roles: rolesWithStats } = await fetch(
+  "/accounts/acc-123/roles?includeStats=true",
+).then(r => r.json());
+// rolesWithStats: [{role: "admin", permissionCount: 6, userCount: 2}, ...]
+
+// 3. Assign admin role to user
+await fetch("/accounts/acc-123/users/user-456/roles/admin", { method: "POST" });
+
+// 4. Add permission to role
+await fetch("/accounts/acc-123/roles/admin/permissions", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ object: "documents", action: "delete" }),
+});
+
+// 5. Check if user has permission
+const { hasPermission } = await fetch(
+  "/accounts/acc-123/users/user-456/check-permission",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ object: "documents", action: "delete" }),
+  },
+).then(r => r.json());
+// hasPermission: true
+
+// 6. Get user's complete info (roles + permissions)
+const userInfo = await fetch("/accounts/acc-123/users/user-456/info").then(r =>
+  r.json()
+);
+// userInfo: { user, directRoles: ["admin"], inheritedRoles: ["admin"], allPermissions: [...] }
+```
+
+---
+
 ## Data Types
 
 ### Document

@@ -25,18 +25,6 @@
   "landing.closing.title": "Fidudoc is currently in pilot with select European fiduciary firms.",
   "landing.closing.cta": "Request access",
   "landing.header.signin": "Sign in",
-  "landing.signin.title": "Sign in",
-  "landing.signin.emailLabel": "Email address",
-  "landing.signin.emailPlaceholder": "your@email.com",
-  "landing.signin.button": "Sign in",
-  "landing.signin.betaMessage": "The system is in private beta. Request an invite to get started.",
-  "landing.signin.requestAccess": "Request access",
-  "landing.form.emailLabel": "Email address",
-  "landing.form.emailPlaceholder": "your@email.com",
-  "landing.form.companyLabel": "Company name",
-  "landing.form.companyPlaceholder": "Your company",
-  "landing.form.submit": "Request access",
-  "landing.form.success": "Thank you! We'll be in touch soon.",
   "landing.footer.privacy": "Privacy Policy",
   "landing.footer.terms": "Terms of Service"
 }

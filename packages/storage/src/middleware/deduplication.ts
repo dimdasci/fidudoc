@@ -76,6 +76,7 @@ const getRequestSignature = (req: Request): string => {
     path: originalUrl,
     body: method !== "GET" ? body : undefined,
     contentType: headers["content-type"],
+    authorization: headers["authorization"], // Include auth header in signature
   };
 
   return crypto
