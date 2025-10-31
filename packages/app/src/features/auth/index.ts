@@ -1,5 +1,6 @@
 export { OTPSignInForm } from "./components/OTPSignInForm";
 export { ProtectedRoute } from "./components/ProtectedRoute";
+export { UnknownAccountMessage } from "./components/UnknownAccountMessage";
 export { UnknownUserMessage } from "./components/UnknownUserMessage";
 export { AuthProvider, useAuth } from "./context/AuthContext";
 export { SignInRoute } from "./routes/SignInRoute";

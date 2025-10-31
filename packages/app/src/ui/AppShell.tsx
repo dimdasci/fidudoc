@@ -109,6 +109,12 @@ export function AppShell() {
                     >
                       {t("nav.users")}
                     </Link>
+                    <Link
+                      to="/users/roles"
+                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                    >
+                      {t("nav.roles")}
+                    </Link>
                   </div>
                 </div>
 

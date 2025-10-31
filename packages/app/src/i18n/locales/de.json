@@ -12,6 +12,7 @@
   "nav.settings": "Einstellungen",
   "nav.integrations": "Integrationen",
   "nav.users": "Benutzer",
+  "nav.roles": "Rollen",
   "nav.group.audit": "Audit",
   "nav.audit": "Audit",
   "panel.details": "Details",
@@ -33,7 +34,7 @@
   "auth.email.placeholder": "sie@unternehmen.com",
   "auth.code.label": "Bestätigungscode",
   "auth.code.placeholder": "000000",
-  "auth.code.hint": "Geben Sie den 6-stelligen Code ein, der an {email} gesendet wurde",
+  "auth.code.hint": "Geben Sie den 6-stelligen Code ein, der an {{email}} gesendet wurde",
   "auth.sendCode": "Code senden",
   "auth.sending": "Wird gesendet…",
   "auth.verify": "Überprüfen",
@@ -46,6 +47,11 @@
   "auth.errors.sendOTPFailed": "Fehler beim Senden des Bestätigungscodes. Bitte versuchen Sie es erneut.",
   "auth.errors.verifyOTPFailed": "Ungültiger oder abgelaufener Code. Bitte versuchen Sie es erneut.",
   "auth.errors.userNotFound": "Benutzer nicht gefunden. Bitte fordern Sie Zugriff an.",
-  "auth.unknownUser.message": "Wir konnten kein Konto für {email} finden.",
-  "auth.unknownUser.instruction": "Bitte kontaktieren Sie unser Team, um Zugriff anzufordern:"
+  "auth.unknownUser.message": "Wir konnten kein Konto für {{email}} finden.",
+  "auth.unknownUser.instruction": "Bitte kontaktieren Sie unser Team, um Zugriff anzufordern:",
+  "auth.unknownAccount.title": "Konto nicht gefunden",
+  "auth.unknownAccount.subtitle": "Ihr Benutzerkonto ist mit keiner Organisation verknüpft",
+  "auth.unknownAccount.message": "Das Konto {{email}} ist mit keiner Organisation in unserem System verbunden.",
+  "auth.unknownAccount.instruction": "Bitte kontaktieren Sie den Support, um Ihr Konto mit einer Organisation zu verknüpfen:",
+  "auth.signOut": "Abmelden"
 }

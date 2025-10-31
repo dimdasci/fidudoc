@@ -2,6 +2,7 @@ import { AuditRoute } from "@features/audit";
 import { ProtectedRoute, SignInRoute } from "@features/auth";
 import { InboxRoute } from "@features/inbox";
 import { LandingRoute } from "@features/landing";
+import { RolesRoute } from "@features/roles";
 import { SettingsRoute } from "@features/settings";
 import { UsersRoute } from "@features/users";
 import { AppShell } from "@shared/ui/AppShell";
@@ -69,6 +70,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <UsersRoute />,
+      },
+      {
+        path: "roles",
+        element: <RolesRoute />,
       },
     ],
   },

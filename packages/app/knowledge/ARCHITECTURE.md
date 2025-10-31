@@ -80,6 +80,7 @@ Start migrating by extracting the Inbox feature into this structure, validate im
   - Feature `hooks/` expose `use<Thing>Query`/`use<Thing>Mutation` that hide query keys and fetchers.
   - Keep query keys co-located (e.g., `const DOCUMENTS_QUERY_KEY = [...]`) to avoid collisions.
   - Side-effects (toasts, cache updates) live inside the hook or route component, never inside `api/`.
+  - Prefer the shared `refreshQueryWithFreshData` helper (`src/lib/react-query/refreshQueryWithFreshData.ts`) when live data must bypass backend caching. Fetch with a cache-busting flag and `setQueryData` on success; if the fetch fails, fall back to `invalidateQueries({ queryKey, exact: true })`.
 
 - **Client State – Zustand**
   - Global stores (`src/stores/`) are for cross-feature concerns (API health, theme).
