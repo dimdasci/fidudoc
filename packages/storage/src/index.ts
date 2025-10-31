@@ -5,7 +5,7 @@ import { registerAccountsRoutes } from "./Accounts/Http.ts";
 import { registerAuthRoutes } from "./Auth/Http.ts";
 import { createDocumentsService } from "./Documents.ts";
 import { registerDocumentsRoutes } from "./Documents/Http.ts";
-import { authMiddleware } from "./middleware/auth.ts";
+// import { authMiddleware } from "./middleware/auth.ts";
 import { deduplicateRequests } from "./middleware/deduplication.ts";
 import { errorHandler } from "./middleware/errorHandler.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
@@ -89,20 +89,21 @@ registerUsersRoutes(app, runtime);
 const settingsService = createSettingsService();
 const documentsService = createDocumentsService();
 
+registerSettingsRoutes(app, settingsService);
+registerDocumentsRoutes(app, documentsService);
+
 // ============================================================================
-// Protected Routes (authentication required)
+// TODO: Protected Routes (authentication required)
 // ============================================================================
-const protectedRouter = express.Router();
+// const protectedRouter = express.Router();
 
 // Apply authentication middleware to all protected routes
-protectedRouter.use(authMiddleware(runtime));
+// protectedRouter.use(authMiddleware(runtime));
 
 // Register protected routes
-registerSettingsRoutes(protectedRouter, settingsService);
-registerDocumentsRoutes(protectedRouter, documentsService);
 
 // Mount the protected router
-app.use(protectedRouter);
+// app.use(protectedRouter);
 
 // ============================================================================
 // Error Handler Middleware - MUST be registered LAST

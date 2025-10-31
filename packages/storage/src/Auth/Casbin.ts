@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { type Enforcer, newEnforcer } from "casbin";
 import { BasicAdapter } from "casbin-basic-adapter";
 import { Data, Redacted, type Scope } from "effect";
@@ -109,7 +110,36 @@ export class CasbinEnforcer extends Effect.Service<CasbinEnforcer>()(
       );
 
       // Create and initialize enforcer
-      const enforcer = yield* createEnforcer(modelPath, adapter);
+      const enforcer = yield* createEnforcer(modelPath, adapter).pipe(
+        Effect.tapError((error) =>
+          Effect.sync(() => {
+            console.error("[Casbin] Failed to initialize enforcer", {
+              error,
+              modelPath,
+            });
+
+            const throwable = error instanceof Error
+              ? error
+              : new Error(
+                (error as { message?: string }).message
+                  ?? "Casbin enforcer initialization failed",
+                {
+                  cause: (error as { cause?: unknown }).cause,
+                },
+              );
+
+            Sentry.captureException(throwable, {
+              tags: {
+                component: "casbin_enforcer",
+              },
+              extra: {
+                modelPath,
+                originalError: error,
+              },
+            });
+          })
+        ),
+      );
 
       /**
        * Check if a user has permission to perform an action on a resource in a domain

@@ -52,20 +52,6 @@ async (req: Request, res: Response, next: NextFunction) => {
     },
     // Failure case: extract error and pass to Express error middleware
     onFailure: (cause) => {
-      // Check if request was interrupted (should not happen without abort signal)
-      if (Cause.isInterrupted(cause)) {
-        console.error(
-          "[effectHandler] UNEXPECTED: Effect was interrupted without abort signal",
-          {
-            method: req.method,
-            url: req.url,
-            cause: Cause.pretty(cause),
-          },
-        );
-        // Still send error response instead of hanging
-        return next(new Error("Request processing was interrupted"));
-      }
-
       // Try to extract the domain error (Effect.fail)
       const failure = Cause.failureOption(cause);
       if (failure._tag === "Some") {
@@ -78,6 +64,20 @@ async (req: Request, res: Response, next: NextFunction) => {
       if (defect._tag === "Some") {
         // Pass unwrapped defect to error handler
         return next(defect.value);
+      }
+
+      // Check if request was interrupted (should not happen without abort signal)
+      if (Cause.isInterrupted(cause)) {
+        console.error(
+          "[effectHandler] UNEXPECTED: Effect was interrupted without abort signal",
+          {
+            method: req.method,
+            url: req.url,
+            cause: Cause.pretty(cause),
+          },
+        );
+        // Still send error response instead of hanging
+        return next(new Error("Request processing was interrupted"));
       }
 
       // Fallback for other cause types (should be rare)
