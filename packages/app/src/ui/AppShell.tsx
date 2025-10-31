@@ -1,7 +1,7 @@
 import { AlertCircle } from "lucide-react";
 import { useEffect } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useI18nContext } from "../i18n/i18n";
 import { checkApiHealth } from "../services/api";
 import { useApiStore } from "../stores/api";
@@ -12,6 +12,9 @@ import { ToastContainer } from "./ToastContainer";
 export function AppShell() {
   const { t } = useI18nContext();
   const { isHealthy, setHealthy, setError } = useApiStore();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
 
   useEffect(() => {
     const checkHealth = async () => {
@@ -45,17 +48,21 @@ export function AppShell() {
               <nav className="flex flex-col p-4 gap-6">
                 {/* Documents Group */}
                 <div>
-                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary pl-4 pr-4 py-2 mb-2">
                     {t("nav.group.documents")}
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-2">
                     <Link
                       to="/documents/inbox"
-                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                      className={`text-body text-secondary transition-colors border-l-4  pl-3 ${
+                        isActive("/documents/inbox")
+                          ? "border-accent"
+                          : "border-transparent hover:text-primary"
+                      }`}
                     >
                       {t("nav.inbox")}
                     </Link>
-                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                    <span className="text-body text-secondary opacity-50 cursor-not-allowed border-l-4 border-transparent pl-3">
                       {t("nav.registry")}
                     </span>
                   </div>
@@ -63,11 +70,11 @@ export function AppShell() {
 
                 {/* Clients Group */}
                 <div>
-                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary pl-4 pr-4 py-2 mb-2">
                     {t("nav.group.clients")}
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-body text-secondary opacity-50 cursor-not-allowed border-l-4 border-transparent pl-3">
                       {t("nav.clients")}
                     </span>
                   </div>
@@ -75,14 +82,14 @@ export function AppShell() {
 
                 {/* Inspections Group */}
                 <div>
-                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary pl-4 pr-4 py-2 mb-2">
                     {t("nav.group.inspections")}
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-body text-secondary opacity-50 cursor-not-allowed border-l-4 border-transparent pl-3">
                       {t("nav.vat")}
                     </span>
-                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                    <span className="text-body text-secondary opacity-50 cursor-not-allowed border-l-4 border-transparent pl-3">
                       {t("nav.renewal")}
                     </span>
                   </div>
@@ -90,28 +97,40 @@ export function AppShell() {
 
                 {/* Settings Group */}
                 <div>
-                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary pl-4 pr-4 py-2 mb-2">
                     {t("nav.group.settings")}
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-2">
                     <Link
                       to="/settings"
-                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                      className={`text-body text-secondary transition-colors border-l-4  pl-3 ${
+                        isActive("/settings")
+                          ? "border-accent"
+                          : "border-transparent hover:text-primary"
+                      }`}
                     >
                       {t("nav.settings")}
                     </Link>
-                    <span className="px-4 py-2 rounded-lg text-body text-secondary opacity-50 cursor-not-allowed">
+                    <span className="text-body text-secondary opacity-50 cursor-not-allowed border-l-4 border-transparent pl-3">
                       {t("nav.integrations")}
                     </span>
                     <Link
                       to="/users"
-                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                      className={`text-body text-secondary transition-colors border-l-4  pl-3 ${
+                        isActive("/users")
+                          ? "border-accent"
+                          : "border-transparent hover:text-primary"
+                      }`}
                     >
                       {t("nav.users")}
                     </Link>
                     <Link
                       to="/users/roles"
-                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                      className={`text-body text-secondary transition-colors border-l-4  pl-3 ${
+                        isActive("/users/roles")
+                          ? "border-accent"
+                          : "border-transparent hover:text-primary"
+                      }`}
                     >
                       {t("nav.roles")}
                     </Link>
@@ -120,13 +139,17 @@ export function AppShell() {
 
                 {/* Audit Group */}
                 <div>
-                  <div className="text-body-lg font-semibold text-secondary px-4 py-2 mb-2">
+                  <div className="text-body-lg font-semibold text-secondary pl-4 pr-4 py-2 mb-2">
                     {t("nav.group.audit")}
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-2">
                     <Link
                       to="/audit"
-                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                      className={`text-body text-secondary transition-colors border-l-4 pl-3 ${
+                        isActive("/audit")
+                          ? "border-accent"
+                          : "border-transparent hover:text-primary"
+                      }`}
                     >
                       {t("nav.audit")}
                     </Link>
