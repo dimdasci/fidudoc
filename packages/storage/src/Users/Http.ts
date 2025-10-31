@@ -7,7 +7,6 @@
 import { Console, Effect, ParseResult, Schema } from "effect";
 import type { IRouter } from "express";
 import { AccountIdFromString } from "../Domain/Account.ts";
-import { CurrentPrincipal } from "../Domain/Principal.ts";
 import {
   UserId,
   UserJson,
