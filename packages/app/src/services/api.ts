@@ -3,6 +3,8 @@
  * Base URL: http://localhost:3000
  */
 
+import { fetchWithAuth } from "@shared/lib/http/client";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 // ============================================================================
@@ -35,12 +37,14 @@ export interface Document {
 export interface User {
   id: string;
   email: string;
-  name: string;
-  role: "admin" | "operator" | "viewer";
-  permissions: string[];
-  createdAt: string;
-  lastLogin?: string;
+  displayName: string;
+  fullName: string;
+  title?: string | null;
   isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt?: string | null;
+  lastSignInAt?: string | null; // From Supabase Auth
 }
 
 export interface AuditLog {
@@ -99,13 +103,13 @@ export async function fetchDocuments(params?: {
     });
   }
 
-  const res = await fetch(url.toString());
+  const res = await fetchWithAuth(url.toString());
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
 export async function fetchDocument(id: string): Promise<Document> {
-  const res = await fetch(`${API_BASE_URL}/documents/${id}`);
+  const res = await fetchWithAuth(`${API_BASE_URL}/documents/${id}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -117,7 +121,7 @@ export async function fetchDocumentPreview(id: string): Promise<{
   contentType: string;
   size: number;
 }> {
-  const res = await fetch(`${API_BASE_URL}/documents/${id}/preview`);
+  const res = await fetchWithAuth(`${API_BASE_URL}/documents/${id}/preview`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -128,7 +132,7 @@ export async function fetchDocumentExtractedData(id: string): Promise<{
   extractedAt?: string;
   data?: Record<string, unknown>;
 }> {
-  const res = await fetch(`${API_BASE_URL}/documents/${id}/extracted-data`);
+  const res = await fetchWithAuth(`${API_BASE_URL}/documents/${id}/extracted-data`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -139,7 +143,7 @@ export async function approveDocuments(ids: string[]): Promise<{
   approvedIds: string[];
   timestamp: string;
 }> {
-  const res = await fetch(`${API_BASE_URL}/documents/approve`, {
+  const res = await fetchWithAuth(`${API_BASE_URL}/documents/approve`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ids }),
@@ -158,7 +162,7 @@ export async function rejectDocuments(
   reason: string;
   timestamp: string;
 }> {
-  const res = await fetch(`${API_BASE_URL}/documents/reject`, {
+  const res = await fetchWithAuth(`${API_BASE_URL}/documents/reject`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ids, reason }),
@@ -168,7 +172,7 @@ export async function rejectDocuments(
 }
 
 export async function fetchSettings(): Promise<Settings> {
-  const res = await fetch(`${API_BASE_URL}/settings`);
+  const res = await fetchWithAuth(`${API_BASE_URL}/settings`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -180,7 +184,7 @@ export async function updateSettings(
   message: string;
   settings: Settings;
 }> {
-  const res = await fetch(`${API_BASE_URL}/settings`, {
+  const res = await fetchWithAuth(`${API_BASE_URL}/settings`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(settings),
@@ -193,21 +197,21 @@ export async function fetchUsers(): Promise<{
   total: number;
   users: User[];
 }> {
-  const res = await fetch(`${API_BASE_URL}/users`);
+  const res = await fetchWithAuth(`${API_BASE_URL}/users`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
 export async function createUser(user: {
   email: string;
-  name: string;
-  role: "admin" | "operator" | "viewer";
+  displayName: string;
+  fullName: string;
 }): Promise<{
   success: boolean;
   message: string;
   user: User;
 }> {
-  const res = await fetch(`${API_BASE_URL}/users`, {
+  const res = await fetchWithAuth(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(user),
@@ -218,13 +222,13 @@ export async function createUser(user: {
 
 export async function updateUser(
   id: string,
-  updates: { name?: string; role?: string; isActive?: boolean },
+  updates: { displayName?: string; fullName?: string; isActive?: boolean },
 ): Promise<{
   success: boolean;
   message: string;
   user: User;
 }> {
-  const res = await fetch(`${API_BASE_URL}/users/${id}`, {
+  const res = await fetchWithAuth(`${API_BASE_URL}/users/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(updates),
@@ -248,7 +252,7 @@ export async function fetchAuditLog(params?: {
     });
   }
 
-  const res = await fetch(url.toString());
+  const res = await fetchWithAuth(url.toString());
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -259,7 +263,7 @@ export async function fetchAuditLog(params?: {
 
 export async function checkApiHealth(): Promise<boolean> {
   try {
-    const res = await fetch(`${API_BASE_URL}/documents`, {
+    const res = await fetch(`${API_BASE_URL}/health`, {
       method: "GET",
       signal: AbortSignal.timeout(3000), // 3 second timeout
     });

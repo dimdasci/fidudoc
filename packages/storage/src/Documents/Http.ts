@@ -4,24 +4,31 @@
  * Maps HTTP requests to Documents service operations
  */
 
-import type { Express } from "express";
+import type { IRouter } from "express";
 import type { IDocuments } from "../Documents.ts";
+import type {
+  DocumentStatus,
+  DocumentType,
+  ValidationStatus,
+} from "../Domain/types.ts";
 
-export function registerDocumentsRoutes(app: Express, documentsService: IDocuments) {
+export function registerDocumentsRoutes(app: IRouter, documentsService: IDocuments) {
   // GET /documents - List and filter documents
   app.get("/documents", async (req, res) => {
     try {
       const result = await documentsService.listDocuments({
-        status: req.query.status as any,
-        client_id: req.query.client_id as string,
-        type: req.query.type as any,
-        validation_status: req.query.validation_status as any,
-        period: req.query.period as string,
-        from: req.query.from as string,
-        to: req.query.to as string,
+        status: req.query.status as DocumentStatus | undefined,
+        client_id: req.query.client_id as string | undefined,
+        type: req.query.type as DocumentType | undefined,
+        validation_status: req.query.validation_status as
+          | ValidationStatus
+          | undefined,
+        period: req.query.period as string | undefined,
+        from: req.query.from as string | undefined,
+        to: req.query.to as string | undefined,
       });
       res.json(result);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to list documents" });
     }
   });
@@ -34,7 +41,7 @@ export function registerDocumentsRoutes(app: Express, documentsService: IDocumen
         return res.status(404).json({ error: "Document not found" });
       }
       res.json(document);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to retrieve document" });
     }
   });
@@ -47,7 +54,7 @@ export function registerDocumentsRoutes(app: Express, documentsService: IDocumen
         return res.status(404).json({ error: "Document not found" });
       }
       res.json(preview);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to retrieve preview" });
     }
   });
@@ -60,7 +67,7 @@ export function registerDocumentsRoutes(app: Express, documentsService: IDocumen
         return res.status(404).json({ error: "Document not found" });
       }
       res.json(data);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to retrieve extracted data" });
     }
   });
@@ -82,7 +89,7 @@ export function registerDocumentsRoutes(app: Express, documentsService: IDocumen
         approvedIds: result.approvedIds,
         timestamp: new Date().toISOString(),
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to approve documents" });
     }
   });
@@ -105,7 +112,7 @@ export function registerDocumentsRoutes(app: Express, documentsService: IDocumen
         reason: reason || "No reason provided",
         timestamp: new Date().toISOString(),
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to reject documents" });
     }
   });

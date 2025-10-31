@@ -4,7 +4,12 @@
  * Defines the HTTP endpoints for the Documents bounded context
  */
 
-import type { Document, DocumentType, DocumentStatus, ValidationStatus } from "../Domain/types.ts";
+import type {
+  Document,
+  DocumentStatus,
+  DocumentType,
+  ValidationStatus,
+} from "../Domain/types.ts";
 
 export const DocumentsEndpoints = {
   LIST: "list_documents",

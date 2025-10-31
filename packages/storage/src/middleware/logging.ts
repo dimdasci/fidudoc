@@ -7,31 +7,38 @@ export const loggingMiddleware = (
 ) => {
   const startTime = Date.now();
 
+  // Skip logging for health check requests
+  const shouldLog = req.url !== "/health";
+
   // Log request details
-  console.log("-> Incoming Request:", {
-    timestamp: new Date().toISOString(),
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-    body: req.body,
-    query: req.query,
-    params: req.params,
-  });
+  if (shouldLog) {
+    console.log("-> Incoming Request:", {
+      timestamp: new Date().toISOString(),
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body,
+      query: req.query,
+      params: req.params,
+    });
+  }
 
   // Capture the original res.send to intercept response
   // Note: res.json() calls res.send() internally, so we only need to intercept send
   const originalSend = res.send.bind(res);
 
-  res.send = function (this: Response, data: unknown) {
+  res.send = function(this: Response, data: unknown) {
     const duration = Date.now() - startTime;
-    console.log("<- Outgoing Response:", {
-      timestamp: new Date().toISOString(),
-      method: req.method,
-      url: req.url,
-      statusCode: res.statusCode,
-      duration: `${duration}ms`,
-      responseBody: data,
-    });
+    if (shouldLog) {
+      console.log("<- Outgoing Response:", {
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        url: req.url,
+        statusCode: res.statusCode,
+        duration: `${duration}ms`,
+        responseBody: data,
+      });
+    }
     return originalSend(data);
   };
 

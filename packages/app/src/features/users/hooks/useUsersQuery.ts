@@ -1,10 +1,14 @@
 import { listUsers, type ListUsersResponse } from "@features/users/api/users.api";
 import { useQuery } from "@tanstack/react-query";
 
-export function useUsersQuery() {
+export function useUsersQuery(accountId: string | null) {
   const queryResult = useQuery({
-    queryKey: ["users"],
-    queryFn: listUsers,
+    queryKey: ["users", accountId],
+    queryFn: () => {
+      if (!accountId) throw new Error("Account ID is required");
+      return listUsers(accountId);
+    },
+    enabled: !!accountId,
   });
 
   const data = normalizeResponse(queryResult.data);

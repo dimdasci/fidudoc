@@ -1,16 +1,25 @@
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { registerAccountsRoutes } from "./Accounts/Http.ts";
+import { registerAuthRoutes } from "./Auth/Http.ts";
 import { createDocumentsService } from "./Documents.ts";
 import { registerDocumentsRoutes } from "./Documents/Http.ts";
+import { authMiddleware } from "./middleware/auth.ts";
 import { deduplicateRequests } from "./middleware/deduplication.ts";
+import { errorHandler } from "./middleware/errorHandler.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
+import { createRuntime } from "./Runtime.ts";
 import { createSettingsService } from "./Settings.ts";
 import { registerSettingsRoutes } from "./Settings/Http.ts";
-import { createUsersService } from "./Users.ts";
 import { registerUsersRoutes } from "./Users/Http.ts";
 
 const app = express();
+
+// ============================================================================
+// Initialize Effect Runtime
+// ============================================================================
+const runtime = createRuntime();
 
 // Security headers middleware
 app.use(
@@ -47,6 +56,7 @@ app.use(
       }
     },
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
@@ -59,27 +69,45 @@ app.use(deduplicateRequests);
 // Simple logging middleware
 app.use(loggingMiddleware);
 
+// ============================================================================
+// Public Routes (no authentication required)
+// ============================================================================
 app.use("/health", (_req, res) => {
   res.send("OK");
 });
 
-app.use("/test", (_req, res) => {
-  res.json({ message: "Test endpoint is working!" });
-});
+// Register accounts routes (public for account setup)
+registerAccountsRoutes(app, runtime);
+
+// Register auth routes (role and permission management)
+registerAuthRoutes(app, runtime);
+registerUsersRoutes(app, runtime);
 
 // ============================================================================
 // Initialize Business Services
 // ============================================================================
 const settingsService = createSettingsService();
 const documentsService = createDocumentsService();
-const usersService = createUsersService();
 
 // ============================================================================
-// Register Routes - HTTP adapters for bounded contexts
+// Protected Routes (authentication required)
 // ============================================================================
-registerSettingsRoutes(app, settingsService);
-registerDocumentsRoutes(app, documentsService);
-registerUsersRoutes(app, usersService);
+const protectedRouter = express.Router();
+
+// Apply authentication middleware to all protected routes
+protectedRouter.use(authMiddleware(runtime));
+
+// Register protected routes
+registerSettingsRoutes(protectedRouter, settingsService);
+registerDocumentsRoutes(protectedRouter, documentsService);
+
+// Mount the protected router
+app.use(protectedRouter);
+
+// ============================================================================
+// Error Handler Middleware - MUST be registered LAST
+// ============================================================================
+app.use(errorHandler);
 
 const startServer = async () => {
   // Load Port and Host from environment variables
@@ -93,15 +121,19 @@ const startServer = async () => {
       process.exit(1);
     }
     console.info(
-      `${process.env.NODE_ENV} backend listening on http://${host}:${port}`,
+      `${
+        process.env.NODE_ENV || "development"
+      } backend listening on http://${host}:${port}`,
     );
     console.info(`Health check: http://${host}:${port}/health`);
   });
 };
 
 // Graceful shutdown
-const gracefulShutdown = () => {
+const gracefulShutdown = async () => {
   console.log("🛑 Server is shutting down...");
+  // Dispose of the Effect runtime (closes DB connections, etc.)
+  await runtime.dispose();
   process.exit();
 };
 

@@ -5,9 +5,7 @@ import { Link, Outlet } from "react-router-dom";
 import { useI18nContext } from "../i18n/i18n";
 import { checkApiHealth } from "../services/api";
 import { useApiStore } from "../stores/api";
-import { LanguageSwitcher } from "./LanguageSwitcher";
-import { Logo } from "./Logo";
-import { ThemeSwitcher } from "./ThemeSwitcher/ThemeSwitcher";
+import { AppHeader } from "./AppHeader";
 import { showToast } from "./toast";
 import { ToastContainer } from "./ToastContainer";
 
@@ -36,15 +34,7 @@ export function AppShell() {
   return (
     <div className="flex flex-col h-full">
       {/* Header - Fixed height */}
-      <header className="flex-none h-16 bg-surface border-b border-subtle px-6 flex items-center justify-between">
-        <div>
-          <Logo />
-        </div>
-        <div className="flex items-center gap-4">
-          <ThemeSwitcher />
-          <LanguageSwitcher />
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Main content - Flexible height with 3-pane layout */}
       <div className="flex-1 overflow-hidden">
@@ -119,6 +109,12 @@ export function AppShell() {
                     >
                       {t("nav.users")}
                     </Link>
+                    <Link
+                      to="/users/roles"
+                      className="px-4 py-2 rounded-lg text-body text-secondary hover:bg-background hover:text-primary transition-colors"
+                    >
+                      {t("nav.roles")}
+                    </Link>
                   </div>
                 </div>
 
@@ -140,12 +136,17 @@ export function AppShell() {
             </aside>
           </Panel>
 
+          {/* Disabled resize handle between left and center panels */}
+          <PanelResizeHandle className="pointer-events-none opacity-0 w-0" />
+
           {/* Center - Main content */}
-          <Panel minSize={40}>
+          <Panel defaultSize={60} minSize={40}>
             <main className="h-full overflow-auto bg-background p-6">
               <Outlet />
             </main>
           </Panel>
+
+          {/* Active resize handle between center and right panels */}
           <PanelResizeHandle className="resizer" />
 
           {/* Right sidebar - Details */}

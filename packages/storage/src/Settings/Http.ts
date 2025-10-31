@@ -4,16 +4,16 @@
  * Maps HTTP requests to Settings service operations
  */
 
-import type { Express } from "express";
+import type { IRouter } from "express";
 import type { ISettings } from "../Settings.ts";
 
-export function registerSettingsRoutes(app: Express, settingsService: ISettings) {
+export function registerSettingsRoutes(app: IRouter, settingsService: ISettings) {
   // GET /settings - Retrieve current settings
   app.get("/settings", async (_req, res) => {
     try {
       const settings = await settingsService.getSettings();
       res.json(settings);
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({ error: "Failed to retrieve settings" });
     }
   });
@@ -27,7 +27,7 @@ export function registerSettingsRoutes(app: Express, settingsService: ISettings)
         message: "Settings updated (mock - not persisted)",
         settings: result.settings,
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(400).json({ error: "Failed to update settings" });
     }
   });

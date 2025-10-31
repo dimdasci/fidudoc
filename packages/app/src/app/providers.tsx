@@ -1,3 +1,4 @@
+import { AuthProvider } from "@features/auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
@@ -52,7 +53,9 @@ export function AppProviders() {
 
   return (
     <QueryClientProvider client={qc}>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
