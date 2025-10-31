@@ -9,19 +9,26 @@ import { SupabaseLive } from "./Auth/Supabase.ts";
 import { AppConfigLive } from "./Config.ts";
 import { SqlLive } from "./Sql.ts";
 import { UsersRepoLive } from "./Users/Repo.ts";
+import { UsersServiceLive } from "./Users/Service.ts";
 import { UuidLive } from "./Uuid.ts";
 
 // All heavyweight, long-lived dependencies
-// UsersRepo depends on SqlLive, which depends on AppConfig
-// Provide AppConfig to the entire layer stack
+// Layer dependency order is important:
+// 1. Base services: Config, SQL, Supabase, UUID
+// 2. Repositories: depend on SQL
+// 3. Services: depend on repositories and other services
 const GlobalLayer = Layer.mergeAll(
-  SupabaseLive,
+  // Base services (no service dependencies)
   SqlLive,
+  SupabaseLive,
   CasbinLive,
   UuidLive,
+  // Repositories (depend on SQL)
   AccountsRepoLive,
   UsersRepoLive,
-  AccountsServiceLive,
+  // Services (depend on repositories and potentially other services)
+  AccountsServiceLive, // Must come before UsersService
+  UsersServiceLive, // Depends on AccountsService
   AccountPermissionsLive,
 ).pipe(Layer.provide(AppConfigLive));
 

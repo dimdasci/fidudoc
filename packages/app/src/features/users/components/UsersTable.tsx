@@ -1,5 +1,5 @@
 import type { User } from "@features/users/api/users.api";
-import { formatDateTime, getRoleMeta } from "@features/users/lib/formatters";
+import { formatDateTime } from "@features/users/lib/formatters";
 import { Button } from "@shared/ui/Button/Button";
 import { Table, type TableColumn } from "@shared/ui/Table";
 import type { ReactNode } from "react";
@@ -31,8 +31,15 @@ export function UsersTable({
 }: UsersTableProps) {
   const columns: TableColumn<UsersTableRow>[] = [
     {
-      key: "name",
-      label: t("users.table.name"),
+      key: "displayName",
+      label: t("users.table.displayName"),
+      render: (value) => (
+        <span className="text-body-sm text-primary">{String(value)}</span>
+      ),
+    },
+    {
+      key: "fullName",
+      label: t("users.table.fullName"),
       render: (value) => (
         <span className="text-body-sm text-primary">{String(value)}</span>
       ),
@@ -43,16 +50,6 @@ export function UsersTable({
       render: (value) => (
         <span className="text-body-sm text-primary">{String(value)}</span>
       ),
-    },
-    {
-      key: "role",
-      label: t("users.table.role"),
-      render: (_value, row) => {
-        const { colorClass, label } = getRoleMeta(row.role, t);
-        return (
-          <span className={`text-body-sm font-medium ${colorClass}`}>{label}</span>
-        );
-      },
     },
     {
       key: "isActive",
@@ -77,7 +74,7 @@ export function UsersTable({
       ),
     },
     {
-      key: "lastLogin",
+      key: "lastSignInAt",
       label: t("users.table.lastLogin"),
       render: (value) => (
         <span className="text-body-sm text-secondary tabular-nums">

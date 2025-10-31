@@ -9,8 +9,8 @@ import {
 } from "@shared/ui/Select";
 import { Loader, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { formatRoleName } from "../lib/formatters";
 import { useRoleUsers } from "../hooks/useRoleUsers";
+import { formatRoleName } from "../lib/formatters";
 
 type TranslateFn = (
   key: string,
@@ -126,7 +126,7 @@ export function ManageUsersDialog({
                       className="border-t border-subtle"
                     >
                       <td className="px-4 py-3 text-body-sm text-primary">
-                        {user.name}
+                        {user.displayName}
                       </td>
                       <td className="px-4 py-3 text-body-sm text-secondary">
                         {user.email}
@@ -180,7 +180,7 @@ export function ManageUsersDialog({
                   <SelectPopup>
                     {availableUsers.map((user) => (
                       <SelectItem key={user.id} value={user.id}>
-                        {user.name} ({user.email})
+                        {user.displayName} ({user.email})
                       </SelectItem>
                     ))}
                   </SelectPopup>

@@ -37,12 +37,14 @@ export interface Document {
 export interface User {
   id: string;
   email: string;
-  name: string;
-  role: "admin" | "operator" | "viewer";
-  permissions: string[];
-  createdAt: string;
-  lastLogin?: string;
+  displayName: string;
+  fullName: string;
+  title?: string | null;
   isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt?: string | null;
+  lastSignInAt?: string | null; // From Supabase Auth
 }
 
 export interface AuditLog {
@@ -202,8 +204,8 @@ export async function fetchUsers(): Promise<{
 
 export async function createUser(user: {
   email: string;
-  name: string;
-  role: "admin" | "operator" | "viewer";
+  displayName: string;
+  fullName: string;
 }): Promise<{
   success: boolean;
   message: string;
@@ -220,7 +222,7 @@ export async function createUser(user: {
 
 export async function updateUser(
   id: string,
-  updates: { name?: string; role?: string; isActive?: boolean },
+  updates: { displayName?: string; fullName?: string; isActive?: boolean },
 ): Promise<{
   success: boolean;
   message: string;

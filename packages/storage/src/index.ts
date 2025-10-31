@@ -12,7 +12,6 @@ import { loggingMiddleware } from "./middleware/logging.ts";
 import { createRuntime } from "./Runtime.ts";
 import { createSettingsService } from "./Settings.ts";
 import { registerSettingsRoutes } from "./Settings/Http.ts";
-import { createUsersService } from "./Users.ts";
 import { registerUsersRoutes } from "./Users/Http.ts";
 
 const app = express();
@@ -92,7 +91,7 @@ registerAuthRoutes(app, runtime);
 // ============================================================================
 const settingsService = createSettingsService();
 const documentsService = createDocumentsService();
-const usersService = createUsersService();
+// NOTE: UsersService is now provided by Effect runtime, no manual creation needed
 
 // ============================================================================
 // Protected Routes (authentication required)
@@ -105,7 +104,7 @@ protectedRouter.use(authMiddleware(runtime));
 // Register business routes on the protected router
 registerSettingsRoutes(protectedRouter, settingsService);
 registerDocumentsRoutes(protectedRouter, documentsService);
-registerUsersRoutes(protectedRouter, usersService, runtime);
+registerUsersRoutes(protectedRouter, runtime);
 
 // Mount the protected router
 app.use(protectedRouter);

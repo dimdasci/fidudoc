@@ -8,7 +8,7 @@ import {
 } from "../Domain/Account.ts";
 import { SqlLive } from "../Sql.ts";
 import { Uuid, UuidLive } from "../Uuid.ts";
-import { AccountRepo, AccountsRepoLive } from "./Repo.ts";
+import { AccountsRepo, AccountsRepoLive } from "./Repo.ts";
 
 export class AccountsService extends Effect.Service<AccountsService>()(
   "Accounts/Service",
@@ -16,7 +16,7 @@ export class AccountsService extends Effect.Service<AccountsService>()(
     dependencies: [SqlLive, AccountsRepoLive, UuidLive],
     effect: Effect.gen(function*() {
       const sql = yield* SqlClient.SqlClient;
-      const repo = yield* AccountRepo;
+      const repo = yield* AccountsRepo;
       const uuid = yield* Uuid;
 
       yield* Effect.logInfo("[AccountsService] Initialized");

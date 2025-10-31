@@ -48,10 +48,23 @@ export class UsersRepo extends Effect.Service<UsersRepo>()(
           Effect.withSpan("UsersRepo.findByAccountId"),
         );
 
+      const findActiveByAccountSchema = SqlSchema.findAll({
+        Request: AccountId,
+        Result: User,
+        execute: (accountId) =>
+          sql`select * from users where account_id = ${accountId} and is_active = true`,
+      });
+      const findActiveByAccount = (accountId: AccountId) =>
+        pipe(
+          findActiveByAccountSchema(accountId),
+          Effect.withSpan("UsersRepo.findActiveByAccount"),
+        );
+
       return {
         ...repo,
         findByEmail,
         findByAccountId,
+        findActiveByAccount,
       } as const;
     }),
   },

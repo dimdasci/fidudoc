@@ -18,15 +18,15 @@ export interface AuthenticatedRequest extends Request {
 }
 
 // Type for Effect-based route handler
-// R must be a subset of what the runtime provides
-export type EffectHandler<R extends AppContext, E, A> = (
+// R can extend AppContext with per-request services (CurrentUser, CurrentPrincipal)
+export type EffectHandler<R, E, A> = (
   req: Request,
 ) => Effect.Effect<A, E, R>;
 
 // Bridge: Express handler → Effect → Express response
-export const effectHandler = <R extends AppContext, E, A>(
+export const effectHandler = <E, A>(
   runtime: AppRuntime,
-  handler: EffectHandler<R, E, A>,
+  handler: EffectHandler<AppContext | CurrentUser | CurrentPrincipal, E, A>,
 ) =>
 async (req: Request, res: Response, next: NextFunction) => {
   // Build the Effect program
@@ -45,7 +45,10 @@ async (req: Request, res: Response, next: NextFunction) => {
   }
 
   // Run Effect program (type-safe, doesn't throw)
-  const exit = await runtime.runPromiseExit(program);
+  // Type cast needed because per-request services are provided dynamically
+  const exit = await runtime.runPromiseExit(
+    program as Effect.Effect<A, E, AppContext>,
+  );
 
   // Pattern match on Exit to handle success/failure
   Exit.match(exit, {

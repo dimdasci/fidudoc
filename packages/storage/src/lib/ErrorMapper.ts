@@ -57,8 +57,14 @@ export function getStatusCode(errorTag: string): number {
     // Domain errors (expected business failures)
     case "UserNotFound":
       return 404;
+    case "UserEmailExists":
+      return 409;
+    case "SupabaseAuthError":
+      return 500;
 
     // Framework errors (future implementation)
+    // Conflict
+    // Auth service errors are internal
     case "Unauthorized":
       return 401;
     case "Forbidden":
@@ -106,6 +112,10 @@ function getErrorMessage(errorTag: string): string {
   switch (errorTag) {
     case "UserNotFound":
       return "User not found";
+    case "UserEmailExists":
+      return "User with this email already exists";
+    case "SupabaseAuthError":
+      return "Authentication service error";
     case "Unauthorized":
       return "Authentication required";
     case "Forbidden":
@@ -123,7 +133,14 @@ function getErrorMessage(errorTag: string): string {
  */
 export function shouldReportToSentry(errorTag: string): boolean {
   // Domain errors are expected - don't report
-  const expectedErrors = ["UserNotFound", "Unauthorized", "Forbidden"];
+  const expectedErrors = [
+    "UserNotFound",
+    "UserEmailExists",
+    "Unauthorized",
+    "Forbidden",
+  ];
+
+  // SupabaseAuthError should be reported as it's an integration issue
 
   if (expectedErrors.includes(errorTag)) {
     return false;

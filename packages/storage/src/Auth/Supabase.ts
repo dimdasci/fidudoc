@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { Redacted } from "effect";
 import * as Effect from "effect/Effect";
 import { AppConfig, AppConfigLive } from "../Config.ts";
 
@@ -8,11 +9,13 @@ export class Supabase extends Effect.Service<Supabase>()("Supabase", {
     const config = yield* AppConfig;
 
     const supabaseUrl = config.supabase.url;
-    const supabaseKey = config.supabase.publicKey;
+    const supabasePublicKey = config.supabase.publicKey;
+    const supabaseSecretKey = Redacted.value(config.supabase.secretKey);
 
+    // Public client for regular operations
     const client = createClient(
       supabaseUrl,
-      supabaseKey,
+      supabasePublicKey,
       {
         auth: {
           autoRefreshToken: false,
@@ -21,7 +24,19 @@ export class Supabase extends Effect.Service<Supabase>()("Supabase", {
       },
     );
 
-    return { client } as const;
+    // Admin client for user management operations
+    const adminClient = createClient(
+      supabaseUrl,
+      supabaseSecretKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      },
+    );
+
+    return { client, adminClient } as const;
   }),
 }) {}
 

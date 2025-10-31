@@ -43,10 +43,32 @@ export class UserNotFound extends Schema.TaggedError<UserNotFound>()(
   { id: Schema.String },
 ) {}
 
+export class UserEmailExists extends Schema.TaggedError<UserEmailExists>()(
+  "UserEmailExists",
+  {
+    email: Schema.String,
+    accountId: Schema.String,
+  },
+) {}
+
+export class SupabaseAuthError extends Schema.TaggedError<SupabaseAuthError>()(
+  "SupabaseAuthError",
+  {
+    message: Schema.String,
+    code: Schema.String,
+  },
+) {}
+
 // Json schemas for API input/output
 export const UserJsonCreate = User.jsonCreate;
 export const UserJsonUpdate = User.jsonUpdate;
 export const UserJson = User.json;
+
+// Enhanced response schema that includes auth metadata
+export const UserWithAuthJson = Schema.Struct({
+  ...UserJson.fields,
+  lastSignInAt: Schema.NullOr(Schema.DateTimeUtc), // From Supabase Auth
+});
 
 /* Note regarding user roles and permissions:
 

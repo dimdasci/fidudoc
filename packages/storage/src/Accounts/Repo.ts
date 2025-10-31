@@ -3,16 +3,16 @@ import { Effect } from "effect";
 import { Account } from "../Domain/Account.ts";
 import { SqlLive } from "../Sql.ts";
 
-export class AccountRepo extends Effect.Service<AccountRepo>()(
-  "AccountRepo",
+export class AccountsRepo extends Effect.Service<AccountsRepo>()(
+  "AccountsRepo",
   {
     dependencies: [SqlLive],
     effect: Model.makeRepository(Account, {
       tableName: "accounts",
-      spanPrefix: "AccountRepo",
+      spanPrefix: "AccountsRepo",
       idColumn: "id",
     }),
   },
 ) {}
 
-export const AccountsRepoLive = AccountRepo.Default;
+export const AccountsRepoLive = AccountsRepo.Default;

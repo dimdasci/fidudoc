@@ -7,7 +7,7 @@ import { Supabase } from "./Supabase.ts";
 const JwtPayload = Schema.Struct({
   sub: Schema.UUID, // Supabase user ID
   user_metadata: Schema.Struct({
-    account_id: Schema.optional(Schema.UUID), // Optional for root users
+    accountId: Schema.optional(Schema.UUID), // Optional for root users
   }),
 });
 
@@ -45,10 +45,10 @@ export const validateToken = (token: string) =>
       );
     }
 
-    // Parse user metadata
+    // Parse user metadata (access accountId from user_metadata like frontend does)
     const payload = yield* Schema.decodeUnknown(JwtPayload)({
       sub: data.user.id,
-      user_metadata: data.user.user_metadata,
+      user_metadata: data.user.user_metadata || {},
     }).pipe(
       Effect.mapError(
         (err) =>
@@ -61,8 +61,8 @@ export const validateToken = (token: string) =>
     // Construct principal
     const principal: Principal = {
       userId: payload.sub as UserId,
-      accountId: payload.user_metadata.account_id
-        ? AccountId.make(payload.user_metadata.account_id)
+      accountId: payload.user_metadata.accountId
+        ? AccountId.make(payload.user_metadata.accountId)
         : undefined,
     };
 
