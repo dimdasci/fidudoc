@@ -111,9 +111,6 @@ export function AppShell() {
                     >
                       {t("nav.settings")}
                     </Link>
-                    <span className="text-body text-secondary opacity-50 cursor-not-allowed border-l-4 border-transparent pl-3">
-                      {t("nav.integrations")}
-                    </span>
                     <Link
                       to="/users"
                       className={`text-body text-secondary transition-colors border-l-4  pl-3 ${
@@ -143,16 +140,9 @@ export function AppShell() {
                     {t("nav.group.audit")}
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Link
-                      to="/audit"
-                      className={`text-body text-secondary transition-colors border-l-4 pl-3 ${
-                        isActive("/audit")
-                          ? "border-accent"
-                          : "border-transparent hover:text-primary"
-                      }`}
-                    >
+                    <span className="text-body text-secondary opacity-50 cursor-not-allowed border-l-4 border-transparent pl-3">
                       {t("nav.audit")}
-                    </Link>
+                    </span>
                   </div>
                 </div>
               </nav>
