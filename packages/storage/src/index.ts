@@ -3,9 +3,10 @@ import express from "express";
 import helmet from "helmet";
 import { registerAccountsRoutes } from "./Accounts/Http.ts";
 import { registerAuthRoutes } from "./Auth/Http.ts";
+import { Supabase } from "./Auth/Supabase.ts";
 import { createDocumentsService } from "./Documents.ts";
 import { registerDocumentsRoutes } from "./Documents/Http.ts";
-// import { authMiddleware } from "./middleware/auth.ts";
+import { authMiddleware } from "./middleware/auth.ts";
 import { deduplicateRequests } from "./middleware/deduplication.ts";
 import { errorHandler } from "./middleware/errorHandler.ts";
 import { loggingMiddleware } from "./middleware/logging.ts";
@@ -20,6 +21,9 @@ const app = express();
 // Initialize Effect Runtime
 // ============================================================================
 const runtime = createRuntime();
+
+// Extract Supabase client for auth middleware
+const { client: supabaseClient } = await runtime.runPromise(Supabase);
 
 // Security headers middleware
 app.use(
@@ -76,34 +80,31 @@ app.use("/health", (_req, res) => {
   res.send("OK");
 });
 
-// Register accounts routes (public for account setup)
-registerAccountsRoutes(app, runtime);
-
-// Register auth routes (role and permission management)
-registerAuthRoutes(app, runtime);
-registerUsersRoutes(app, runtime);
-
 // ============================================================================
 // Initialize Business Services
 // ============================================================================
 const settingsService = createSettingsService();
 const documentsService = createDocumentsService();
 
-registerSettingsRoutes(app, settingsService);
-registerDocumentsRoutes(app, documentsService);
-
 // ============================================================================
-// TODO: Protected Routes (authentication required)
+// Protected Routes (authentication required)
 // ============================================================================
-// const protectedRouter = express.Router();
+const protectedRouter = express.Router();
 
 // Apply authentication middleware to all protected routes
-// protectedRouter.use(authMiddleware(runtime));
+protectedRouter.use(authMiddleware(supabaseClient));
 
 // Register protected routes
+registerDocumentsRoutes(protectedRouter, documentsService);
+registerSettingsRoutes(protectedRouter, settingsService);
+registerUsersRoutes(protectedRouter, runtime);
+// Register auth routes (role and permission management)
+registerAuthRoutes(protectedRouter, runtime);
+// Register accounts routes (public for account setup)
+registerAccountsRoutes(protectedRouter, runtime);
 
 // Mount the protected router
-// app.use(protectedRouter);
+app.use(protectedRouter);
 
 // ============================================================================
 // Error Handler Middleware - MUST be registered LAST

@@ -1,10 +1,19 @@
-import { Cause, Effect, Exit } from "effect";
 import type { NextFunction, Request, Response } from "express";
-import { validateToken } from "../Auth/Jwt.ts";
-import type { AppRuntime } from "../Runtime.ts";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { Schema } from "effect";
+import { AccountId } from "../Domain/Account.ts";
+import type { Principal } from "../Domain/Principal.ts";
+import type { UserId } from "../Domain/User.ts";
 import type { AuthenticatedRequest } from "./effect.ts";
 
-export const authMiddleware = (runtime: AppRuntime) =>
+const JwtPayload = Schema.Struct({
+  sub: Schema.UUID, // Supabase user ID
+  user_metadata: Schema.Struct({
+    accountId: Schema.optional(Schema.UUID), // Optional for root users
+  }),
+});
+
+export const authMiddleware = (supabaseClient: SupabaseClient) =>
 async (
   req: Request,
   res: Response,
@@ -19,58 +28,43 @@ async (
 
   const token = authHeader.slice(7);
 
-  // AbortController for request cancellation
-  const controller = new AbortController();
-  req.on("close", () => {
-    controller.abort();
-  });
+  try {
+    // Verify JWT with Supabase
+    const { data, error } = await supabaseClient.auth.getUser(token);
 
-  // Validate JWT and extract principal
-  const program = Effect.gen(function*() {
-    // Validate JWT and extract claims (userId, accountId)
-    const principal = yield* validateToken(token);
+    if (error || !data.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
 
-    return { principal };
-  });
+    // Parse and validate user metadata
+    const decodeResult = Schema.decodeUnknownEither(JwtPayload)({
+      sub: data.user.id,
+      user_metadata: data.user.user_metadata || {},
+    });
 
-  // Run Effect with cancellation support
-  const exit = await runtime.runPromiseExit(program, {
-    signal: controller.signal,
-  });
+    if (decodeResult._tag === "Left") {
+      console.error("[Auth Middleware] Invalid token payload:", decodeResult.left);
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
 
-  Exit.match(exit, {
-    onSuccess: (value) => {
-      // Store principal in request for per-request Effect context
-      // This will be provided as CurrentPrincipal service to each Effect handler
-      (req as AuthenticatedRequest).principal = value.principal;
-      next();
-    },
-    onFailure: (cause) => {
-      // Handle cancelled requests (user navigated away, connection closed)
-      if (Cause.isInterrupted(cause)) {
-        return;
-      }
+    const payload = decodeResult.right;
 
-      // Extract domain errors (Effect.fail)
-      const failure = Cause.failureOption(cause);
-      if (failure._tag === "Some") {
-        const error = failure.value;
+    // Construct principal
+    const principal: Principal = {
+      userId: payload.sub as UserId,
+      accountId: payload.user_metadata.accountId
+        ? AccountId.make(payload.user_metadata.accountId)
+        : undefined,
+    };
 
-        // All auth failures → 401 (minimal error principle)
-        // Don't leak whether token is invalid or expired
-        if (
-          error._tag === "InvalidToken"
-          || error._tag === "TokenExpired"
-        ) {
-          res.status(401).json({ error: "Unauthorized" });
-          return;
-        }
-      }
-
-      // All other errors are unexpected (Supabase failures, etc.)
-      // Log full details for debugging, but return generic 500
-      console.error("[Auth Middleware] Unexpected error:", cause);
-      res.status(500).json({ error: "Internal server error" });
-    },
-  });
+    // Store principal in request for Effect handlers
+    (req as AuthenticatedRequest).principal = principal;
+    next();
+  } catch (err) {
+    // Unexpected errors (network failures, etc.)
+    console.error("[Auth Middleware] Unexpected error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
