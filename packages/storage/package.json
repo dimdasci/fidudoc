@@ -14,7 +14,7 @@
     "format:check": "dprint check",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check",
     "check:fix": "pnpm typecheck && pnpm lint:fix && pnpm format",
-    "build": "tsc && tsup src/index.ts --no-dts --format esm",
+    "build": "tsc && tsup src/index.ts --no-dts --format esm && node scripts/copy-assets.mjs",
     "start": "NODE_OPTIONS='--import ./instruments.mjs' node dist/index.js",
     "dev": "NODE_OPTIONS='--import ./instruments.mjs' tsx --watch src/index.ts"
   },

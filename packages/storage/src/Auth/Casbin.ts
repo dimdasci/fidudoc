@@ -3,6 +3,7 @@ import { type Enforcer, newEnforcer } from "casbin";
 import { BasicAdapter } from "casbin-basic-adapter";
 import { Data, Redacted, type Scope } from "effect";
 import * as Effect from "effect/Effect";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Client } from "pg";
@@ -104,10 +105,20 @@ export class CasbinEnforcer extends Effect.Service<CasbinEnforcer>()(
       const adapter = yield* createAdapter(client);
 
       // Load model from file
-      const modelPath = path.join(
+      const defaultModelPath = path.join(
         path.dirname(fileURLToPath(import.meta.url)),
         "model.conf",
       );
+      const fallbackModelPath = path.resolve(
+        process.cwd(),
+        "src",
+        "Auth",
+        "model.conf",
+      );
+
+      const modelPath = existsSync(defaultModelPath)
+        ? defaultModelPath
+        : fallbackModelPath;
 
       // Create and initialize enforcer
       const enforcer = yield* createEnforcer(modelPath, adapter).pipe(
