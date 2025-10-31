@@ -72,12 +72,6 @@ export const UserJsonCreate = User.jsonCreate;
 export const UserJsonUpdate = User.jsonUpdate;
 export const UserJson = User.json;
 
-// Enhanced response schema that includes auth metadata
-export const UserWithAuthJson = Schema.Struct({
-  ...UserJson.fields,
-  lastSignInAt: Schema.NullOr(Schema.DateTimeUtc), // From Supabase Auth
-});
-
 /* Note regarding user roles and permissions:
 
 User-Role Connection
