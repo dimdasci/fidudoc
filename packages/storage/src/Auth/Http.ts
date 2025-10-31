@@ -296,10 +296,11 @@ export function registerAuthRoutes(app: IRouter, runtime: AppRuntime) {
   // Domain Management
   // ============================================================================
 
-  // POST /accounts/:accountId/users
-  // Get all users in an account with their roles
+  // POST /accounts/:accountId/roles/users
+  // Query users by multiple roles in an account
+  // Accepts { roles: string[] } to find users assigned to any of these roles
   app.post(
-    "/accounts/:accountId/users",
+    "/accounts/:accountId/roles/users",
     effectHandler(runtime, (req) =>
       Effect.gen(function*() {
         const accountId = yield* Schema.decodeUnknown(AccountIdFromString)(

@@ -36,8 +36,8 @@ export function useRoleUsers({
   });
 
   const allUsersQuery = useQuery({
-    queryKey: ["users"],
-    queryFn: listUsers,
+    queryKey: ["users", accountId],
+    queryFn: () => listUsers(accountId),
     enabled,
   });
 

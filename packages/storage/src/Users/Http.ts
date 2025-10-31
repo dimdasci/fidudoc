@@ -4,16 +4,17 @@
  * Maps HTTP requests to Users service operations using Effect bridge pattern
  */
 
-import { Effect, Schema } from "effect";
+import { Console, Effect, ParseResult, Schema } from "effect";
 import type { IRouter } from "express";
+import { AccountIdFromString } from "../Domain/Account.ts";
 import { CurrentPrincipal } from "../Domain/Principal.ts";
 import {
-  CurrentUser,
   UserId,
   UserJson,
   UserJsonCreate,
   UserJsonUpdate,
   UserNotFound,
+  UserValidationError,
 } from "../Domain/User.ts";
 import { effectHandler } from "../middleware/effect.ts";
 import type { AppRuntime } from "../Runtime.ts";
@@ -29,84 +30,120 @@ export function registerUsersRoutes(
   runtime: AppRuntime,
 ) {
   // ============================================================================
-  // User Management
+  // User Management - Account-Scoped Routes
   // ============================================================================
 
-  // GET /users/:id - Get user by ID
+  // GET /accounts/:accountId/users - List all users in account
   app.get(
-    "/users/:id",
+    "/accounts/:accountId/users",
     effectHandler(runtime, (req) =>
       Effect.gen(function*() {
-        // Parse and validate UUID from URL parameter
-        // If parsing fails (invalid UUID), convert to UserNotFound error
+        const usersService = yield* UsersService;
+        // Parse accountId from URL
+        const accountId = yield* Schema.decodeUnknown(AccountIdFromString)(
+          req.params.accountId,
+        );
+
+        // List users scoped to current account
+        const result = yield* usersService.listByAccount(accountId);
+
+        return result;
+      })),
+  );
+
+  // GET /accounts/:accountId/users/:id - Get user by ID
+  app.get(
+    "/accounts/:accountId/users/:id",
+    effectHandler(runtime, (req) =>
+      Effect.gen(function*() {
+        // Parse accountId from URL
+        const accountId = yield* Schema.decodeUnknown(AccountIdFromString)(
+          req.params.accountId,
+        );
+
+        // Parse and validate user ID from URL parameter
         const userId = yield* Schema.decodeUnknown(UserId)(
           req.params.id,
         ).pipe(
           Effect.catchTag("ParseError", (_parseError) =>
-            // Treat invalid UUID same as nonexistent user (404)
-            // Preserve the invalid input in error details for debugging
             Effect.fail(new UserNotFound({ id: req.params.id || "<undefined>" }))),
         );
 
-        // Get the users service from context
         const usersService = yield* UsersService;
 
         // Find user by ID (handles UserNotFound internally)
         const user = yield* usersService.findById(userId);
+
+        // Verify user belongs to the requested account
+        if (user.accountId !== accountId) {
+          return yield* Effect.fail(
+            new UserNotFound({ id: req.params.id || "<undefined>" }),
+          );
+        }
 
         // Encode to JSON schema for API response
         return yield* Schema.encode(UserJson)(user);
       })),
   );
 
-  // GET /users - List all users in current account
-  app.get(
-    "/users",
-    effectHandler(runtime, (_req) =>
-      Effect.gen(function*() {
-        const usersService = yield* UsersService;
-        const principal = yield* CurrentPrincipal;
-
-        // Ensure accountId is present (should be guaranteed by auth middleware)
-        if (!principal.accountId) {
-          return yield* Effect.fail(new Error("Missing account ID in principal"));
-        }
-
-        // List users scoped to current account
-        const result = yield* usersService.listByAccount(principal.accountId);
-
-        return result;
-      })),
-  );
-
-  // POST /users - Create a new user
+  // POST /accounts/:accountId/users - Create a new user
   app.post(
-    "/users",
+    "/accounts/:accountId/users",
     effectHandler(runtime, (req) =>
       Effect.gen(function*() {
+        // Parse accountId from URL
+        const accountId = yield* Schema.decodeUnknown(AccountIdFromString)(
+          req.params.accountId,
+        );
+
+        yield* Effect.logInfo(`Creating user in account ${accountId}`);
+
         // Validate and decode request body
-        const userData = yield* Schema.decodeUnknown(CreateUserRequest)(req.body);
+        // Convert ParseError to UserValidationError for proper 400 response
+        const userData = yield* Schema.decodeUnknown(CreateUserRequest)(req.body)
+          .pipe(
+            Effect.catchTag("ParseError", (parseError) => {
+              const formattedErrors = ParseResult.ArrayFormatter.formatErrorSync(
+                parseError,
+              );
+              Console.log("Parsed Errors:", formattedErrors);
+              return Effect.die(
+                new UserValidationError({
+                  message: "Invalid user data",
+                  errors: formattedErrors,
+                }),
+              );
+            }),
+          );
 
         const usersService = yield* UsersService;
-        const principal = yield* CurrentPrincipal;
-
-        // Ensure accountId is present
-        if (!principal.accountId) {
-          return yield* Effect.fail(new Error("Missing account ID in principal"));
-        }
 
         // Create user (includes validation, duplicate checking, and transaction)
-        const result = yield* usersService.create(principal.accountId, userData);
+        const result = yield* usersService.create(accountId, userData);
 
-        return result;
+        // Encode user to JSON schema for API response
+        const userJson = yield* Schema.encode(UserJson)(result.user);
+
+        yield* Effect.logInfo(`User created successfully: ${userJson}`);
+
+        return {
+          success: result.success,
+          message: result.message,
+          user: userJson,
+        };
       })),
   );
 
-  // PUT /users/:id - Update a user
+  // PUT /accounts/:accountId/users/:id - Update a user
   app.put(
-    "/users/:id",
+    "/accounts/:accountId/users/:id",
     effectHandler(runtime, (req) =>
       Effect.gen(function*() {
+        // Parse accountId from URL
+        const accountId = yield* Schema.decodeUnknown(AccountIdFromString)(
+          req.params.accountId,
+        );
+
         // Parse user ID
         const userId = yield* Schema.decodeUnknown(UserId)(
           req.params.id,
@@ -116,41 +153,39 @@ export function registerUsersRoutes(
         );
 
         // Validate and decode update data
-        const updateData = yield* Schema.decodeUnknown(UpdateUserRequest)(req.body);
+        // Convert ParseError to UserValidationError for proper 400 response
+        const updateData = yield* Schema.decodeUnknown(UpdateUserRequest)(req.body)
+          .pipe(
+            Effect.catchTag("ParseError", (parseError) => {
+              const formattedErrors = ParseResult.ArrayFormatter.formatErrorSync(
+                parseError,
+              );
+              return Effect.fail(
+                new UserValidationError({
+                  message: "Invalid user data",
+                  errors: formattedErrors,
+                }),
+              );
+            }),
+          );
 
         const usersService = yield* UsersService;
-        const principal = yield* CurrentPrincipal;
-
-        // Ensure accountId is present
-        if (!principal.accountId) {
-          return yield* Effect.fail(new Error("Missing account ID in principal"));
-        }
 
         // Update user (includes validation, security checks, and transaction)
         const result = yield* usersService.update(
-          principal.accountId,
+          accountId,
           userId,
           updateData,
         );
 
-        return result;
-      })),
-  );
+        // Encode user to JSON schema for API response
+        const userJson = yield* Schema.encode(UserJson)(result.user);
 
-  // ============================================================================
-  // Additional User Operations
-  // ============================================================================
-
-  // GET /users/current - Get current authenticated user
-  app.get(
-    "/users/current",
-    effectHandler(runtime, (_req) =>
-      Effect.gen(function*() {
-        // Get current user directly from authentication context
-        const user = yield* CurrentUser;
-
-        // Encode to JSON schema for API response
-        return yield* Schema.encode(UserJson)(user);
+        return {
+          success: result.success,
+          message: result.message,
+          user: userJson,
+        };
       })),
   );
 }

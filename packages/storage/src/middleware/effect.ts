@@ -4,8 +4,6 @@ import { Cause, Effect, Exit, type ManagedRuntime } from "effect";
 import type { NextFunction, Request, Response } from "express";
 import type { Principal } from "../Domain/Principal.ts";
 import { CurrentPrincipal } from "../Domain/Principal.ts";
-import type { User } from "../Domain/User.ts";
-import { CurrentUser } from "../Domain/User.ts";
 import type { AppRuntime } from "../Runtime.ts";
 
 // Extract the context type that the runtime provides
@@ -13,7 +11,6 @@ export type AppContext = ManagedRuntime.ManagedRuntime.Context<AppRuntime>;
 
 // Extend Express Request with optional auth context
 export interface AuthenticatedRequest extends Request {
-  user?: User;
   principal?: Principal;
 }
 
@@ -26,18 +23,15 @@ export type EffectHandler<R, E, A> = (
 // Bridge: Express handler → Effect → Express response
 export const effectHandler = <E, A>(
   runtime: AppRuntime,
-  handler: EffectHandler<AppContext | CurrentUser | CurrentPrincipal, E, A>,
+  handler: EffectHandler<AppContext | CurrentPrincipal, E, A>,
 ) =>
 async (req: Request, res: Response, next: NextFunction) => {
   // Build the Effect program
   let program = handler(req);
 
   // Provide per-request services if authenticated
-  // Auth middleware sets req.user and req.principal
+  // Auth middleware sets req.principal
   const authReq = req as AuthenticatedRequest;
-  if (authReq.user) {
-    program = program.pipe(Effect.provideService(CurrentUser, authReq.user));
-  }
   if (authReq.principal) {
     program = program.pipe(
       Effect.provideService(CurrentPrincipal, authReq.principal),

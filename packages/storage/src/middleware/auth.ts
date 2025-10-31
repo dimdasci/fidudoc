@@ -1,9 +1,7 @@
-import { Model } from "@effect/sql";
-import { Cause, DateTime, Effect, Exit, Option } from "effect";
+import { Cause, Effect, Exit } from "effect";
 import type { NextFunction, Request, Response } from "express";
 import { validateToken } from "../Auth/Jwt.ts";
 import type { AppRuntime } from "../Runtime.ts";
-import { UsersRepo } from "../Users/Repo.js";
 import type { AuthenticatedRequest } from "./effect.ts";
 
 export const authMiddleware = (runtime: AppRuntime) =>
@@ -27,34 +25,12 @@ async (
     controller.abort();
   });
 
-  // Validate JWT and check user
+  // Validate JWT and extract principal
   const program = Effect.gen(function*() {
-    // Validate JWT
+    // Validate JWT and extract claims (userId, accountId)
     const principal = yield* validateToken(token);
 
-    // Load user from database
-    const usersRepo = yield* UsersRepo;
-    const userOption = yield* usersRepo.findById(principal.userId);
-
-    // Treat missing or inactive users the same way - don't leak info
-    if (userOption._tag === "None" || !userOption.value.isActive) {
-      return yield* Effect.fail({ _tag: "Unauthorized" as const });
-    }
-
-    const user = userOption.value;
-
-    // Update last login (fire and forget with runtime)
-    runtime.runFork(
-      usersRepo
-        .update({
-          ...user,
-          lastLoginAt: Option.some(DateTime.unsafeNow()),
-          updatedAt: Model.Override(DateTime.unsafeNow()),
-        })
-        .pipe(Effect.ignore),
-    );
-
-    return { principal, user };
+    return { principal };
   });
 
   // Run Effect with cancellation support
@@ -64,10 +40,9 @@ async (
 
   Exit.match(exit, {
     onSuccess: (value) => {
-      // Store user and principal in request for per-request Effect context
-      // These will be provided as services to each Effect handler
+      // Store principal in request for per-request Effect context
+      // This will be provided as CurrentPrincipal service to each Effect handler
       (req as AuthenticatedRequest).principal = value.principal;
-      (req as AuthenticatedRequest).user = value.user;
       next();
     },
     onFailure: (cause) => {
@@ -82,18 +57,17 @@ async (
         const error = failure.value;
 
         // All auth failures → 401 (minimal error principle)
-        // Don't leak whether token is invalid, expired, or user doesn't exist
+        // Don't leak whether token is invalid or expired
         if (
           error._tag === "InvalidToken"
           || error._tag === "TokenExpired"
-          || error._tag === "Unauthorized"
         ) {
           res.status(401).json({ error: "Unauthorized" });
           return;
         }
       }
 
-      // All other errors are unexpected (defects, database failures, etc.)
+      // All other errors are unexpected (Supabase failures, etc.)
       // Log full details for debugging, but return generic 500
       console.error("[Auth Middleware] Unexpected error:", cause);
       res.status(500).json({ error: "Internal server error" });

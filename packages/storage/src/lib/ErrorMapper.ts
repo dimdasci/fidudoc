@@ -59,6 +59,8 @@ export function getStatusCode(errorTag: string): number {
       return 404;
     case "UserEmailExists":
       return 409;
+    case "UserValidationError":
+      return 400;
     case "SupabaseAuthError":
       return 500;
 
@@ -114,6 +116,8 @@ function getErrorMessage(errorTag: string): string {
       return "User not found";
     case "UserEmailExists":
       return "User with this email already exists";
+    case "UserValidationError":
+      return "Validation failed";
     case "SupabaseAuthError":
       return "Authentication service error";
     case "Unauthorized":
@@ -136,6 +140,7 @@ export function shouldReportToSentry(errorTag: string): boolean {
   const expectedErrors = [
     "UserNotFound",
     "UserEmailExists",
+    "UserValidationError",
     "Unauthorized",
     "Forbidden",
   ];

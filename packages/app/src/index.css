@@ -11,6 +11,7 @@
   --color-text-heading: #14532d; /* Green for headings only */
   --color-text-accent: #15803d; /* Green for emphasis/links */
   --color-text-secondary: #6b7280;
+  --color-text-placeholder: #9ca3af; /* Subtle placeholder text */
   --color-border-subtle: #e5e7eb;
   --color-neutral-bg: #e5e7eb;
 
@@ -31,6 +32,7 @@
   --color-text-heading-dark: #22c55e; /* Green for headings */
   --color-text-accent-dark: #34d399; /* Brighter green for emphasis */
   --color-text-secondary-dark: #9ca3af;
+  --color-text-placeholder-dark: #6b7280; /* Subtle placeholder text for dark mode */
   --color-border-subtle-dark: #374151;
   --color-neutral-bg-dark: #374151;
 
@@ -81,6 +83,7 @@
     --text-heading: var(--color-text-heading);
     --text-accent: var(--color-text-accent);
     --text-secondary: var(--color-text-secondary);
+    --text-placeholder: var(--color-text-placeholder);
     --border-subtle: var(--color-border-subtle);
     --neutral-bg: var(--color-neutral-bg);
 
@@ -103,6 +106,7 @@
     --text-heading: var(--color-text-heading-dark);
     --text-accent: var(--color-text-accent-dark);
     --text-secondary: var(--color-text-secondary-dark);
+    --text-placeholder: var(--color-text-placeholder-dark);
     --border-subtle: var(--color-border-subtle-dark);
     --neutral-bg: var(--color-neutral-bg-dark);
 
@@ -275,5 +279,10 @@
 
   .resizer:hover {
     background: var(--text-secondary);
+  }
+
+  /* Placeholder styling using design tokens */
+  .placeholder-secondary::placeholder {
+    color: var(--text-placeholder);
   }
 }

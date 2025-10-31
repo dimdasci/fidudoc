@@ -26,6 +26,12 @@
   animation: slideUp 0.2s ease-out;
 }
 
+/* Override Base UI default focus styles to match color scheme */
+.popup:focus-visible {
+  outline: 2px solid var(--color-border-subtle);
+  outline-offset: 0;
+}
+
 /* Dialog header */
 .header {
   display: flex;

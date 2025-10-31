@@ -76,22 +76,18 @@ app.use("/health", (_req, res) => {
   res.send("OK");
 });
 
-app.use("/test", (_req, res) => {
-  res.json({ message: "Test endpoint is working!" });
-});
-
-// Register accounts routes (temporarily public for testing)
+// Register accounts routes (public for account setup)
 registerAccountsRoutes(app, runtime);
 
-// Register auth routes (role and permission management, temporarily public)
+// Register auth routes (role and permission management)
 registerAuthRoutes(app, runtime);
+registerUsersRoutes(app, runtime);
 
 // ============================================================================
 // Initialize Business Services
 // ============================================================================
 const settingsService = createSettingsService();
 const documentsService = createDocumentsService();
-// NOTE: UsersService is now provided by Effect runtime, no manual creation needed
 
 // ============================================================================
 // Protected Routes (authentication required)
@@ -101,10 +97,9 @@ const protectedRouter = express.Router();
 // Apply authentication middleware to all protected routes
 protectedRouter.use(authMiddleware(runtime));
 
-// Register business routes on the protected router
+// Register protected routes
 registerSettingsRoutes(protectedRouter, settingsService);
 registerDocumentsRoutes(protectedRouter, documentsService);
-registerUsersRoutes(protectedRouter, runtime);
 
 // Mount the protected router
 app.use(protectedRouter);

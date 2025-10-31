@@ -59,6 +59,14 @@ export class SupabaseAuthError extends Schema.TaggedError<SupabaseAuthError>()(
   },
 ) {}
 
+export class UserValidationError extends Schema.TaggedError<UserValidationError>()(
+  "UserValidationError",
+  {
+    message: Schema.String,
+    errors: Schema.Array(Schema.Unknown),
+  },
+) {}
+
 // Json schemas for API input/output
 export const UserJsonCreate = User.jsonCreate;
 export const UserJsonUpdate = User.jsonUpdate;
