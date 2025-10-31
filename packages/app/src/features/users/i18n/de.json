@@ -16,7 +16,7 @@
   "users.roles.admin": "Administrator",
   "users.roles.operator": "Operator",
   "users.roles.viewer": "Betrachter",
-  "users.actions.add": "Benutzer hinzufügen",
+  "users.actions.add": "Benutzer",
   "users.actions.edit": "Bearbeiten",
   "users.dialog.createTitle": "Benutzer erstellen",
   "users.dialog.editTitle": "Benutzer bearbeiten",
