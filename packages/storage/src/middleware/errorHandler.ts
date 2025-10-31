@@ -23,13 +23,101 @@ import {
   shouldReportToSentry,
 } from "../lib/ErrorMapper.ts";
 
+function extractErrorDetails(error: unknown) {
+  if (error && typeof error === "object") {
+    const { cause, message } = error as { cause?: unknown; message?: string };
+    return {
+      cause,
+      message: typeof message === "string"
+        ? message
+        : error instanceof Error
+        ? error.message
+        : undefined,
+    };
+  }
+
+  if (error instanceof Error) {
+    return { cause: error.cause, message: error.message };
+  }
+
+  return { cause: undefined, message: undefined };
+}
+
+function buildRequestContext(req: Request, res: Response) {
+  return res.locals?.requestContext ?? {
+    method: req.method,
+    url: req.url,
+    query: req.query,
+    params: req.params,
+  };
+}
+
+function logError(
+  statusCode: number,
+  errorTag: string,
+  err: unknown,
+  message: string | undefined,
+  sanitizedCause: unknown,
+  requestContext: unknown,
+) {
+  if (statusCode >= 500) {
+    console.error(`[Error Handler] ${errorTag} → ${statusCode}`, {
+      message: message ?? (err instanceof Error ? err.message : String(err)),
+      cause: sanitizedCause,
+      stack: err instanceof Error ? err.stack : undefined,
+      request: requestContext,
+    });
+    return;
+  }
+
+  console.log(
+    `[Error Handler] ${errorTag} → ${statusCode}`,
+    isTaggedError(err)
+      ? JSON.stringify({
+        ...err,
+        cause: sanitizedCause,
+        request: requestContext,
+      })
+      : String(err),
+  );
+}
+
+function reportErrorToSentry(
+  err: unknown,
+  errorTag: string,
+  message: string | undefined,
+  originalCause: unknown,
+  sanitizedCause: unknown,
+  requestContext: unknown,
+) {
+  const traceId = generateTraceId();
+
+  const sentryError = err instanceof Error
+    ? err
+    : new Error(message ?? errorTag, { cause: originalCause });
+
+  Sentry.captureException(sentryError, {
+    tags: {
+      error_tag: errorTag,
+      trace_id: traceId,
+    },
+    extra: {
+      originalError: err,
+      cause: sanitizedCause,
+      request: requestContext,
+    },
+  });
+
+  return traceId;
+}
+
 /**
  * Express error middleware signature: (err, req, res, next)
  * Must have all 4 parameters for Express to recognize it as error handler
  */
 export function errorHandler(
   err: unknown,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction,
 ) {
@@ -42,42 +130,38 @@ export function errorHandler(
   // Map error to HTTP status code
   const statusCode = getStatusCode(errorTag);
 
+  const { cause, message } = extractErrorDetails(err);
+  const sanitizedCause = cause instanceof Error
+    ? {
+      name: cause.name,
+      message: cause.message,
+      stack: cause.stack,
+    }
+    : cause;
+  const requestContext = buildRequestContext(req, res);
+
   // Log error for observability
   // Domain errors (4xx): minimal logging without stack trace
   // System errors (5xx): full logging with stack trace
-  if (statusCode >= 500) {
-    // Unexpected error: log full details including stack trace
-    console.error(`[Error Handler] ${errorTag} → ${statusCode}`, {
-      error: err,
-    });
-  } else {
-    // Expected domain error: clean minimal log
-    console.log(
-      `[Error Handler] ${errorTag} → ${statusCode}`,
-      isTaggedError(err) ? JSON.stringify(err) : String(err),
-    );
-  }
+  logError(statusCode, errorTag, err, message, sanitizedCause, requestContext);
 
   // Report unexpected errors to Sentry (5xx only)
   if (shouldReportToSentry(errorTag)) {
-    // Generate trace ID for support correlation
-    const traceId = generateTraceId();
+    const traceId = reportErrorToSentry(
+      err,
+      errorTag,
+      message,
+      cause,
+      sanitizedCause,
+      requestContext,
+    );
 
-    // Capture exception with trace ID for correlation
-    Sentry.captureException(err, {
-      tags: {
-        error_tag: errorTag,
-        trace_id: traceId,
-      },
-    });
-
-    // For 500 errors, include trace ID in response
     return res.status(statusCode).json({
       error: {
         _tag: errorTag,
         message: "Internal server error",
         details: {
-          traceId, // Users can report this to support
+          traceId,
         },
       },
     });
@@ -87,5 +171,5 @@ export function errorHandler(
   const errorResponse = formatErrorResponse(err);
 
   // Send formatted error response
-  res.status(statusCode).json(errorResponse);
+  return res.status(statusCode).json(errorResponse);
 }
