@@ -45,8 +45,10 @@ export function UserDialog({
     fullName: "",
   });
 
-  // Initialize form with user data in edit mode
+  // Initialize form with user data in edit mode and reset when dialog opens
   useEffect(() => {
+    if (!open) return;
+
     if (mode === "edit" && user) {
       setFormData({
         email: user.email,
@@ -70,7 +72,7 @@ export function UserDialog({
       displayName: "",
       fullName: "",
     });
-  }, [mode, user]);
+  }, [mode, user, open]);
 
   const validateForm = (): boolean => {
     const newErrors = {

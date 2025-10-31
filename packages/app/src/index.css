@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Custom color tokens for light/dark mode */
   /* Light mode - grounded and supportive green theme */
@@ -7,13 +9,13 @@
   --color-surface: #ffffff;
   --color-accent: #15803d;
   --color-accent-hover: #14532d;
+  --color-neutral-bg: #f3f4f6;
   --color-text-primary: #1f2937; /* Neutral for body text */
   --color-text-heading: #14532d; /* Green for headings only */
   --color-text-accent: #15803d; /* Green for emphasis/links */
   --color-text-secondary: #6b7280;
   --color-text-placeholder: #9ca3af; /* Subtle placeholder text */
   --color-border-subtle: #e5e7eb;
-  --color-neutral-bg: #e5e7eb;
 
   /* Semantic state colors - light mode */
   --color-success: #15803d;
@@ -34,7 +36,7 @@
   --color-text-secondary-dark: #9ca3af;
   --color-text-placeholder-dark: #6b7280; /* Subtle placeholder text for dark mode */
   --color-border-subtle-dark: #374151;
-  --color-neutral-bg-dark: #374151;
+  --color-neutral-bg-dark: #262f3d;
 
   /* Semantic state colors - dark mode */
   --color-success-dark: #22c55e;
@@ -69,6 +71,14 @@
 
   --font-size-caption: 0.75rem;
   --line-height-caption: 1rem;
+}
+
+@layer theme {
+  :root {
+    @variant dark {
+      --color-neutral-bg: #262f3d;
+    }
+  }
 }
 
 @layer base {
