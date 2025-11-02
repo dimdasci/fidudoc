@@ -6,28 +6,27 @@ import { Logo } from "./Logo";
 import { ThemeSwitcher } from "./ThemeSwitcher/ThemeSwitcher";
 import { UserMenu } from "./UserMenu";
 
-interface AppHeaderProps {
-  showBackToLanding?: boolean;
-}
-
-export function AppHeader({ showBackToLanding = false }: AppHeaderProps) {
+export function AppHeader() {
   const navigate = useNavigate();
   const { t } = useI18nContext();
   const { authState } = useAuth();
 
   return (
     <header className="flex-none h-16 bg-surface border-b border-subtle px-6 flex items-center justify-between">
-      <div className="flex items-center gap-6">
+      <div className="flex items-baseline gap-6">
         <Logo />
-        {/* Application link - Only show when authenticated */}
+        {/* Account name - Only show when authenticated */}
         {authState.status === "authenticated" && (
-          <button
-            type="button"
-            onClick={() => navigate("/documents/inbox")}
-            className="text-primary hover:text-accent transition-colors font-medium text-body"
-          >
-            {t("nav.application")}
-          </button>
+          <>
+            <span className="text-secondary text-body">/</span>
+            <button
+              type="button"
+              onClick={() => navigate("/documents/inbox")}
+              className="text-primary hover:text-accent transition-colors font-medium text-body"
+            >
+              {authState.session.user.accountDisplayName || t("nav.application")}
+            </button>
+          </>
         )}
       </div>
       <div className="flex items-center gap-4">
@@ -39,23 +38,12 @@ export function AppHeader({ showBackToLanding = false }: AppHeaderProps) {
             <button
               type="button"
               onClick={() => navigate("/signin")}
-              className="text-accent hover:opacity-80 transition-opacity font-medium text-body"
+              className="px-4 py-2 bg-accent text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
             >
               {t("landing.header.signin")}
             </button>
           )
           : null}
-
-        {/* Back to Landing - Only show on signin page */}
-        {showBackToLanding && (
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="text-body text-secondary hover:text-primary transition-colors"
-          >
-            ← {t("auth.backToLanding")}
-          </button>
-        )}
 
         <ThemeSwitcher />
         <LanguageSwitcher />

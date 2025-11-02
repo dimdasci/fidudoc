@@ -25,7 +25,7 @@ export function SignInRoute() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <AppHeader showBackToLanding />
+      <AppHeader />
 
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center px-6">

@@ -46,7 +46,23 @@ export function registerUsersRoutes(
         // List users scoped to current account
         const result = yield* usersService.listByAccount(accountId);
 
-        return result;
+        // Encode each user to JSON schema for proper serialization
+        // Note: result.users includes lastSignInAt from Supabase Auth which is not part of User domain
+        const encodedUsers = yield* Effect.all(
+          result.users.map(user =>
+            Schema.encode(UserJson)(user).pipe(
+              Effect.map(encodedUser => ({
+                ...encodedUser,
+                lastSignInAt: user.lastSignInAt, // Pass through auth metadata
+              })),
+            )
+          ),
+        );
+
+        return {
+          total: result.total,
+          users: encodedUsers,
+        };
       })),
   );
 

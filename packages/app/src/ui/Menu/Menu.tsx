@@ -48,14 +48,21 @@ export interface MenuItemProps {
   children: React.ReactNode;
   onClick?: () => void;
   selected?: boolean;
+  showCheckmark?: boolean;
 }
 
-export function MenuItem({ children, onClick, selected }: MenuItemProps) {
+export function MenuItem({
+  children,
+  onClick,
+  selected,
+  showCheckmark = true,
+}: MenuItemProps) {
   return (
     <BaseMenu.Item className={styles.item} onClick={onClick}>
-      {selected
-        ? <CheckIcon className={styles.checkmark} />
-        : <span className={styles.checkmarkPlaceholder} />}
+      {showCheckmark &&
+        (selected
+          ? <CheckIcon className={styles.checkmark} />
+          : <span className={styles.checkmarkPlaceholder} />)}
       {children}
     </BaseMenu.Item>
   );

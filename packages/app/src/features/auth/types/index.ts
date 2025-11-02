@@ -1,9 +1,19 @@
+export interface UserMetadata {
+  fullName?: string;
+  accountId?: string;
+  displayName?: string;
+  email_verified?: boolean;
+  accountDisplayName?: string;
+}
+
 export interface User {
   id: string;
   email: string;
   createdAt: string;
-  userMetadata?: Record<string, unknown>;
+  userMetadata?: UserMetadata;
   accountId?: string;
+  displayName?: string;
+  accountDisplayName?: string;
 }
 
 export interface Session {
